@@ -7,7 +7,6 @@ export const flashcardController = {
             res.status(201).json(newFlashCard);
         } catch (error) {
             res.status(500).json({ error: 'Error creating flash card' });
-            console.log(error);
         }
     },
 
@@ -45,6 +44,20 @@ export const flashcardController = {
         } catch (error) {
             res.status(500).json({ error: 'Error retrieving flash card' });
         }
-    }
+    },
+    async getFlashcardByQorA(req, res) {
+        try {
+            const QorA = req.params.QorA;
+            const flashcard = await flashcardService.getFlashcardByQorA(QorA);
+            if (!flashcard) {
+                return res.status(404).json({ error: 'Flash card not found' });
+            }
+            res.status(200).json(flashcard);
+        } catch (error) {
+            res.status(500).json({ error: 'Error retrieving flash card' });
+            console.log(error);
+
+        }
+    },
 
 };

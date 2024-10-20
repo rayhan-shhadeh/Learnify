@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,62 +8,62 @@ datasource db {
 }
 
 model answer {
-  answerId      Int     @id @default(autoincrement())
-  chosenAnswer  String  @db.VarChar(255)
-  isCorrect     Boolean?
-  questionId    Int?
-  question      question? @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  answerId     Int       @id @default(autoincrement())
+  chosenAnswer String    @db.VarChar(255)
+  isCorrect    Boolean?
+  questionId   Int?
+  question     question? @relation(fields: [questionId], references: [questionId], onDelete: Cascade, onUpdate: Restrict, map: "answer_ibfk_1")
 
-  @@index([questionId])
+  @@index([questionId], map: "questionId")
 }
 
 model course {
-  courseId          Int      @id @default(autoincrement())
-  courseName        String   @db.VarChar(255)
-  courseDescription String?  @db.VarChar(500)
-  courseTag         String?  @db.VarChar(100)
+  courseId          Int     @id @default(autoincrement())
+  courseName        String  @db.VarChar(255)
+  courseDescription String? @db.VarChar(500)
+  courseTag         String? @db.VarChar(100)
   userId            Int?
-  user_              user_?    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  user_             user_?  @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Restrict, map: "course_ibfk_1")
   files             file[]
 
-  @@index([userId])
+  @@index([userId], map: "userId")
 }
 
 model file {
-  fileId       Int       @id @default(autoincrement())
-  fileName     String    @db.VarChar(255)
-  fileDeadline DateTime?
-  fileURL      String?   @db.VarChar(500)
+  fileId       Int         @id @default(autoincrement())
+  fileName     String      @db.VarChar(255)
+  fileDeadline DateTime?   @db.Date
+  fileURL      String?     @db.VarChar(500)
   courseId     Int?
-  course       course?   @relation(fields: [courseId], references: [courseId], onDelete: Cascade)
+  course       course?     @relation(fields: [courseId], references: [courseId], onDelete: Cascade, onUpdate: Restrict, map: "file_ibfk_1")
   flashcard    flashcard[]
   keyterm      keyterm[]
-  quizzes         quiz[]
+  quizzes      quiz[]
 
-  @@index([courseId])
+  @@index([courseId], map: "courseId")
 }
 
 model flashcard {
-  flashcardId      Int      @id @default(autoincrement())
-  flashcardName    String   @db.VarChar(255)
-  flashcardQ       String?  @db.VarChar(255)
-  flashcardA       String?  @db.VarChar(255)
-  flashcardDeadline DateTime?
-  fileId           Int?
-  file             file?    @relation(fields: [fileId], references: [fileId], onDelete: Cascade)
+  flashcardId       Int       @id @default(autoincrement())
+  flashcardName     String    @db.VarChar(255)
+  flashcardQ        String?   @db.VarChar(255)
+  flashcardA        String?   @db.VarChar(255)
+  flashcardDeadline DateTime? @db.Date
+  fileId            Int?
+  file              file?     @relation(fields: [fileId], references: [fileId], onDelete: Cascade, onUpdate: Restrict, map: "flashcard_ibfk_1")
 
-  @@index([fileId])
+  @@index([fileId], map: "fileId")
 }
 
 model habit {
-  habitId      Int      @id @default(autoincrement())
-  habitName    String   @db.VarChar(255)
+  habitId      Int       @id @default(autoincrement())
+  habitName    String    @db.VarChar(255)
   habitStatus  Boolean
-  startingDate DateTime?
+  startingDate DateTime? @db.Date
   userId       Int?
-  user_         user_?    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  user_        user_?    @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Restrict, map: "habit_ibfk_1")
 
-  @@index([userId])
+  @@index([userId], map: "userId")
 }
 
 model keyterm {
@@ -76,47 +71,61 @@ model keyterm {
   keytermText String? @db.VarChar(255)
   keytermDef  String? @db.VarChar(500)
   fileId      Int?
-  file        file?   @relation(fields: [fileId], references: [fileId], onDelete: Cascade)
+  file        file?   @relation(fields: [fileId], references: [fileId], onDelete: Cascade, onUpdate: Restrict, map: "keyterm_ibfk_1")
 
-  @@index([fileId])
+  @@index([fileId], map: "fileId")
 }
 
 model question {
-  questionId    Int       @id @default(autoincrement())
-  questionText  String    @db.VarChar(500)
-  correctAnswer String    @db.VarChar(255)
-  choices       Json
+  questionId    Int      @id @default(autoincrement())
+  questionText  String   @db.VarChar(500)
+  correctAnswer String   @db.VarChar(255)
+  choices       String   @db.LongText
   quizId        Int?
-  quiz          quiz?     @relation(fields: [quizId], references: [quizId], onDelete: Cascade)
-  answers        answer[]
+  answers       answer[]
+  quiz          quiz?    @relation(fields: [quizId], references: [quizId], onDelete: Cascade, onUpdate: Restrict, map: "question_ibfk_1")
 
-  @@index([quizId])
+  @@index([quizId], map: "quizId")
 }
 
 model quiz {
-  quizId          Int      @id @default(autoincrement())
+  quizId          Int        @id @default(autoincrement())
   numOfQuestions  Int?
-  quizTitle       String   @db.VarChar(255)
-  quizDescription String?  @db.VarChar(500)
+  quizTitle       String     @db.VarChar(255)
+  quizDescription String?    @db.VarChar(500)
   fileId          Int?
   userId          Int?
-  file            file?    @relation(fields: [fileId], references: [fileId], onDelete: Cascade)
-  user            user_?    @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  questions        question[]
+  questions       question[]
+  file            file?      @relation(fields: [fileId], references: [fileId], onDelete: Cascade, onUpdate: Restrict, map: "quiz_ibfk_1")
+  user            user_?     @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Restrict, map: "quiz_ibfk_2")
 
-  @@index([fileId])
-  @@index([userId])
+  @@index([fileId], map: "fileId")
+  @@index([userId], map: "userId")
 }
 
 model user_ {
-  userId       Int      @id @default(autoincrement())
-  email        String   @unique @db.VarChar(255)
-  username     String   @db.VarChar(100)
-  password     String   @db.VarChar(255)
-  dateOfBirth  DateTime
-  flag         Int
-  subscription Int
+  userId        Int             @id @default(autoincrement())
+  email         String          @unique(map: "email") @db.VarChar(255)
+  username      String          @db.VarChar(100)
+  password      String          @db.VarChar(255)
+  dateOfBirth   DateTime        @db.Date
+  flag          Int
+  subscription  Int
+  calenderevent calenderevent[]
   courses       course[]
   habits        habit[]
-  quizzes         quiz[]
+  quizzes       quiz[]
+}
+
+model calenderevent {
+  eventId          Int      @id @default(autoincrement())
+  eventTitle       String   @db.VarChar(255)
+  eventStart       DateTime @db.DateTime(0)
+  eventEnd         DateTime @db.DateTime(0)
+  eventDescription String   @db.VarChar(255)
+  allDay           Int      @default(0)
+  userId           Int?
+  user            user_?   @relation(fields: [userId], references: [userId], onDelete: Restrict, onUpdate: Restrict, map: "fk_user")
+
+  @@index([userId], map: "userId")
 }

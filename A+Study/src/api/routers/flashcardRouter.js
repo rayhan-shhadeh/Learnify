@@ -3,7 +3,9 @@ import { flashcardController } from '../controllers/flashcardController.js';
 export const flashcardRouter = express.Router();
 
 // Define routes
-flashcardRouter.post('/flashcards', flashcardController.createFlashcard);
-flashcardRouter.put('/flashcards/:id', flashcardController.updateFlashcard);
-flashcardRouter.delete('/flashcards/:id', flashcardController.deleteFlashcard);
-flashcardRouter.get('/flashcards/:id', flashcardController.getFlashcardById);
+flashcardRouter.post('/flashcard', flashcardController.createFlashcard);
+flashcardRouter.put('/flashcard/:id', flashcardController.updateFlashcard);
+flashcardRouter.delete('/flashcard/:id', flashcardController.deleteFlashcard);
+flashcardRouter.get('/flashcard/:id', flashcardController.getFlashcardById);
+flashcardRouter.get('/flashcards/:QorA', flashcardController.getFlashcardByQorA);
+

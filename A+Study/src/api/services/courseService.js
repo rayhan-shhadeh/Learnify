@@ -25,5 +25,17 @@ export const courseService = {
         return await prisma.course.findUnique({
             where: { courseId: parseInt(id) }
         });
+    },
+
+    async getFilesByCourseId(courseId) {
+        return await prisma.file.findMany({
+            where: { courseId: parseInt(courseId) },
+        });
+    },
+
+    async getCoursesByName(Name) {
+        return await prisma.course.findMany({
+            where: {courseName: { contains: Name } }            
+        });
     }
 };
