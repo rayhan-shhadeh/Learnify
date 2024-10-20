@@ -25,6 +25,15 @@ export const flashcardService = {
         return await prisma.flashcard.findUnique({
             where: { flashcardId: parseInt(id) }
         });
-    }
-
+    },
+    async getFlashcardByQorA(QorA) {
+        return await prisma.flashcard.findMany({
+            where: { 
+                OR:[
+                    {flashcardQ: {contains: QorA }},
+                    {flashcardA: {contains: QorA }}
+                ]
+            }
+        });
+    },
 };

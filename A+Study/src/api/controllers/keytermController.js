@@ -46,5 +46,17 @@ export const keytermController = {
             res.status(500).json({ error: 'Error retrieving keyterm' });
         }
     },
+    async getKeytermByTermOrDef(req, res) {
+        try {
+            const termOrDef = req.params.termOrDef;
+            const keyterm = await keytermService.getKeytermsByTermOrDef(termOrDef);
+            if (!keyterm) {
+                return res.status(404).json({ error: 'Keyterm not found' });
+            }
+            res.status(200).json(keyterm);
+        } catch (error) {
+            res.status(500).json({ error: 'Error retrieving keyterm' });
+        }
+    }
 
 };

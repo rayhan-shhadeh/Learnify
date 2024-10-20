@@ -6,7 +6,8 @@ import { keytermRouter } from './routers/keytermRouter.js';
 import { habitRouter } from './routers/habitRouter.js';
 import { questionRouter } from './routers/questionRouter.js';
 import { quizRouter } from './routers/quizRouter.js';
-
+import { fileRouter } from './routers/fileRouter.js';
+import { calendarEventRouter } from './routers/calendarEventRouter.js';
 const app = express();
 app.use(express.json());
 app.use('/api',answerRouter);
@@ -16,6 +17,8 @@ app.use('/api',keytermRouter);
 app.use('/api',habitRouter);
 app.use('/api',questionRouter);
 app.use('/api',quizRouter);
+app.use('/api',fileRouter);
+app.use('/api',calendarEventRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
