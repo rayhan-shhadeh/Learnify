@@ -8,8 +8,12 @@ import { questionRouter } from './routers/questionRouter.js';
 import { quizRouter } from './routers/quizRouter.js';
 import { fileRouter } from './routers/fileRouter.js';
 import { calendarEventRouter } from './routers/calendarEventRouter.js';
+import dotenv from 'dotenv';
+dotenv.config();
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+ 
 app.use('/api',answerRouter);
 app.use('/api',courseRouter);
 app.use('/api',flashcardRouter);
