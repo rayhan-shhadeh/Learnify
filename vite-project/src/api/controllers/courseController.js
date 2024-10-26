@@ -1,7 +1,5 @@
 import { courseService } from '../services/courseService.js';
-
 export const courseController = {
-
     async createCourse(req, res) {
         try {
             const newCourse = await courseService.createCourse(req.body);
@@ -10,7 +8,6 @@ export const courseController = {
             res.status(500).json({ error: 'Error creating course' });
         }
     },
-
     async updateCourse(req, res) {
         try {
             const updatedCourse = await courseService.updateCourse(req.params.id, req.body);
@@ -23,7 +20,6 @@ export const courseController = {
             console.log(error);
         }
     },
-
     async deleteCourse(req, res) {
         try {
             const deletedCourse = await courseService.deleteCourse(req.params.id);
@@ -35,7 +31,6 @@ export const courseController = {
             res.status(500).json({ error: 'Error deleting course' });
         }
     },
-
     async getCourseById(req, res) {
         try {
             const courseId = req.params.id;
@@ -47,5 +42,33 @@ export const courseController = {
         } catch (error) {
             res.status(500).json({ error: 'Error retrieving course' });
         }
-    }
-};
+    },
+    async getFilesByCourseId(req, res) {
+        try {
+            const courseId = req.params.id; 
+            const files = await courseService.getFilesByCourseId(courseId);
+            if (!files || files.length === 0) {
+                return res.status(404).json({ message: 'No files found for this course.' });
+            }
+                res.status(200).json(files);
+            } catch (error) {
+                console.error('Error fetching files:', error);
+                res.status(500).json({ error: 'Failed to retrieve files' });
+            }
+    },
+    async getCoursesByName(req,res){
+        try {
+            const Name = req.params.Name;
+            const course = await courseService.getCoursesByName(Name);
+            if (!course) {
+                return res.status(404).json({ error: 'no courses' });
+            }
+            res.status(200).json(course);
+        }catch(error){
+            res.status(500).json({ error: 'Error' });
+            console.log(error);
+        }
+    },
+    //filtering function not api called in frontend 
+    };
+    

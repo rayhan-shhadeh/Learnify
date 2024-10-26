@@ -27,9 +27,14 @@ export const keytermService = {
         });
     },
 
-    async getKeytermsByTerm(term) {
+    async getKeytermsByTermOrDef(termOrDef) {
         return await prisma.keyterm.findMany({
-            where: { keyterm: term }
+            where:{
+                OR:[
+                    { keytermText: {contains : termOrDef} },
+                    { keytermDef : {contains : termOrDef} }
+                ] 
+            }
         });
     }
 };

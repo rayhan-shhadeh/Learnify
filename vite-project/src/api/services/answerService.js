@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient(); 
-
 export const answerService = {
     async createAnswer(data) {
         return await prisma.answer.create({
@@ -24,6 +23,6 @@ export const answerService = {
         return await prisma.answer.findUnique( {
             where : { answerId: parseInt(id) }
         }
-        );
+        )
     }
 };
