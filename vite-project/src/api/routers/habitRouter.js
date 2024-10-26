@@ -3,7 +3,7 @@ import { habitController } from '../controllers/habitController.js';
 export const habitRouter = express.Router();
 
 // Define routes
-habitRouter.post('/habits', habitController.createHabit);
-habitRouter.put('/habits/:id', habitController.updateHabit);
-habitRouter.delete('/habits/:id', habitController.deleteHabit);
-habitRouter.get('/habits/:id', habitController.getHabitById);
+habitRouter.post('/habit', habitController.createHabit);
+habitRouter.put('/habit/:id', habitController.updateHabit);
+habitRouter.delete('/habit/:id', habitController.deleteHabit);
+habitRouter.get('/habit/:id', habitController.getHabitById);
