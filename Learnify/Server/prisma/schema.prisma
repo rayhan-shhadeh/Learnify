@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model answer {
+  answerId     Int      @id @default(autoincrement())
+  chosenAnswer String   @db.VarChar(255)
+  isCorrect    Boolean?
+  questionId   Int?
+
+  @@index([questionId], map: "questionId")
+}
+
+model course {
+  courseId          Int     @id @default(autoincrement())
+  courseName        String  @db.VarChar(255)
+  courseDescription String? @db.VarChar(500)
+  courseTag         String? @db.VarChar(100)
+  userId            Int?
+  user_             user_?  @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction, map: "course_ibfk_1")
+  file              file[]
+
+  @@index([userId], map: "userId")
+}
+
+model file {
+  fileId       Int         @id @default(autoincrement())
+  fileName     String      @db.VarChar(255)
+  fileDeadline DateTime?   @db.Date
+  fileURL      String?     @db.VarChar(500)
+  courseId     Int?
+  course       course?     @relation(fields: [courseId], references: [courseId], onDelete: Cascade, onUpdate: NoAction, map: "file_ibfk_1")
+  flashcard    flashcard[]
+  keyterm      keyterm[]
+  quiz         quiz[]
+
+  @@index([courseId], map: "courseId")
+}
+
+model flashcard {
+  flashcardId       Int       @id @default(autoincrement())
+  flashcardName     String    @db.VarChar(255)
+  flashcardQ        String?   @db.VarChar(255)
+  flashcardA        String?   @db.VarChar(255)
+  flashcardDeadline DateTime? @db.Date
+  fileId            Int?
+  file              file?     @relation(fields: [fileId], references: [fileId], onDelete: Cascade, onUpdate: NoAction, map: "flashcard_ibfk_1")
+
+  @@index([fileId], map: "fileId")
+}
+
+model habit {
+  habitId      Int       @id @default(autoincrement())
+  habitName    String    @db.VarChar(255)
+  habitStatus  Boolean
+  startingDate DateTime? @db.Date
+  userId       Int?
+  user_        user_?    @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction, map: "habit_ibfk_1")
+
+  @@index([userId], map: "userId")
+}
+
+model keyterm {
+  keytermId   Int     @id @default(autoincrement())
+  keytermText String? @db.VarChar(255)
+  keytermDef  String? @db.VarChar(500)
+  fileId      Int?
+  file        file?   @relation(fields: [fileId], references: [fileId], onDelete: Cascade, onUpdate: NoAction, map: "keyterm_ibfk_1")
+
+  @@index([fileId], map: "fileId")
+}
+
+model question {
+  questionId    Int    @id @default(autoincrement())
+  questionText  String @db.VarChar(500)
+  correctAnswer String @db.VarChar(255)
+  choices       String @db.LongText
+  quizId        Int?
+
+  @@index([quizId], map: "quizId")
+}
+
+model quiz {
+  quizId          Int     @id @default(autoincrement())
+  numOfQuestions  Int?
+  quizTitle       String  @db.VarChar(255)
+  quizDescription String? @db.VarChar(500)
+  fileId          Int?
+  userId          Int?
+  file            file?   @relation(fields: [fileId], references: [fileId], onDelete: Cascade, onUpdate: NoAction, map: "quiz_ibfk_1")
+  user_           user_?  @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction, map: "quiz_ibfk_2")
+
+  @@index([fileId], map: "fileId")
+  @@index([userId], map: "userId")
+}
+
+model user_ {
+  userId               Int       @id @default(autoincrement())
+  email                String    @unique(map: "email") @db.VarChar(255)
+  username             String    @db.VarChar(100)
+  password             String    @db.VarChar(255)
+  dateOfBirth          DateTime  @db.Date
+  Major                String    @db.VarChar(255)
+  flag                 Int?
+  subscription         Int?
+  photo                String?   @db.VarChar(255)
+  passwordResetToken   String?   @db.VarChar(255)
+  passwordResetExpires DateTime? @db.Date
+  active               Boolean?
+  googleId             String? // Store Google ID for accounts using Google login
+  profilePicture       String? // Google profile picture URL
+  isGoogleAccount      Boolean   @default(false) // To differentiate Google accounts
+  createdAt            DateTime? @default(now())
+  updatedAt            DateTime? @updatedAt
+  course               course[]
+  habit                habit[]
+  quiz                 quiz[]
+}
