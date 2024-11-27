@@ -1,0 +1,84 @@
+/* Profile Styles */
+.profile-container {
+    background-color: #f7f7f7;
+    color: #333;
+    font-family: 'Arial', sans-serif;
+    padding: 30px;
+    border-radius: 10px;
+    width: 70%;
+    max-width: 800px;
+    margin: auto;
+  }
+  
+  .profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+  }
+  
+  .profile-image img {
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    margin-right: 20px;
+  }
+  
+  .profile-details h2 {
+    color: #4a90e2;
+    margin: 0;
+  }
+  
+  .profile-details p {
+    margin: 5px 0;
+  }
+  
+  .profile-info {
+    margin-bottom: 20px;
+  }
+  
+  .profile-info h3 {
+    color: #4a90e2;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+  }
+  
+  .profile-item {
+    margin: 8px 0;
+    font-size: 1rem;
+  }
+  
+  .profile-actions {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .edit-button,
+  .logout-button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .edit-button {
+    background-color: #4a90e2;
+    color: white;
+  }
+  
+  .edit-button:hover {
+    background-color: #357ab7;
+  }
+  
+  .logout-button {
+    background-color: #e94e77;
+    color: white;
+  }
+  
+  .logout-button:hover {
+    background-color: #d23856;
+  }
+  
