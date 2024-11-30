@@ -12,6 +12,12 @@ export const quizService = {
         return await prisma.quiz.delete({
             where: { quizId: parseInt(id) }
         });
+    },
+    
+    async getQuizById (id){
+        return await prisma.quiz.findUnique( {
+            where : { quizId: parseInt(id) }
+        }
+        )
     }
-
 };

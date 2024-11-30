@@ -1,12 +1,12 @@
 import { answerService } from '../services/answerService.js';
-
 export const answerController = {
-
     async createAnswer(req, res) {
         try {
+            console.log(req);
             const newAnswer =await answerService.createAnswer(req.body);
             res.status(201).json(newAnswer);
         } catch (error) {
+            console.log(error);
             res.status(500).json({ error: 'Error creating answer' });
         }
     },
@@ -19,8 +19,8 @@ export const answerController = {
             }
             res.json(updatedAnswer);
         } catch (error) {
-            res.status(500).json({ error: 'Error updating resource' });
             console.log(error);
+            res.status(500).json({ error: 'Error updating resource' });  
         }
     },
 
@@ -32,9 +32,11 @@ export const answerController = {
             }
             res.json({ message: 'Resource deleted successfully' });
         } catch (error) {
+            console.log(error);
             res.status(500).json({ error: 'Error deleting resource' });
         }
     },
+
     async getAnswerById(req, res) {
         try {
             const answerId = req.params.id;
@@ -44,6 +46,21 @@ export const answerController = {
             }
             res.status(200).json(answer);
         } catch (error) {
+            console.log(error);
+            res.status(500).json({ error: 'Error retrieving answer' });
+        }
+    },
+    
+    async getAnswerByQuestionId(req, res) {
+        try {
+            const questionId = req.params.id;
+            const answer = await answerService.getAnswerByQuestionId(questionId);
+            if (!answer) {
+                return res.status(404).json({ error: 'Answer not found' });
+            }
+            res.status(200).json(answer);
+        } catch (error) {
+            console.log(error);
             res.status(500).json({ error: 'Error retrieving answer' });
         }
     }

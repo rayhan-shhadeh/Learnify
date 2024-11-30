@@ -26,7 +26,7 @@ export const keytermService = {
             where: { keytermId: parseInt(id) }
         });
     },
-
+    
     async getKeytermsByTermOrDef(termOrDef) {
         return await prisma.keyterm.findMany({
             where:{
@@ -38,3 +38,4 @@ export const keytermService = {
         });
     }
 };
+
