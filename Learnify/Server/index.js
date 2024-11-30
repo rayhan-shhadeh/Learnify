@@ -27,6 +27,7 @@ const corsOption = {
   origin: "http://localhost:5173",
   
 };
+
 app.use(cors(corsOption));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
