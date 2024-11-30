@@ -1,15 +1,15 @@
 import { calendarEventService } from '../services/calendarEventService.js';
-
 export const calendarEventController = {
     async createEvent(req, res) {
         try {
             const newEvent = await calendarEventService.createEvent(req.body);
             res.status(201).json(newEvent);
         } catch (error) {
-            res.status(500).json({ error: 'Error creating event' });
             console.log(error);
+            res.status(500).json({ error: 'Error creating event' });
         }
     },
+
     async updateEvent(req, res) {
         try {
             const updatedEvent = await calendarEventService.updateEvent(req.params.eventId, req.body);
@@ -18,10 +18,11 @@ export const calendarEventController = {
             }
             res.json(updatedEvent);
         } catch (error) {
-            res.status(500).json({ error: 'Error updating event' });
             console.log(error);
+            res.status(500).json({ error: 'Error updating event' });
         }
     },
+
     async deleteEvent(req, res) {
         try {
             const deletedEvent = await calendarEventService.deleteEvent(req.params.eventId);
@@ -30,9 +31,11 @@ export const calendarEventController = {
             }
             res.json({ message: 'Event deleted successfully' });
         } catch (error) {
+            console.log(error);
             res.status(500).json({ error: 'Error deleting event' });
         }
     },
+
     async getEventById(req, res) {
         try {
             const eventId = req.params.eventId;
@@ -42,9 +45,11 @@ export const calendarEventController = {
             }
             res.status(200).json(event);
         } catch (error) {
+            console.log(error);
             res.status(500).json({ error: 'Error retrieving event' });
         }
     },
+    
     async getAllEventsByUser(req, res) {
         try {
             const userId = req.params.userId;
@@ -54,6 +59,7 @@ export const calendarEventController = {
             }
             res.status(200).json(events);
         } catch (error) {
+            console.log(error);
             res.status(500).json({ error: 'Error retrieving events' });
         }
     },

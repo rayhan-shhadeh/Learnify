@@ -1,11 +1,51 @@
 import { keytermService } from '../services/keytermService.js';
+import { fileService } from '../services/fileService.js';
+import {downloadPDF,deletePDF} from '../functions/pdfHandling.js';
+import {OpenAIPromptHandling}  from '../functions/openAIPromptHandling.js';
+import {createJSONkeyterm} from '../functions/createJsonObject.js'
+import {isArrayOfJSONObjects} from '../functions/validateFormat.js'
 
 export const keytermController = {
+    async generateSmartKeyterms(req, res) {
+        try {
+            //file info
+            const file = await fileService.getFileById(req.params.fileid);
+            const fileid = file.fileId;
+            const filename = file.fileName;
+            const fileurl = file.fileURL;
+            //prepare propmt and fullpath for openAI function
+            const prompt = 'Create keyterms and their definetions for attached file In following format as array of json with key def pairs[{"key": "Replication", "def": "it is a key concept in cloud computing ...."},............] without any additional text befor or after json object and without ```json```';
+            const fullPath = process.env.SAVE_PATH+filename;
+            //download pdf, send to openAI, delete pdf 
+            await downloadPDF(fileurl , process.env.SAVE_PATH ,filename);//url, savePath, filename
+            const response = await OpenAIPromptHandling(fullPath,prompt); //filename,prompt
+            await deletePDF(fullPath);
+            //parse response to deal with it as json
+            console.log(response);
+            const jsonArray = JSON.parse(response);
+            //validate
+            if(!isArrayOfJSONObjects(jsonArray)){
+                throw new Error("Something went wrong in response from openai api!");
+            }
+            //store
+            jsonArray.forEach(keyterm => {
+                const JSONkeyterm= createJSONkeyterm(keyterm.key,keyterm.def,fileid);
+                keytermService.createKeyterm(JSONkeyterm);
+                console.log("created!!")
+             });
+            res.status(201).json(response);
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error: 'Error creating keyterm' });
+        }
+    },
+
     async createKeyterm(req, res) {
         try {
             const newKeyterm = await keytermService.createKeyterm(req.body);
             res.status(201).json(newKeyterm);
         } catch (error) {
+            console.log(error);
             res.status(500).json({ error: 'Error creating keyterm' });
         }
     },
@@ -18,6 +58,7 @@ export const keytermController = {
             }
             res.json(updatedKeyterm);
         } catch (error) {
+            console.log(error);
             res.status(500).json({ error: 'Error updating keyterm' });
         }
     },
@@ -30,6 +71,7 @@ export const keytermController = {
             }
             res.json({ message: 'Keyterm deleted successfully' });
         } catch (error) {
+            console.log(error);
             res.status(500).json({ error: 'Error deleting keyterm' });
         }
     },
@@ -43,9 +85,11 @@ export const keytermController = {
             }
             res.status(200).json(keyterm);
         } catch (error) {
+            console.log(error);
             res.status(500).json({ error: 'Error retrieving keyterm' });
         }
     },
+
     async getKeytermByTermOrDef(req, res) {
         try {
             const termOrDef = req.params.termOrDef;
@@ -55,8 +99,8 @@ export const keytermController = {
             }
             res.status(200).json(keyterm);
         } catch (error) {
+            console.log(error);
             res.status(500).json({ error: 'Error retrieving keyterm' });
         }
     }
-
 };

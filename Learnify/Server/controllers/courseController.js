@@ -1,13 +1,16 @@
 import { courseService } from '../services/courseService.js';
+
 export const courseController = {
     async createCourse(req, res) {
         try {
             const newCourse = await courseService.createCourse(req.body);
             res.status(201).json(newCourse);
         } catch (error) {
+            console.log(error);
             res.status(500).json({ error: 'Error creating course' });
         }
     },
+
     async updateCourse(req, res) {
         try {
             const updatedCourse = await courseService.updateCourse(req.params.id, req.body);
@@ -16,10 +19,11 @@ export const courseController = {
             }
             res.json(updatedCourse);
         } catch (error) {
-            res.status(500).json({ error: 'Error updating course' });
             console.log(error);
+            res.status(500).json({ error: 'Error updating course' });
         }
     },
+
     async deleteCourse(req, res) {
         try {
             const deletedCourse = await courseService.deleteCourse(req.params.id);
@@ -28,9 +32,11 @@ export const courseController = {
             }
             res.json({ message: 'course deleted successfully' });
         } catch (error) {
+            console.log(error);
             res.status(500).json({ error: 'Error deleting course' });
         }
     },
+
     async getCourseById(req, res) {
         try {
             const courseId = req.params.id;
@@ -40,9 +46,11 @@ export const courseController = {
             }
             res.status(200).json(course);
         } catch (error) {
+            console.log(error);
             res.status(500).json({ error: 'Error retrieving course' });
         }
     },
+    
     async getFilesByCourseId(req, res) {
         try {
             const courseId = req.params.id; 
@@ -56,6 +64,7 @@ export const courseController = {
                 res.status(500).json({ error: 'Failed to retrieve files' });
             }
     },
+
     async getCoursesByName(req,res){
         try {
             const Name = req.params.Name;
@@ -65,10 +74,9 @@ export const courseController = {
             }
             res.status(200).json(course);
         }catch(error){
-            res.status(500).json({ error: 'Error' });
             console.log(error);
+            res.status(500).json({ error: 'Error' });
         }
-    },
-    //filtering function not api called in frontend 
-    };
+    }, 
+};
     

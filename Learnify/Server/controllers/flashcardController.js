@@ -1,11 +1,51 @@
 import { flashcardService } from '../services/flashcardService.js';
+import { fileService } from '../services/fileService.js';
+import {deletePDF,downloadPDF} from '../functions/pdfHandling.js';
+import {OpenAIPromptHandling } from '../functions/openAIPromptHandling.js';
+import {createJSONFlashcard} from '../functions/createJsonObject.js'
+import {isArrayOfJSONObjects} from '../functions/validateFormat.js'
 
 export const flashcardController = {
+    async generateSmartFlashcard(req, res) {
+        try {
+            const file = await fileService.getFileById(req.params.fileid);
+            //file info
+            const fileid = file.fileId;
+            const filename = file.fileName;
+            const fileurl = file.fileURL;
+            const fileDeadline = new Date(file.fileDeadline).toISOString();
+            //prepare prompt and fullpath for openAI function
+            const prompt = 'Create Flashcards for attached file In following format as array of json with QA pairs[{"Q": "What is today", "A": "Tuesday"},............] without any additional text before or after json object and without ```json```';
+            const fullPath = process.env.SAVE_PATH+filename;
+            //download pdf, send to openAI, delete pdf
+            await downloadPDF(fileurl , process.env.SAVE_PATH ,filename);//url, savePath, filename
+            const response = await OpenAIPromptHandling(fullPath,prompt); //filename,prompt
+            await deletePDF(fullPath);
+            //parse the response to deal with it as json
+            console.log(response);
+            const jsonArrayResponse = JSON.parse(response);
+            //validate format as array of json objects
+            if(!isArrayOfJSONObjects(jsonArrayResponse)){
+                throw new Error("Something went wrong in response from openai api!");
+            }
+            //store flashcards in db
+               jsonArrayResponse.forEach(flashcard => {
+               const JSONflashcard = createJSONFlashcard("flashcard"+fileid,flashcard.Q,flashcard.A,fileDeadline,fileid);
+               flashcardService.createFlashcard(JSONflashcard);
+            });
+            res.status(201).json(response);
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error: 'Error creating flash card' });
+        }
+    },
+
     async createFlashcard(req, res) {
         try {
             const newFlashCard = await flashcardService.createFlashcard(req.body);
             res.status(201).json(newFlashCard);
         } catch (error) {
+            console.log(error);
             res.status(500).json({ error: 'Error creating flash card' });
         }
     },
@@ -33,6 +73,7 @@ export const flashcardController = {
             res.status(500).json({ error: 'Error deleting flashcard' });
         }
     },
+
     async getFlashcardById(req, res) {
         try {
             const flashcardId = req.params.id;
@@ -45,6 +86,7 @@ export const flashcardController = {
             res.status(500).json({ error: 'Error retrieving flash card' });
         }
     },
+
     async getFlashcardByQorA(req, res) {
         try {
             const QorA = req.params.QorA;
@@ -58,6 +100,5 @@ export const flashcardController = {
             console.log(error);
 
         }
-    },
-
+    }
 };
