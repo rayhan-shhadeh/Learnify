@@ -11,9 +11,10 @@ model answer {
   answerId     Int      @id @default(autoincrement())
   chosenAnswer String   @db.VarChar(255)
   isCorrect    Boolean?
-  questionId   Int?
+  questionid   Int
+  question     question @relation(fields: [questionid], references: [questionId], onDelete: Cascade, onUpdate: NoAction, map: "fk_answer_question")
 
-  @@index([questionId], map: "questionId")
+  @@index([questionid], map: "questionId")
 }
 
 model course {
@@ -21,11 +22,11 @@ model course {
   courseName        String  @db.VarChar(255)
   courseDescription String? @db.VarChar(500)
   courseTag         String? @db.VarChar(100)
-  userId            Int?
-  user_             user_?  @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction, map: "course_ibfk_1")
+  userid            Int
+  user_             user_   @relation(fields: [userid], references: [userId], onDelete: Cascade, onUpdate: NoAction, map: "fk_course_user")
   file              file[]
 
-  @@index([userId], map: "userId")
+  @@index([userid], map: "userId")
 }
 
 model file {
@@ -33,13 +34,13 @@ model file {
   fileName     String      @db.VarChar(255)
   fileDeadline DateTime?   @db.Date
   fileURL      String?     @db.VarChar(500)
-  courseId     Int?
-  course       course?     @relation(fields: [courseId], references: [courseId], onDelete: Cascade, onUpdate: NoAction, map: "file_ibfk_1")
+  courseid     Int
+  course       course      @relation(fields: [courseid], references: [courseId], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_course")
   flashcard    flashcard[]
   keyterm      keyterm[]
   quiz         quiz[]
 
-  @@index([courseId], map: "courseId")
+  @@index([courseid], map: "courseId")
 }
 
 model flashcard {
@@ -48,76 +49,145 @@ model flashcard {
   flashcardQ        String?   @db.VarChar(255)
   flashcardA        String?   @db.VarChar(255)
   flashcardDeadline DateTime? @db.Date
-  fileId            Int?
-  file              file?     @relation(fields: [fileId], references: [fileId], onDelete: Cascade, onUpdate: NoAction, map: "flashcard_ibfk_1")
+  fileid            Int
+  file              file      @relation(fields: [fileid], references: [fileId], onDelete: Cascade, onUpdate: NoAction, map: "fk_flashcard_file")
 
-  @@index([fileId], map: "fileId")
+  @@index([fileid], map: "fileId")
 }
 
 model habit {
-  habitId      Int       @id @default(autoincrement())
-  habitName    String    @db.VarChar(255)
-  habitStatus  Boolean
-  startingDate DateTime? @db.Date
-  userId       Int?
-  user_        user_?    @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction, map: "habit_ibfk_1")
+  habitId          Int          @id @default(autoincrement())
+  userid           Int
+  habitName        String       @db.VarChar(255)
+  habitDescription String?      @db.VarChar(255)
+  reminderTime     DateTime?    @db.Date
+  createdAt        DateTime     @default(now()) @db.Timestamp(0)
+  user_            user_        @relation(fields: [userid], references: [userId], onDelete: Cascade, onUpdate: NoAction, map: "fk_habit_user")
+  streak           streak?
+  trackhabit       trackhabit[]
 
-  @@index([userId], map: "userId")
+  @@index([userid], map: "fk_habit_user_")
 }
 
 model keyterm {
   keytermId   Int     @id @default(autoincrement())
   keytermText String? @db.VarChar(255)
   keytermDef  String? @db.VarChar(500)
-  fileId      Int?
-  file        file?   @relation(fields: [fileId], references: [fileId], onDelete: Cascade, onUpdate: NoAction, map: "keyterm_ibfk_1")
+  fileid      Int
+  file        file    @relation(fields: [fileid], references: [fileId], onDelete: Cascade, onUpdate: NoAction, map: "fk_keyterm_file")
 
-  @@index([fileId], map: "fileId")
+  @@index([fileid], map: "fileId")
 }
 
 model question {
-  questionId    Int    @id @default(autoincrement())
-  questionText  String @db.VarChar(500)
-  correctAnswer String @db.VarChar(255)
-  choices       String @db.LongText
-  quizId        Int?
+  questionId    Int      @id @default(autoincrement())
+  questionText  String   @db.VarChar(500)
+  correctAnswer String   @db.VarChar(255)
+  choices       String   @db.LongText
+  quizid        Int
+  answer        answer[]
+  quiz          quiz     @relation(fields: [quizid], references: [quizId], onDelete: Cascade, onUpdate: NoAction, map: "fk_question_quiz")
 
-  @@index([quizId], map: "quizId")
+  @@index([quizid], map: "quizId")
 }
 
 model quiz {
-  quizId          Int     @id @default(autoincrement())
+  quizId          Int        @id @default(autoincrement())
   numOfQuestions  Int?
-  quizTitle       String  @db.VarChar(255)
-  quizDescription String? @db.VarChar(500)
-  fileId          Int?
-  userId          Int?
-  file            file?   @relation(fields: [fileId], references: [fileId], onDelete: Cascade, onUpdate: NoAction, map: "quiz_ibfk_1")
-  user_           user_?  @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction, map: "quiz_ibfk_2")
+  quizTitle       String     @db.VarChar(255)
+  quizDescription String?    @db.VarChar(500)
+  fileid          Int
+  userid          Int
+  question        question[]
+  file            file       @relation(fields: [fileid], references: [fileId], onDelete: Cascade, onUpdate: NoAction, map: "fk_quiz_file")
+  user_           user_      @relation(fields: [userid], references: [userId], onDelete: Cascade, onUpdate: NoAction, map: "fk_quiz_user")
 
-  @@index([fileId], map: "fileId")
-  @@index([userId], map: "userId")
+  @@index([fileid], map: "fileId")
+  @@index([userid], map: "userId")
 }
 
 model user_ {
-  userId               Int       @id @default(autoincrement())
-  email                String    @unique(map: "email") @db.VarChar(255)
-  username             String    @db.VarChar(100)
-  password             String    @db.VarChar(255)
-  dateOfBirth          DateTime  @db.Date
-  Major                String    @db.VarChar(255)
+  userId               Int             @id @default(autoincrement())
+  email                String          @unique(map: "email") @db.VarChar(255)
+  username             String          @db.VarChar(100)
+  password             String          @db.VarChar(255)
+  dateOfBirth          DateTime        @db.Date
+  majorid              Int
   flag                 Int?
   subscription         Int?
-  photo                String?   @db.VarChar(255)
-  passwordResetToken   String?   @db.VarChar(255)
-  passwordResetExpires DateTime? @db.Date
+  passwordResetExpires DateTime?       @db.Date
+  passwordResetToken   String?         @db.VarChar(255)
+  photo                String?         @db.VarChar(255)
   active               Boolean?
-  googleId             String? // Store Google ID for accounts using Google login
-  profilePicture       String? // Google profile picture URL
-  isGoogleAccount      Boolean   @default(false) // To differentiate Google accounts
-  createdAt            DateTime? @default(now())
-  updatedAt            DateTime? @updatedAt
+  createdAt            DateTime?       @default(now())
+  googleId             String?
+  isGoogleAccount      Boolean         @default(false)
+  profilePicture       String?
+  updatedAt            DateTime?       @updatedAt
+  calenderevent        calenderevent[]
   course               course[]
   habit                habit[]
   quiz                 quiz[]
+  major                major           @relation(fields: [majorid], references: [majorId], onDelete: Cascade, onUpdate: NoAction, map: "fk_user__major")
+
+  @@index([majorid], map: "fk_user__major")
+}
+
+model calenderevent {
+  eventId          Int      @id @default(autoincrement())
+  eventTitle       String   @db.VarChar(255)
+  eventStart       DateTime @db.DateTime(0)
+  eventEnd         DateTime @db.DateTime(0)
+  eventDescription String   @db.VarChar(255)
+  allDay           Int      @default(0)
+  userid           Int
+  user_            user_    @relation(fields: [userid], references: [userId], onDelete: Cascade, onUpdate: NoAction, map: "fk_calenderevent_user")
+
+  @@index([userid], map: "fk_user")
+}
+
+model exploreflashcard {
+  ExploreFlashcardId Int     @id @default(autoincrement())
+  ExploreFlashcardQ  String? @db.VarChar(255)
+  ExploreFlashcardA  String? @db.VarChar(255)
+  topicid            Int?
+  topic              topic?  @relation(fields: [topicid], references: [topicId], onDelete: Cascade, onUpdate: NoAction, map: "fk_exploreflashcard_topic")
+
+  @@index([topicid], map: "topicid")
+}
+
+model major {
+  majorId   Int     @id @default(autoincrement())
+  majorName String  @db.VarChar(255)
+  user_     user_[]
+
+  @@map("major")
+}
+
+model streak {
+  streakId        Int      @id @default(autoincrement())
+  habitid         Int      @unique(map: "habitid")
+  currentStreak   Int?     @default(0)
+  longestStreak   Int?     @default(0)
+  lastUpdatedDate DateTime @db.Date
+  habit           habit    @relation(fields: [habitid], references: [habitId], onDelete: Cascade, map: "streak_habit")
+
+  @@map("streak")
+}
+
+model topic {
+  topicId          Int                @id @default(autoincrement())
+  topicName        String             @db.VarChar(255)
+  exploreflashcard exploreflashcard[]
+}
+
+model trackhabit {
+  trackId     Int      @id @default(autoincrement())
+  habitid     Int
+  trackDate   DateTime @db.Date
+  isCompleted Boolean? @default(false)
+  habit       habit    @relation(fields: [habitid], references: [habitId], onDelete: Cascade, map: "trackhabit_habit")
+
+  @@unique([habitid, trackDate], map: "unique_habit_per_day")
+  @@map("trackhabit")
 }

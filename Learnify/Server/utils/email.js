@@ -8,12 +8,16 @@ const sendEmail = async options => {
     auth: {
       user: process.env.EMAIL_USERNAME,
       pass: process.env.EMAIL_PASSWORD
-    }
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+    connectionTimeout: 10000,
   });
 
   // 2) Define the email options
   const mailOptions = {
-    from: 'Rayhan Schmedtmann <re7an.ma7moud@outlook.com>',
+    from: `Rayhan Email <${process.env.EMAIL_USERNAME}>`,
     to: options.email,
     subject: options.subject,
     text: options.message
