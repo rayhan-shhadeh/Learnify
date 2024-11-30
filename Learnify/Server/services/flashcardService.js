@@ -26,6 +26,7 @@ export const flashcardService = {
             where: { flashcardId: parseInt(id) }
         });
     },
+
     async getFlashcardByQorA(QorA) {
         return await prisma.flashcard.findMany({
             where: { 
@@ -35,5 +36,5 @@ export const flashcardService = {
                 ]
             }
         });
-    },
+    }
 };
