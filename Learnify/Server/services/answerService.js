@@ -1,19 +1,21 @@
 import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient(); 
+const prisma = new PrismaClient();
+
 export const answerService = {
     async createAnswer(data) {
         return await prisma.answer.create({
             data
         });
     },
+
     async updateAnswer(id, data) {
         return await prisma.answer.update({
             where: {answerId : parseInt(id) },
             data 
         });
     },
+
     async deleteAnswer(id) {
-        console.log(id);
         return await prisma.answer.delete({
             where: { answerId: parseInt(id) }
         });
@@ -24,5 +26,12 @@ export const answerService = {
             where : { answerId: parseInt(id) }
         }
         )
-    }
+    },
+    
+    async getAnswerByQuestionId(id){
+        return await prisma.answer.findMany( {
+            where : { questionid : parseInt(id) }
+        }
+        )
+    },
 };
