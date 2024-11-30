@@ -26,11 +26,10 @@ export const calendarEventService = {
             where: { eventId: parseInt(eventId) }
         });
     },
-
+    
     async getAllEventsByUser(userId) {
         return await prisma.calenderevent.findMany({
-            where: { userId: parseInt(userId) }
+            where: { userid: parseInt(userId) }
         });
     }
-
 };
