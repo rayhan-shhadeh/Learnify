@@ -3,6 +3,7 @@ import { S3Client, PutObjectCommand ,DeleteObjectCommand} from '@aws-sdk/client-
 import dotenv from 'dotenv';
 dotenv.config();
 import { PrismaClient } from '@prisma/client';
+import { createJSONFile} from '../functions/createJsonObject.js';
 const prisma = new PrismaClient();
 
 export const fileController = {
@@ -39,7 +40,8 @@ export const fileController = {
             await s3.send(command);
             // Construct the file URL
             const fileURL = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
-            const newFile = fileService.upload({fileName,fileDeadline,fileURL,courseId});
+            const preparedFile = createJSONFile(fileName,fileDeadline,fileURL,courseId);
+            const newFile = fileService.upload(preparedFile);
             if (newFile){
                 res.status(200).json({
                     message: 'File uploaded successfully',
@@ -51,6 +53,21 @@ export const fileController = {
             res.status(500).json({ message: 'File upload failed', error: error.message });
         }
     },
+
+    async getFileById(req, res) {
+        try {
+            const fileId = req.params.fileId;
+            const file = await fileService.getFileById(fileId);
+            if (!file) {
+                return res.status(404).json({ error: 'file not found' });
+            }
+            res.status(200).json(file);
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error: 'Error retrieving file' });
+        }
+    },
+
     async updateFileDetails(req, res) {
         try {
             const updatedFile = await fileService.updateFileDetails(req.params.fileId, req.body);
@@ -59,10 +76,11 @@ export const fileController = {
             }
             res.json(updatedFile);
         } catch (error) {
-            res.status(500).json({ error: 'Error updating file' });
             console.log(error);
+            res.status(500).json({ error: 'Error updating file' });
         }
     },
+
     async getFlashcardsByFileId(req, res) {
         try {
             const fileId = req.params.fileId;
@@ -73,10 +91,11 @@ export const fileController = {
             }
             res.status(200).json(flashcard);
         } catch (error) {
-            res.status(500).json({ error: 'Error retrieving flash card' });
             console.log(error);
+            res.status(500).json({ error: 'Error retrieving flash card' });
         }
     },
+
     async getKeytermsByFileId(req, res) {
         try {
             const fileId = req.params.fileId;
@@ -86,10 +105,11 @@ export const fileController = {
             }
             res.status(200).json(Keyterm);
         } catch (error) {
-            res.status(500).json({ error: 'Error retrieving term' });
             console.log(error);
+            res.status(500).json({ error: 'Error retrieving term' });
         }
     },
+
     async getFilesByName(req,res){
         try {
             const Name = req.params.fileName;
@@ -99,10 +119,11 @@ export const fileController = {
             }
             res.status(200).json(file);
         }catch(error){
-            res.status(500).json({ error: 'Error' });
             console.log(error);
+            res.status(500).json({ error: 'Error' });
         }
     },
+    
     async deleteFile(req, res) {
         const id = req.params.fileId;
         const fileId = parseInt(id);
@@ -134,6 +155,7 @@ export const fileController = {
                 await s3.send(command);
                 return res.status(200).json({ message: 'File deleted successfully', file: obj.fileName});        
             } catch (error) {
+                console.log(error);
                 return res.status(500).json({ message: 'File deletion from s3 failed', error: error.message });
             }
         }
