@@ -8,5 +8,5 @@ import { authController, restrictTo } from '../controllers/authController.js';
 keytermRouter.post('/keyterm', keytermController.createKeyterm);
 keytermRouter.put('/keyterm/:id', keytermController.updateKeyterm);
 keytermRouter.delete('/keyterm/:id', keytermController.deleteKeyterm);
-keytermRouter.get('/keyterm/:id',authController.protect, restrictTo( 2,3), keytermController.getKeytermById );
+keytermRouter.get('/keyterm/:id',authController.protect, restrictTo( 1,2,3), keytermController.getKeytermById );
 keytermRouter.get('/keyterms/:termOrDef', keytermController.getKeytermByTermOrDef);

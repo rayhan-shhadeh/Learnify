@@ -9,6 +9,7 @@ import SignUp from './Components/SignUp';
 import PrivateRoute from './Components/PrivateRoute';
 import Profile from './Components/Profile'; // Adjust the path as necessary
 
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -43,7 +44,7 @@ function App() {
         </div>
         <h1 className="text-center">Vite + React</h1>
         <div className="card text-center">
-          <button className="btn btn-primary" onClick={() => setCount((count) => count + 1)}>
+          <button variant="contained" className="btn btn-primary" onClick={() => setCount((count) => count + 1)}>
             count is {count}
           </button>
           <p>
@@ -61,10 +62,11 @@ function App() {
         </p>
 
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home author="rayhan shhadeh" body="here is my content" />} />
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/signup" element={<SignUp />} />
+
           <Route path="/private" element={<PrivateRoute />} />
         </Routes>
       </div>
