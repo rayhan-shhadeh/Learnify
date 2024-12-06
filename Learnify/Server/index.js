@@ -5,7 +5,7 @@ import passport from 'passport';
 dotenv.config();
 import cors from "cors";
 import bodyParser from 'body-parser';
-//import "./utils/passportConfig.js";
+import "./utils/passportConfig.js";
 import { answerRouter } from "./routers/answerRouter.js";
 import { courseRouter } from "./routers/courseRouter.js";
 import { flashcardRouter } from "./routers/flashcardRouter.js";
@@ -28,6 +28,7 @@ const corsOption = {
   credentials: true,            //access-control-allow-credentials:true
   
 };
+
 app.use(cors(corsOption));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
