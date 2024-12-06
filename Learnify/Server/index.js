@@ -25,6 +25,7 @@ import {streakRouter} from "./routers/streakRouter.js";
 const app = express();
 const corsOption = {
   origin: "http://localhost:5173",
+  credentials: true,            //access-control-allow-credentials:true
   
 };
 app.use(cors(corsOption));
@@ -57,6 +58,7 @@ app.use("/api",exploreflashcardsRouter);
 app.use("/api",exploreRouter);
 app.use("/api",trackHabitRouter)
 app.use("/api",streakRouter)
+app.use('/uploads', express.static('uploads'));
 
 app.use(express.json());  // Make sure this is included
 
