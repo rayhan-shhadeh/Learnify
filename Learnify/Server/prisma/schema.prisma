@@ -112,7 +112,7 @@ model user_ {
   username             String          @db.VarChar(100)
   password             String          @db.VarChar(255)
   dateOfBirth          DateTime        @db.Date
-  majorid              Int
+  Major                String?         @db.VarChar(255)
   flag                 Int?
   subscription         Int?
   passwordResetExpires DateTime?       @db.Date
@@ -124,13 +124,12 @@ model user_ {
   isGoogleAccount      Boolean         @default(false)
   profilePicture       String?
   updatedAt            DateTime?       @updatedAt
+  token                String?         @db.VarChar(255)
+  streak               Int?            @default(0)
   calenderevent        calenderevent[]
   course               course[]
   habit                habit[]
   quiz                 quiz[]
-  major                major           @relation(fields: [majorid], references: [majorId], onDelete: Cascade, onUpdate: NoAction, map: "fk_user__major")
-
-  @@index([majorid], map: "fk_user__major")
 }
 
 model calenderevent {
@@ -154,14 +153,6 @@ model exploreflashcard {
   topic              topic?  @relation(fields: [topicid], references: [topicId], onDelete: Cascade, onUpdate: NoAction, map: "fk_exploreflashcard_topic")
 
   @@index([topicid], map: "topicid")
-}
-
-model major {
-  majorId   Int     @id @default(autoincrement())
-  majorName String  @db.VarChar(255)
-  user_     user_[]
-
-  @@map("major")
 }
 
 model streak {

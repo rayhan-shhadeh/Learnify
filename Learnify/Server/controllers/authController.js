@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken'
 import AppError from '../utils/appError.js';
 import sendEmail from '../utils/email.js';
 import crypto from 'crypto';
+import Cookies from 'js-cookie';
 
 const prisma = new PrismaClient(); 
 
@@ -55,8 +56,17 @@ export const authController = {
               active: true,
             },
           });
+          
           const token = signToken(newUser.userId);
+          const updateToken = await prisma.user_.update({
+            where: { userId: newUser.userId },
+            data: { token: token },
+          })
 
+          res.cookie('authToken', token, {
+            expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
+            httpOnly: true,
+          });
           res.status(201).json({ status:'success', token, message: 'User registered successfully', user: newUser });
         } catch (error) {
           console.error(error);
@@ -89,7 +99,22 @@ export const authController = {
         return res.status(401).json({ error: ' Unauthorized - Invalid password' });
       }
     // 3) Check if everything is ok and Generate JWT token
-      const token=signToken(user.userId);
+      const token = signToken(user.userId);
+      const updateToken = await prisma.user_.update({
+        where: { userId: user.userId },
+        data: { token: token },
+      })
+
+
+      res.cookie('authToken', token, {
+        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days expiration
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Lax', // Adjust as needed
+    });
+          console.log('Token - controller:', token);
+
+
       return res.status(200).json({ status:'success', token, message: 'Login successful', user });
     } catch (error) {
       console.error(error);
@@ -227,6 +252,15 @@ export const authController = {
       },
     });
     const token = signToken(user.userId);
+    const updateToken = await prisma.user_.update({
+      where: { userId: user.userId },
+      data: { token: token },
+    });
+
+    res.cookie('jwt', token, {
+      expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
+      httpOnly: true,
+    });
     res.status(200).json({
       status: "success",
       token

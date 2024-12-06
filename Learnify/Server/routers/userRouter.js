@@ -1,6 +1,7 @@
 import express from 'express';
 import { userController } from '../controllers/userController.js';
 import { authController } from '../controllers/authController.js';
+import '../middleware/authMiddleware.js'
 import passport from 'passport';
 export const userRouter = express.Router();
 
@@ -22,10 +23,17 @@ userRouter.get('/auth/google', passport.authenticate('google', {
   }));
   
   // Google Callback Route
-  userRouter.get('/auth/google/callback', 
+  userRouter.get('/api', 
     passport.authenticate('google', { failureRedirect: '/login' }),
     (req, res) => {
       // Successful authentication, redirect home.
       res.redirect('/api');  // Redirect to a logged-in page, like dashboard
     }
   );
+  userRouter.get('/logout', (req, res) => {
+    req.logout((err) => {
+      if (err) return next(err);
+      res.redirect('/login');
+    });
+  });
+  
