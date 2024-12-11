@@ -1,0 +1,26 @@
+[
+  {
+    "icon": "/assets/img/icons/cards.png",
+    "title": "Falashcards and key terms",
+    "desc":  "Transform Your Learning Experience with Smart, AI-generated Flashcards and Keyterms Designed for Success!",   
+    "btnText": "Try it now!",
+    "btnLink": "/service/service-details",
+    "addClass": "col-lg-4"
+  },
+  {
+    "icon": "/assets/img/icons/quiz.png",
+    "title": "Quizzes",
+    "desc":"Test Your Knowledge, Review Your Progress, and Boost Your Confidence with Personalized AI-generated Quizzes!",   
+    "btnText": "Try it now!",
+    "btnLink": "/service/service-details",
+    "addClass": "col-lg-4"
+  },
+  {
+    "icon": "/assets/img/icons/practice.png",
+    "title": "Practice",
+    "desc": "Master your study material through repetition! this helps you review flashcards repeatedly until you confidently memorize every key detail.",   
+    "btnText": "Try it now!",
+    "btnLink": "/service/service-details",
+    "addClass": "col-lg-4"
+  }   
+]
