@@ -19,7 +19,7 @@ const SalesOverview = () => {
 
   useEffect(() => {
     const initializeUser = () => {
-const token = Cookies.get('token');
+const token = Cookies.get('authToken');
       // const token = localStorage.getItem('authToken');
       console.log('Retrieved Token:', token);
 
@@ -41,7 +41,8 @@ const token = Cookies.get('token');
 
   useEffect(() => {
     const fetchHabitData = async () => {
-      const token = Cookies.get('token');
+     // const token = Cookies.get('authToken');
+      const token = localStorage.getItem('authToken');
       if (!userId || !token) {
         console.error('User ID or token is missing');
         return;

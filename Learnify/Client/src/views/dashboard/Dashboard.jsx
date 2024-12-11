@@ -35,9 +35,12 @@ const Dashboard = () => {
           </Grid>
           <Grid item xs={12} lg={8}>
             <ProductPerformance />
-          </Grid>
+          </Grid>          
+
+          
         </Grid>
       </Box>
+
     </PageContainer>
   );
 };
