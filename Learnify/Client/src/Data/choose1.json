@@ -1,0 +1,17 @@
+[
+  {
+    "img": "/assets/img/icons/learning (1).png",  
+    "title": "Personalized Learning",
+    "desc": "Our intelligent tools adapt to your unique study needs, identifying areas for improvement and strengthening your knowledge through targeted repetition and review."
+  },
+  {
+    "img": "/assets/img/icons/good.png",  
+    "title": "Comprehensive Features",
+    "desc": "Beyond study tools, we provide habit tracking, topic exploration, and progress insights to help you stay organized, focused, and achieve your learning goals effortlessly."
+  },
+  {
+    "img": "/assets/img/icons/practice1.png",  
+    "title": "Interactive Practice",
+    "desc": "Master concepts with dynamic flashcard practice and quizzes designed to reinforce memory and build confidence over time."
+  }
+]
