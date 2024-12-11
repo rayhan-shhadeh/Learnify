@@ -1,0 +1,25 @@
+import { useState } from 'react';
+import '../../CSS/home.css';
+
+export default function DropDown({ children }) {
+  // Mobile Toggle
+  const [mobileToggle, setMobileToggle] = useState(false);
+  const handelMobileToggle = () => {
+    setMobileToggle(!mobileToggle);
+  };
+  return (
+    <>
+      <span
+        className={
+          mobileToggle
+            ? 'cs-munu_dropdown_toggle active'
+            : 'cs-munu_dropdown_toggle'
+        }
+        onClick={handelMobileToggle}
+      >
+        <span></span>
+      </span>
+      {children}
+    </>
+  );
+}
