@@ -2,7 +2,7 @@ import React from 'react';
 import { Typography, Grid2, CardContent } from '@mui/material';
 import PageContainer from '../../Components/container/PageContainer.jsx';
 import DashboardCard from '../../components/shared/DashboardCard';
-import BlankCard from '../../components/shared/BlankCard';
+import BlankCard from '../../../components/shared/BlankCard';
 
 
 const TypographyPage = () => {

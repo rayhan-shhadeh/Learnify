@@ -67,6 +67,7 @@ export const authController = {
             expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
             httpOnly: true,
           });
+          localStorage.setItem('authToken', token);
           res.status(201).json({ status:'success', token, message: 'User registered successfully', user: newUser });
         } catch (error) {
           console.error(error);
@@ -110,12 +111,13 @@ export const authController = {
         expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days expiration
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Lax', // Adjust as needed
+        sameSite:"None", // Adjust as needed
     });
           console.log('Token - controller:', token);
 
-
-      return res.status(200).json({ status:'success', token, message: 'Login successful', user });
+      res.setHeader('Authorization', `Bearer ${token}`);
+      // localStorage is not available in Node.js, so this line is removed
+      return res.status(200).json({ status: 'success', token, message: 'Login successful', user });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: 'Internal server error' });
@@ -257,7 +259,7 @@ export const authController = {
       data: { token: token },
     });
 
-    res.cookie('jwt', token, {
+    res.cookie('authToken', token, {
       expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
       httpOnly: true,
     });

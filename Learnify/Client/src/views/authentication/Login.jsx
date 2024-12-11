@@ -10,6 +10,9 @@ import Cookies from 'js-cookie';
 
 
 const Login = () => {
+  const[token, setToken] = React.useState('');
+  const[data,setData] = React.useState([]);
+  
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -29,11 +32,12 @@ const Login = () => {
       const response = await API.post('login', formData);  
       const token = response.data.token;
       console.log("token from login: ",token);
-Cookies.set('token', token);
-      // localStorage.setItem('authToken', token);
+Cookies.set('authToken', token);
+
+      localStorage.setItem('authToken', token);
       setMessage('Logged in successfully!');
       setError(false); // Reset error state
-
+res.setToken(token);
       // Redirect to the profile page after successful login
       navigate('/dashboard');
     } catch (error) {

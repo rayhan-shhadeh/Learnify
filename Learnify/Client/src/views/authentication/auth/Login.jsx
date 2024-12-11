@@ -5,7 +5,7 @@ import '../CSS/Login.css';
 import Cookies from 'js-cookie'; // Import js-cookie library
 import {jwtDecode} from 'jwt-decode';
 import { Container, TextField, Button, Typography, Box, Alert } from '@mui/material';                                   
-
+import axios from '../../../api/axios'; // Import axios library
 function Login() {
   const [formData, setFormData] = useState({
     email: '',
@@ -21,16 +21,29 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await API.post('http://localhost:8080/api/login', formData);
-      localStorage.setItem('token', response.data.token); // Save token in local storage
-      setMessage('Logged in successfully!');
+//     try {
+//       const response = await API.post('login', formData);
+//       localStorage.setItem('token', response.data.token); // Save token in local storage
+//       setMessage('Logged in successfully!');
+// response.setToken(response.data.token);
+//       // Redirect to the profile page after successful login
+//       navigate('/profile'); // Redirect to '/profile'
+//     } catch (error) {
+//       setMessage(error.response.data.message || 'Error logging in.');
+//     }
 
-      // Redirect to the profile page after successful login
+    try {
+      const response = await axios.post('http://localhost:8080/api/login', formData );
+      const token = response.data.token;
+      const decoded = jwtDecode(token);
+      // Cookies.set('authToken', token); // Save token in a cookie
+      // Cookies.set('user', decoded); // Save user data in a cookie
+      setMessage('Logged in successfully!');
       navigate('/profile'); // Redirect to '/profile'
     } catch (error) {
       setMessage(error.response.data.message || 'Error logging in.');
     }
+    
   };
 
   return (

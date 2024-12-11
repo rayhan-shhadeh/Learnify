@@ -4,7 +4,7 @@ import { authController } from '../controllers/authController.js';
 import { restrictTo } from '../controllers/authController.js';
 export const calendarEventRouter = express.Router();
 
-calendarEventRouter.post('/event', authController.protect, restrictTo( 1,2),calendarEventController.createEvent);
+calendarEventRouter.post('/event',calendarEventController.createEvent);
 calendarEventRouter.put('/event/:eventId',authController.protect, restrictTo( 1,2), calendarEventController.updateEvent);
 calendarEventRouter.delete('/event/:eventId',authController.protect, restrictTo( 1,2), calendarEventController.deleteEvent);
 calendarEventRouter.get('/event/:eventId', authController.protect, restrictTo( 1,2),calendarEventController.getEventById);
