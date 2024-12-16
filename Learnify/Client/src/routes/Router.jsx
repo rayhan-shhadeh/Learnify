@@ -2,9 +2,11 @@ import React, { lazy } from 'react';
 import { Navigate } from 'react-router-dom';
 import Loadable from '../layouts/full/shared/loadable/Loadable';
 
+import CoursesPage from '../views/CoursesPage';
 import Main from "../layouts/Main";
 import Home from "../views/Home";
 import Calender from "../views/Calender";
+import CourseFilesPage from "../views/CourseFilesPage"
 
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
 const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')));
@@ -69,7 +71,15 @@ const Router = [
     children: [
     { path: '/dashboard', exact: true, element: <Dashboard /> }
     ]
+  },{
+    path: '/courses',
+    element: <CoursesPage></CoursesPage>,
+  },
+  {
+    path: '/files',
+    element: <CourseFilesPage></CourseFilesPage>,
   }
+  
 ];
 
 export default Router;
