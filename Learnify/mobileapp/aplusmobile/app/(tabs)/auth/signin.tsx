@@ -1,12 +1,30 @@
 import React, { useState } from "react";
-import { Image, View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
-import {useRouter} from "expo-router";
+import { Image, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import {router, useRouter} from "expo-router";
+import API from '../../../api/axois';
 
 const SignIn = () => {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
+  const handleLogin = async () => {
+    if (!username || !password) {
+      Alert.alert("Error", "Please fill in both fields.");
+      return;
+    }
+  
+    try {
+      const response = await API.post("/login", { username, password });
+      // Handle successful login (e.g., store token, navigate to homepage)
+      Alert.alert("Success", "Login successful!");
+      router.push("/HomeScreen");
+    } catch (error) {
+      // Handle login error
+      console.error(error);
+      Alert.alert("Error", "Login failed. Please check your credentials.");
+    }
+  };
+  
   return (
     <View
       style={styles.container}
@@ -40,7 +58,7 @@ const SignIn = () => {
       </TouchableOpacity>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.loginButton} onPress={() => router.push("../homepage") }>
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.loginButtonText}>Log in</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.signUpButton} onPress={() => router.push("/auth/signup")}>
