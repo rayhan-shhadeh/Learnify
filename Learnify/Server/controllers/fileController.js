@@ -5,7 +5,6 @@ dotenv.config();
 import { PrismaClient } from '@prisma/client';
 import { createJSONFile} from '../functions/createJsonObject.js';
 const prisma = new PrismaClient();
-
 export const fileController = {
     async uploadFile(req, res) {
         const s3 = new S3Client({
@@ -41,10 +40,11 @@ export const fileController = {
             // Construct the file URL
             const fileURL = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
             const preparedFile = createJSONFile(fileName,fileDeadline,fileURL,courseId);
-            const newFile = fileService.upload(preparedFile);
+            const newFile = await fileService.upload(preparedFile);
             if (newFile){
                 res.status(200).json({
                     message: 'File uploaded successfully',
+                    "fileId":  newFile.fileId,
                     "fileUrl" :fileURL 
                 });
             }
@@ -70,7 +70,20 @@ export const fileController = {
 
     async updateFileDetails(req, res) {
         try {
-            const updatedFile = await fileService.updateFileDetails(req.params.fileId, req.body);
+            const updatedFile = await fileService.updateFileDetails(req.params.fileId,req.params.fileName);
+            if (!updatedFile) {
+                return res.status(404).json({ error: 'file not found' });
+            }
+            res.json(updatedFile);
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error: 'Error updating file' });
+        }
+    },
+    
+    async updateFile(req, res) {
+        try {
+            const updatedFile = await fileService.updateFile(req.params.fileId,req.body);
             if (!updatedFile) {
                 return res.status(404).json({ error: 'file not found' });
             }
@@ -123,7 +136,6 @@ export const fileController = {
             res.status(500).json({ error: 'Error' });
         }
     },
-    
     async deleteFile(req, res) {
         const id = req.params.fileId;
         const fileId = parseInt(id);
@@ -162,6 +174,5 @@ export const fileController = {
         else{
             return res.status(404).json({ error: 'Resource not found in database' });
         }
-    },
-
+    }
 }
