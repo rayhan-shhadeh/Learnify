@@ -60,9 +60,9 @@ const FilesScreen = () => {
         <View style={styles.cardHeader} >
           <Text style={styles.cardTitle}  onPress={() => router.push("/(tabs)/FlashcardsScreen")}>{title}</Text>
           <View style={styles.iconContainer}>
-            <FontAwesome name="eye" size={24} color="url(#grad)"  />
-            <FontAwesome name="edit" size={24} color="url(#grad)" />
-            <FontAwesome name="trash" size={24} color="url(#grad)" />
+            <FontAwesome name="eye" size={20} color="url(#grad)"  />
+            <FontAwesome name="edit" size={20} color="url(#grad)" />
+            <FontAwesome name="trash" size={20} color="url(#grad)" />
             {/* <svg width="0" height="0">
               <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" style={{ stopColor: '#1ca7ec', stopOpacity: 1 }} />
@@ -122,7 +122,7 @@ const FilesScreen = () => {
 
   return (
     <>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 , backgroundColor: '#f5f5f5' }}>
           <LinearGradient colors={['#f7f7f7','#fbfbfb', '#9ad9ea']}  >
             <TouchableOpacity style={styles.notificationButton}>
               <MaterialCommunityIcons name="bell-outline" size={24} color="#111517" />
@@ -209,7 +209,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: '#f5f5f5',
+    //'rgba(0, 0, 0, 0.5)'
   },
   modalContent: {
     backgroundColor: 'white',
