@@ -6,28 +6,28 @@ import Chart from 'react-apexcharts';
 import API from 'axios';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
+import { Navigate, useNavigate } from 'react-router-dom';
 const SalesOverview = () => {
-  const [month, setMonth] = useState('');
+  const [month, setMonth] = useState();
   const [year] = useState(new Date().getFullYear());
   const [categories, setCategories] = useState([]);
   const [dataCounts, setDataCounts] = useState([]);
   const [userId, setUserId] = useState(null);
+  const navigate = useNavigate();
 
   const handleChange = (event) => {
-    setMonth(event.target.value);
+      setMonth(event.target.value);
   };
 
   useEffect(() => {
     const initializeUser = () => {
-const token = Cookies.get('authToken');
-      // const token = localStorage.getItem('authToken');
+      const token = Cookies.get('token');
       console.log('Retrieved Token:', token);
-
       if (token) {
         try {
-          console.log('Decoding token...');
+          console.log('Decoding token... from dashboard');
           const decoded = jwtDecode(token);
-          setUserId(decoded.userId); // Adjust this based on the token structure
+          setUserId(decoded.id);      
           console.log('Decoded Token:', decoded);
         } catch (error) {
           console.error('Failed to decode token:', error);
@@ -41,40 +41,39 @@ const token = Cookies.get('authToken');
 
   useEffect(() => {
     const fetchHabitData = async () => {
-     // const token = Cookies.get('authToken');
-      const token = localStorage.getItem('authToken');
-      if (!userId || !token) {
-        console.error('User ID or token is missing');
+      const token = Cookies.get('token');
+      if (!userId) {
+        console.error('User ID is missing');
         return;
       }
-
+      if (!token) {
+        console.error('token is missing');
+        navigate('auth/login');
+      }
       try {
         const response = await API.post(
-          `trackHabit/allHabit/${userId}`,
-          { month, year },
+          `http://localhost:8080/api/trackHabit/allHabit/${userId}`,
+          {"month":month , "year":year},
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-
         if (!response.data) {
           console.error('No data found');
           return;
         }
-
-        const habits = response.data; // Ensure the response is correctly parsed
+        const habits = response.data;
         const habitNames = habits.map((habit) => habit.habit);
         const habitCounts = habits.map((habit) => habit.count);
-
         setCategories(habitNames);
         setDataCounts(habitCounts);
       } catch (error) {
         console.error('Error fetching habit data:', error);
       }
     };
+    if (month && year) fetchHabitData(); // Fetch data only if both month and year are selected
+  }, [userId, month, year]);  
 
-    if (month) fetchHabitData(); // Fetch data only if month is selected
-  }, [month, year, userId]);
 
   const theme = useTheme();
   const primary = theme.palette.primary.main;
@@ -92,7 +91,7 @@ const token = Cookies.get('authToken');
       bar: {
         horizontal: false,
         columnWidth: '70%',
-        borderRadius: [4],
+        borderRadius: [9],
       },
     },
     xaxis: {
@@ -100,15 +99,17 @@ const token = Cookies.get('authToken');
       axisBorder: { show: false },
     },
     yaxis: {
-      title: { text: 'Habit Count' },
-      tickAmount: 5,
+      title: { text: 'Habit Completions' },
+        min: 0, // Always start from 0
+        max: 30, // Fixed maximum value
+        tickAmount: 6, // Number of ticks (e.g., 0, 5, 10, 15, 20, 25, 30)
     },
     tooltip: {
       theme: theme.palette.mode === 'dark' ? 'dark' : 'light',
     },
   };
 
-  const seriescolumnchart = [{ name: 'Habit Count', data: dataCounts }];
+  const seriescolumnchart = [{ name: 'Habit Completions', data: dataCounts }];
 
   return (
     <DashboardCard
@@ -123,7 +124,6 @@ const token = Cookies.get('authToken');
         >
           <MenuItem value={10}>October 2024</MenuItem>
           <MenuItem value={11}>November 2024</MenuItem>
-          <MenuItem value={12}>December 2024</MenuItem>
         </Select>
       }
     >

@@ -1,0 +1,22 @@
+[
+  {
+    "img": "/assets/img/icons/paper.png",  
+    "title": "+10k Flashcards",
+    "desc": "easy to learn"
+  },
+  {
+    "img": "/assets/img/icons/explore.png",  
+    "title": "Explore Smarter",
+    "desc": "Topics related to your major."
+  },
+  {
+    "img": "/assets/img/icons/calendar.png",  
+    "title": "1k+ Habits Tracked",
+    "desc": "Build consistency daily"
+  },
+  {
+    "img": "/assets/img/icons/group.png",  
+    "title": "+1k Group chats",
+    "desc": "Disscuss information"
+  }
+]
