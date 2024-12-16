@@ -1,0 +1,247 @@
+/* Header styling*/
+.action-bar {
+  display: flex;
+  align-items: center; /* Align items vertically in the center */
+  justify-content: flex-start; /* Align items to the start */
+  gap: 1rem; /* Space between items */
+  padding: 0px; /* Optional padding for aesthetics */
+  padding-right: 800px;
+  padding-left: 70px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1em;
+  background: #f4f4f9;
+  border-bottom: 1px solid #ccc;
+}
+
+.logo {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.search-bar input {
+  padding: 0.5em;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.search-bar button {
+  margin-left: 0.5em;
+  padding: 0.5em;
+}
+
+.tag-filter button {
+  padding: 0.5em;
+}
+
+.icons button {
+  margin-left: 1em;
+  padding: 0.5em;
+}
+
+.search-bar-container {
+  display: flex;
+  align-items: center;
+  background-color: #1a1a2e; /* Dark background */
+  border-radius: 30px; /* Smooth round edges */
+  padding: 5px 10px;
+  width: 300px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #fff; /* White text */
+  padding: 8px 10px;
+  font-size: 14px;
+}
+
+.search-bar-container {
+  display: flex;
+  align-items: left;
+  background-color: #f5f6ff; /* Dark background */
+  border-radius: 30px; /* Smooth round edges */
+  padding: 5px 10px;
+  width: 400px;
+}
+
+.search-input::placeholder {
+  color: #aaa; /* Light gray placeholder */
+}
+
+.search-button {
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.filter-button {
+display: flex;
+align-items: center;
+gap: 8px; /* Space between the filter icon and text */
+background-color: #3785D8; /* Dark background for the button */
+color: white; /* White text */
+border: none; /* No border */
+border-radius: 20px; /* Rounded button edges */
+padding: 10px 15px; /* Padding for the button */
+cursor: pointer; /* Pointer cursor for interactivity */
+transition: background-color 0.3s ease;
+}
+
+.dropdown-menu {
+position: absolute;
+top: 50px; /* Adjust dropdown position */
+right: 10px; /* Align to the right of the filter button */
+background-color: #fff; /* White background */
+border-radius: 8px; /* Rounded corners */
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+list-style: none; /* Remove default list styles */
+padding: 10px 0; /* Space inside the menu */
+z-index: 10; /* Ensure it appears above other elements */
+min-width: 150px; /* Minimum width for dropdown menu */
+}
+
+.dropdown-menu li {
+padding: 10px 15px; /* Space inside each menu item */
+font-size: 14px; /* Font size for menu items */
+color: #333; /* Dark text color */
+cursor: pointer; /* Pointer cursor for interactivity */
+transition: background 0.3s ease;
+}
+
+.dropdown-menu li:hover {
+background-color: #f4f4f9; /* Light gray background on hover */
+color: #000000; /* Darken text color */
+}
+
+.filter-button svg {
+width: 20px;
+height: 20px;
+fill: white; /* White color for the filter icon */
+}
+
+/*add course styling */
+.add-course-card {
+  background: #f4f4f9;
+  padding: 0.20em;
+  border: 3px dashed #007bff;
+  border-radius: 50px;
+  text-align: center;
+  cursor: pointer;
+  text-size-adjust: 200px ;
+}
+
+/* courses grid*/
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 333px); /* Fixed width for each column */
+  grid-auto-rows: 150px; /* Fixed height for each row */
+  gap: 1em; /* Space between grid items */
+  padding: 1em 5em;
+}
+
+
+  .course-card-new {
+    position: relative; /* Ensures the icons can be positioned relative to the card */
+    padding: 1em;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* Ensures child elements stay within the card */
+    text-align: left;
+  }
+
+
+  .course-card h3 {
+    margin: 0;
+  }
+  
+  .course-card p {
+    font-size: 0.9em;
+    color: #555;
+  }
+  
+  .actions button {
+    margin-right: 0.5em;
+    padding: 0.3em 0.8em;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .actions button:last-child {
+    background: #ff4d4f;
+  }
+    
+  .card-icons {
+    position: absolute;
+    bottom: 10px; /* Distance from the bottom edge */
+    right: 10px; /* Distance from the right edge */
+    display: flex;
+    gap: 8px; /* Space between the icons */
+  }
+  
+  .icon-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background 0.3s;
+  }
+  
+  .icon-button:hover {
+    background: rgba(0, 0, 0, 0.1); /* Subtle hover effect */
+  }
+  
+  .icon-button svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor; /* Matches the text color */
+    color: #555; /* Default icon color */
+  }
+
+  .my-courses-title {
+    font-size: 1.8rem;
+    color: #000;
+    font-weight: bold;
+    margin: 1em;
+    margin-left: 37px;
+    display: block; /* Ensure it is visible */
+    padding-top: 25px; /* Add space for the sticky header */
+    text-shadow: 2px 4px 8px rgba(0, 0, 0, 0.2); /* Add subtle shadow */
+  }
+  
+  .inline-block-title-icon {
+    display: inline-block;
+    margin-right: 10px; /* Space between elements */
+    margin-bottom: 0px;
+  }
+
+  .selected-filter-button{
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Space between the filter icon and text */
+    background-color: #e4e3e3; /* Dark background for the button */
+    color: black; /* White text */
+    border: none; /* No border */
+    border-radius: 10px; /* Rounded button edges */
+    padding: 6px 15px; /* Padding for the button */
+    transition: background-color 0.3s ease;
+  } 
