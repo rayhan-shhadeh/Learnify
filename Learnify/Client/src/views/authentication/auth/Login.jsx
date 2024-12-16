@@ -36,6 +36,7 @@ function Login() {
       const response = await axios.post('http://localhost:8080/api/login', formData );
       const token = response.data.token;
       const decoded = jwtDecode(token);
+      
       // Cookies.set('authToken', token); // Save token in a cookie
       // Cookies.set('user', decoded); // Save user data in a cookie
       setMessage('Logged in successfully!');

@@ -7,7 +7,7 @@ const NavBar = () => {
     const router = useRouter();
     return (
         <View style={styles.navbar}>
-            <TouchableOpacity style={styles.navButton} onPress={()=> router.push("/")}>
+            <TouchableOpacity style={styles.navButton} onPress={()=> router.push("/(tabs)/HomeScreen")}>
                 <Icon name="home" size={24} color="#125488" />
                 <Text style={styles.navText}>Home</Text>
             </TouchableOpacity>
@@ -15,7 +15,7 @@ const NavBar = () => {
                 <Icon name="comment-o" size={24} color="#888" />
                 <Text style={styles.navTextInactive}>Groups</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.navButton} onPress={()=> router.push("/(tabs)/profile")}>
+            <TouchableOpacity style={styles.navButton} onPress={()=> router.push("/(tabs)/ExplorePage")}>
                 <Icon name="compass" size={24} color="#888" />
                 <Text style={styles.navTextInactive}>Explore</Text>
             </TouchableOpacity>

@@ -12,12 +12,10 @@ const LearnMainScreen = () => {
   return (
 
     <SafeAreaView style= {{flex:1}}>
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
       <LinearGradient
       colors={['#f7f7f7','#fbfbfb', '#9ad9ea']}
       style={styles.container}
       >
-
      
       <TouchableOpacity style={styles.notificationButton}>
           <MaterialCommunityIcons name="bell-outline" size={24} color="#111517" />
@@ -49,22 +47,23 @@ const LearnMainScreen = () => {
         </Animatable.View>
         </TouchableOpacity>
       </View>
-</LinearGradient>
-    </ScrollView>
+  
     <NavBar/>
+    </LinearGradient>
         </SafeAreaView>
   );
 };
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#fdfdfd', // Deep blue for the background
+    backgroundColor: 'transparent', // Deep blue for the background
     padding: 16,
+    flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
     padding: 16,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: 'transparent',
   //  paddingBottom: 70, // Add padding to avoid overlap with NavBar
   },
   logocontainer: {
