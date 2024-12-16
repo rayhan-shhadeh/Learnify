@@ -78,5 +78,31 @@ export const courseController = {
             res.status(500).json({ error: 'Error' });
         }
     }, 
+    async getCoursesByUserId(req, res) {
+        try {
+            const userId = req.params.userId; // Extract userId from the request parameters
+            const courses = await courseService.getCoursesByUserId(userId); // Call service function to fetch courses by userId
+            if (!courses || courses.length === 0) {
+                return res.status(200).json({ error: 'No courses found for this user' });
+            }
+            res.status(200).json(courses);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Error retrieving courses' });
+        }
+    },
+    async getFilesByCourseId(req, res) {
+        try {
+            const courseId = req.params.courseId;
+            const files = await courseService.getFilesByCourseId(courseId);
+            if (!files) {
+                return res.status(200).json({ error: 'no files' });
+            }
+            res.status(200).json(files);
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error: 'Error retrieving files' });
+        }
+    }
 };
     
