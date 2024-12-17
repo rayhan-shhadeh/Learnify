@@ -1,44 +1,71 @@
 import React, { useState } from "react";
-import { Image, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
-import {router, useRouter} from "expo-router";
-import API from '../../../api/axois';
+import { Image, View, Text, TextInput, TouchableOpacity, StyleSheet , Alert} from "react-native";
+import {useRootNavigationState, useRouter} from "expo-router";
+import API from "../../../api/axois";
+import {jwtDecode} from 'jwt-decode';
+import axios from "axios";
 
 const SignIn = () => {
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const handleLogin = async () => {
-    if (!username || !password) {
+    const navigationState = useRootNavigationState(); // Check navigation readiness
+    if (!email || !password) {
       Alert.alert("Error", "Please fill in both fields.");
       return;
     }
-  
     try {
-      const response = await API.post("/login", { username, password });
-      // Handle successful login (e.g., store token, navigate to homepage)
-      Alert.alert("Success", "Login successful!");
-      router.push("/HomeScreen");
+      const response = await fetch('http://192.168.68.57:8080/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert('Success', `Server response: ${JSON.stringify(data)}`);
+        const token = data.token;
+        const decoded = jwtDecode(token);
+        console.log(decoded);
+        // Check if navigation is ready
+      if (navigationState?.key) {
+        router.push("/(tabs)/HomeScreen");
+      } else {
+        console.warn("Navigation is not yet ready");
+      }
+
+      } else {
+        Alert.alert('Error', `Server error: ${data.message || 'Unknown error'}`);
+      }
+     
+
     } catch (error) {
-      // Handle login error
-      console.error(error);
-      Alert.alert("Error", "Login failed. Please check your credentials.");
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      Alert.alert('Error', `Connection failed: ${errorMessage}`);
     }
   };
   
+
   return (
-    <View
-      style={styles.container}
-    >
+    <View style={styles.container} >
       <Image source={require('../../../assets/images/a-plus-4.gif')} style={styles.logo} />
       <Text style={styles.title}>Login to your account</Text>
 
       <View style={styles.inputContainer}>
         <TextInput
-          placeholder="Username"
+          placeholder="Email"
           placeholderTextColor="#647987"
           style={styles.input}
-          value={username}
-          onChangeText={setUsername}
+          value={email}
+          onChangeText={setEmail}
         />
       </View>
 
@@ -49,7 +76,8 @@ const SignIn = () => {
           style={styles.input}
           value={password}
           onChangeText={setPassword}
-          secureTextEntry
+          secureTextEntry={false}
+          // secureTextEntry
         />
       </View>
 
@@ -58,10 +86,10 @@ const SignIn = () => {
       </TouchableOpacity>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+        <TouchableOpacity style={styles.loginButton} onPress= {handleLogin}>
           <Text style={styles.loginButtonText}>Log in</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.signUpButton} onPress={() => router.push("/auth/signup")}>
+        <TouchableOpacity style={styles.signUpButton} onPress={() => router.push("/(tabs)/auth/signup")}>
           <Text style={styles.signUpButtonText}>New user? Sign Up</Text>
         </TouchableOpacity>
       </View>

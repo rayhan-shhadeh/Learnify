@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Image, View, Text, TextInput, TouchableOpacity, StyleSheet , Alert} from "react-native";
-import {useRouter} from "expo-router";
+import {useRootNavigationState, useRouter} from "expo-router";
 import API from "../api/axois";
 import {jwtDecode} from 'jwt-decode';
 import axios from "axios";
@@ -11,6 +11,11 @@ const SignIn = () => {
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
+    const navigationState = useRootNavigationState(); // Check navigation readiness
+    if (!email || !password) {
+      Alert.alert("Error", "Please fill in both fields.");
+      return;
+    }
     try {
       const response = await fetch('http://192.168.68.57:8080/api/login', {
         method: 'POST',
@@ -27,12 +32,20 @@ const SignIn = () => {
 
       if (response.ok) {
         Alert.alert('Success', `Server response: ${JSON.stringify(data)}`);
+        const token = data.token;
+        const decoded = jwtDecode(token);
+        console.log(decoded);
+        // Check if navigation is ready
+      if (navigationState?.key) {
         router.push("/(tabs)/HomeScreen");
+      } else {
+        console.warn("Navigation is not yet ready");
+      }
 
       } else {
         Alert.alert('Error', `Server error: ${data.message || 'Unknown error'}`);
       }
-      router.push("/(tabs)/HomeScreen");
+     
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
