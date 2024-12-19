@@ -13,6 +13,8 @@ export default function NotFoundScreen() {
         <Link href="/(tabs)/HomeScreen" style={styles.link}>
           <ThemedText type="link">Go to home screen!</ThemedText>
         </Link>
+        <Link href="/TestAPI" style={styles.link}>
+        </Link>
       </ThemedView>
     </>
   );

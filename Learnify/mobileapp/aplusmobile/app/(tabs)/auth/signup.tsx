@@ -8,6 +8,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -19,33 +20,67 @@ const Signup = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [dateofbirth, setDateOfBirth] = useState<Date | undefined>(undefined);
-  const [major, setMajor] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
+  const [Major, setMajor] = useState('');
   const [photo, setPhoto] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
-  
+  const flag = 1;
+  const subscription = 1;
+  const router = useRouter();
+
   const handleChoosePhoto = () => {
     launchImageLibrary({
-        mediaType: "photo"
+      mediaType: "photo"
     }, response => {
       if (response.assets && response.assets.length > 0) {
         setPhoto(response.assets[0].uri || '');
       }
     });
   };
+
   const handleDateChange = (event: any, selectedDate: Date | undefined) => {
-    const currentDate = selectedDate || dateofbirth;
+    const currentDate = selectedDate || dateOfBirth;
     setShowDatePicker(Platform.OS === 'ios');
     setDateOfBirth(currentDate);
   };
-  
-  const displayDate = dateofbirth ? dateofbirth.toDateString() : 'Select Date';
-const router = useRouter();
+
+  const displayDate = dateOfBirth ? dateOfBirth.toDateString() : 'Select Date';
+
+  const handleSignUp = async () => {
+    try {
+      const response = await fetch('http://192.168.68.57:8080/api/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          username: fullName,
+          password,
+          dateOfBirth: dateOfBirth?.toISOString().split('T')[0], // Format date as 'YYYY-MM-DD'
+          flag,
+          subscription,
+          Major,
+          photo,
+        }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        Alert.alert('Success', 'Account created successfully');
+        router.push("/(tabs)/HomeScreen");
+      } else {
+        Alert.alert('Error', data.message || 'Failed to create account');
+      }
+      router.push("/(tabs)/HomeScreen");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      Alert.alert('Error', `Connection failed: ${errorMessage}`);
+    }
+  };
+
   return (
-    <View
-      style={styles.container}
-    >
-              <Animatable.View animation="fadeInUp" duration={1400}>
+    <View style={styles.container}>
+      <Animatable.View animation="fadeInUp" duration={1400}>
         <TouchableOpacity onPress={handleChoosePhoto} style={styles.photoContainer}>
           {photo ? (
             <Image source={{ uri: photo }} style={styles.photo} />
@@ -54,6 +89,7 @@ const router = useRouter();
           )}
         </TouchableOpacity>
       </Animatable.View>
+
       {/* Header */}
       <Animatable.View animation="fadeInDown" duration={1000}>
         <View style={styles.header}>
@@ -91,8 +127,8 @@ const router = useRouter();
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-          />  
-        </Animatable.View>     
+          />
+        </Animatable.View>
 
         <Animatable.View animation="fadeInUp" duration={1400}>
           <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.dateInput}>
@@ -100,40 +136,38 @@ const router = useRouter();
           </TouchableOpacity>
           {showDatePicker && (
             <DateTimePicker
-              value={dateofbirth || new Date()}
+              value={dateOfBirth || new Date()}
               mode="date"
               display="default"
               onChange={handleDateChange}
             />
           )}
-       
         </Animatable.View>
+
         <Animatable.View animation="fadeInUp" duration={1400}>
           <TextInput
             placeholder="Major"
             placeholderTextColor="#647987"
             style={styles.input}
-            value={major}
+            value={Major}
             onChangeText={setMajor}
           />
         </Animatable.View>
-        
       </KeyboardAvoidingView>
 
       {/* Buttons */}
       <Animatable.View animation="fadeInUp" duration={1600}>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.primaryButton}>
+          <TouchableOpacity style={styles.primaryButton} onPress={handleSignUp}>
             <Text style={styles.primaryButtonText}>Create Account</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.secondaryButton} onPress={()=>{router.push("/auth/signin")}} >
-          <Text style={styles.dateText}>Already a user?</Text>
+          <TouchableOpacity style={styles.secondaryButton} onPress={() => router.push("/auth/signin")}>
+            <Text style={styles.dateText}>Already a user?</Text>
             <Text style={styles.secondaryButtonText}>Log in</Text>
           </TouchableOpacity>
         </View>
       </Animatable.View>
-      
     </View>
   );
 };
@@ -187,14 +221,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
-    width:200,
+    width: 200,
     marginBottom: 10,
   },
   primaryButtonText: {
     color: "white",
     fontWeight: "bold",
     fontSize: 16,
-    borderBlockColor: "black",
   },
   secondaryButton: {
     backgroundColor: "transparent",

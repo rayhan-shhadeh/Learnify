@@ -24,7 +24,13 @@ import {streakRouter} from "./routers/streakRouter.js";
 
 const app = express();
 const corsOption = {
-  origin: ["http://localhost:5173", "http://localhost:8081", "http://192.168.68.58:8081"],
+  origin: [
+    "http://localhost:5173",
+   "http://localhost:8081",
+    "http://0.0.0.0:8081",
+   "http://192.168.68.58:8081",
+   "http://192.168.68.58.19000"
+    ],
   credentials: true,            //access-control-allow-credentials:true
   
 };
@@ -68,6 +74,6 @@ app.get("/api", (req, res) => {
 });
 
 
-app.listen(8080, () => {
+app.listen(8080,'0.0.0.0', () => {
   console.log("Server is running on port 8080");
 });
