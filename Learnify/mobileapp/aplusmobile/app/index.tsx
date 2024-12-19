@@ -1,30 +1,58 @@
 import React, { useState } from "react";
-import { Image, View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { Image, View, Text, TextInput, TouchableOpacity, StyleSheet , Alert} from "react-native";
 import {useRouter} from "expo-router";
+import API from "../api/axois";
+import {jwtDecode} from 'jwt-decode';
+import axios from "axios";
 
 const SignIn = () => {
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const handleLogin = async () => {
+    try {
+      const response = await fetch('http://192.168.68.57:8080/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert('Success', `Server response: ${JSON.stringify(data)}`);
+        router.push("/(tabs)/HomeScreen");
+
+      } else {
+        Alert.alert('Error', `Server error: ${data.message || 'Unknown error'}`);
+      }
+      router.push("/(tabs)/HomeScreen");
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      Alert.alert('Error', `Connection failed: ${errorMessage}`);
+    }
+  };
+  
+
   return (
-    <View
-      
-      style={styles.container}
-    >
-      <TouchableOpacity style={styles.backArrow} onPress={() => router.back()} >
-        <Text style={styles.backArrowIcon}>{"<"}</Text>
-      </TouchableOpacity>
+    <View style={styles.container} >
       <Image source={require('../assets/images/a-plus-4.gif')} style={styles.logo} />
       <Text style={styles.title}>Login to your account</Text>
 
       <View style={styles.inputContainer}>
         <TextInput
-          placeholder="Username"
+          placeholder="Email"
           placeholderTextColor="#647987"
           style={styles.input}
-          value={username}
-          onChangeText={setUsername}
+          value={email}
+          onChangeText={setEmail}
         />
       </View>
 
@@ -35,7 +63,8 @@ const SignIn = () => {
           style={styles.input}
           value={password}
           onChangeText={setPassword}
-          secureTextEntry
+          secureTextEntry={false}
+          // secureTextEntry
         />
       </View>
 
@@ -44,7 +73,7 @@ const SignIn = () => {
       </TouchableOpacity>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.loginButton} onPress={() => router.push("/(tabs)/HomeScreen") }>
+        <TouchableOpacity style={styles.loginButton} onPress= {handleLogin}>
           <Text style={styles.loginButtonText}>Log in</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.signUpButton} onPress={() => router.push("/(tabs)/auth/signup")}>

@@ -57,22 +57,27 @@ export const authController = {
             },
           });
           
-          const token = signToken(newUser.userId);
-          const updateToken = await prisma.user_.update({
-            where: { userId: newUser.userId },
-            data: { token: token },
-          })
+          const token = await createAuthToken(newUser);
 
           res.cookie('authToken', token, {
             expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
             httpOnly: true,
           });
-          localStorage.setItem('authToken', token);
+          //localStorage.setItem('authToken', token);
           res.status(201).json({ status:'success', token, message: 'User registered successfully', user: newUser });
         } catch (error) {
           console.error(error);
           res.status(500).json({ error: 'Internal server error' });
         }
+
+    async function createAuthToken(newUser) {
+      const token = signToken(newUser.userId);
+      const updateToken = await prisma.user_.update({
+        where: { userId: newUser.userId },
+        data: { token: token },
+      });
+      return token;
+    }
       },
   async login(req, res, next) {
     try {
