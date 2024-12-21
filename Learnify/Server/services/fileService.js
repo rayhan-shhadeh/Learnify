@@ -48,4 +48,10 @@ export const fileService = {
         }
         )
     },
+    async getFileByCourseId(courseId){
+        return await prisma.file.findMany({
+            where : { courseId : parseInt(courseId) }
+        })
+    }
+
 }

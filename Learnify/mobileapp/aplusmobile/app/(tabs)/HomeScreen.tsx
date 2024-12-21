@@ -17,11 +17,6 @@ const HomePage = () => {
       >
 
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-
-     
-      <TouchableOpacity style={styles.notificationButton}>
-          <MaterialCommunityIcons name="bell-outline" size={24} color="#111517" />
-        </TouchableOpacity>
             {/* Header */}
       <View style={styles.header}>
       <Text style={styles.headerTitle}> Welcome to</Text>
@@ -40,7 +35,7 @@ const HomePage = () => {
       <View style={styles.grid}>
         {/* Quizzes Card */}
         
-        <TouchableOpacity onPress={() => router.push("/")} style={styles.card} > 
+        <TouchableOpacity onPress={() => router.push("/+not-found")} style={styles.card} > 
         <Animatable.View animation="fadeInUp" delay={200} duration={800}>
           <MaterialCommunityIcons name="book-open-outline"  style={styles.icons} size={24} color="#fff" />
           <View style={styles.cardTextContainer}>

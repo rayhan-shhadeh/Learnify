@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Grid, Box, Card, Stack, Typography, TextField, Button, Alert } from '@mui/material';
+import { Grid, Box, Card, Stack, Typography, TextField, Button, Alert,Container } from '@mui/material';
 
 // components
 import PageContainer from '../../Components/container/PageContainer';
@@ -118,6 +118,9 @@ res.setToken(token);
                   Login
                 </Button>
               </form>
+              <Container>
+                <p>Forgot you password? <Link to="/auth/forgotpassword">Forgot Password</Link> </p>
+              </Container>
               <Stack direction="row" spacing={1} justifyContent="center" mt={3}>
                 <Typography color="textSecondary" variant="h6" fontWeight="500">
                   New to A+?
@@ -134,6 +137,7 @@ res.setToken(token);
                   Create an account
                 </Typography>
               </Stack>
+
             </Card>
           </Grid>
         </Grid>
