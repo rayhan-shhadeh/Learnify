@@ -12,12 +12,11 @@ export  function createJSONFile( fileName,fileDeadline,fileURL,courseid) {
     return jsonObject;
 }
 
-export  function createJSONFlashcard( name,Q,A,deadline,fileid) {
+export function createJSONFlashcard( name,Q,A,fileid) {
     const jsonObject = {
         "flashcardName": name,
         "flashcardQ": Q,
         "flashcardA": A ,
-        "flashcardDeadline":deadline,
         "file":{
             "connect": {
               "fileId": fileid
@@ -132,6 +131,20 @@ export function createJSONHabitStatus(habit,count){
     const jsonObject = {
         "habit":habit,
         "count":count
+    };
+    return jsonObject;
+}
+
+export function createJSONReview(flashcardId,interval,repetitions,nextReviewDate,easeFactor){
+    const jsonObject = {
+        "interval":interval,
+        "repetitions":repetitions,
+        "nextReviewDate":nextReviewDate,
+        "easeFactor" : easeFactor ,
+        "flashcard":{
+            connect: { flashcardId: flashcardId }, // Use `connect` to link to an existing flashcard
+        },
+
     };
     return jsonObject;
 }

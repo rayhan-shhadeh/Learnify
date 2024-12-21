@@ -92,7 +92,7 @@ export const practiceController={
         if(practiceFlashcardsArray.length === 0){
             res.status(201).json("No flashcards for practice today for "+file.fileName+" file!");
         }
-        await fileService.updateFileDetails(file.fileId, {
+        await fileService.updateFile(file.fileId, {
             ...file,
             practiceCount: ++practiceCount
         });
