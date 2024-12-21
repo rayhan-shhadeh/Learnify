@@ -4,9 +4,9 @@ import API from '../../../api/axios';
 import '../../../CSS/Login.css';
 import Cookies from 'js-cookie'; // Import js-cookie library
 import {jwtDecode} from 'jwt-decode';
-import { Container, TextField, Button, Typography, Box, Alert } from '@mui/material';                                   
+import { Container, TextField, Button, Typography, Box, Alert, Card } from '@mui/material';                                   
 import axios from '../../../api/axios'; // Import axios library
-function Login() {
+function UpdatePassword() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -33,13 +33,13 @@ function Login() {
 //     }
 
     try {
-      const response = await axios.post('http://localhost:8080/api/login', formData );
+      const response = await axios.post('http://localhost:8080/api/updateme', formData );
       const token = response.data.token;
       const decoded = jwtDecode(token);
       
       // Cookies.set('authToken', token); // Save token in a cookie
       // Cookies.set('user', decoded); // Save user data in a cookie
-      setMessage('Logged in successfully!');
+      setMessage('update in successfully!');
       navigate('/profile'); // Redirect to '/profile'
     } catch (error) {
       setMessage(error.response.data.message || 'Error logging in.');
@@ -49,31 +49,44 @@ function Login() {
 
   return (
     <>
+<Card style={{width: '18rem' , margin: 'auto', marginTop: '10px' , padding: '10px' , textAlign: 'center', backgroundColor: '#1ca7ec'}}> 
+  Reset Password
+</Card>
     <Container maxWidth="sm" className="sub-container">
-      <h2>Login</h2>
+      <h2>Did you forgot your password? </h2>
+
       <form  className="sub-container" onSubmit={handleSubmit}>
-        <input
+        <input style={{width: '100%', padding: '10px', margin: '10px'}}
           type="email"
           name="email"
           placeholder="Email"
           value={formData.email}
           onChange={handleChange}
-        />
-        <input
+          />
+        <input style={{width: '100%', padding: '10px', margin: '10px'}}
           type="password"
           name="password"
-          placeholder="Password"
+          placeholder="password"
           value={formData.password}
           onChange={handleChange}
         />
-        <button type="submit">Login</button>
+        <Button
+          fullWidth
+          type="submit"
+          variant="contained"
+          color="primary"
+          sx={{ mt: 2 }}
+          >
+           Reset my Password
+        </Button>
+
+        <button type="submit"></button>
       </form>
       <p>{message}</p>
     </Container>
-
     </>
   );
 
 }
 
-export default Login;
+export default UpdatePassword;

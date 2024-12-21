@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, Button } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Alert, View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, Button } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -11,6 +11,8 @@ import Back from './Back'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {jwtDecode} from 'jwt-decode';
 
 const files = [
   { id: '1', title: 'File 1', uri: 'file:///path/to/your/file2.pdf' },
@@ -38,9 +40,11 @@ const FilesScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [fileName, setFileName] = useState('');
   const [fileDeadline, setFileDeadline] = useState('');
-  const [courseTag, setCourseTag] = useState('');
   const [fileToUpload, setFileToUpload] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [files, setFiles] = useState();
+  const [userId, setUserId] = useState<string | null>(null);
+  const [fileURL, setFileURL] = useState('');
 
   const handleDateChange = (event: any, selectedDate: Date | undefined) => {
     const currentDate = selectedDate;
@@ -53,7 +57,43 @@ const FilesScreen = () => {
     setShowDatePicker(Platform.OS === 'ios');
     setDateOfBirth(currentDate);
   };
+  useEffect(() => {
 
+    const fetchCourses = async () => {
+      try {
+        
+        const token = await AsyncStorage.getItem('token');
+        Alert.alert('Token', token ?? 'No token found');
+        const decoded: { id: string } | null = token ? jwtDecode<{ id: string }>(token) : null;
+        setUserId(decoded?.id ?? null); // Adjust this based on the token structure
+       // Alert.alert('Decoded Token', JSON.stringify(decoded));
+        if (!token) {
+          Alert.alert('Error', 'Token not found');
+          setFileName('');
+          setFileDeadline('');
+          setFileURL('');
+          return;
+        }
+        //const userId = JSON.parse(atob(token.split('.')[1])).userId; // Decode userId from the token
+        const userId = decoded?.id;
+        const response = await fetch(`http://192.168.68.58:8080/api/user/courses/${userId}`,
+         {
+          method: 'GET',
+        });
+        if (!response.ok) {
+          Alert.alert('Error', 'Failed to fetch courses');
+          return;
+        }
+        const data = await response.json();
+     // Alert.alert('Success', 'Courses fetched successfully');
+     // Alert.alert('Courses', JSON.stringify(data));
+        setFiles(data);
+      } catch (error) {
+        Alert.alert('Error');
+      }
+    };
+fetchCourses();
+  }, []);
   const FileCard = ({ title, uri }: { title: string, uri: string }) => {
     return (
       <LinearGradient colors={['#1CA7EC', '#1CA7EC']} style={styles.card}>
@@ -107,9 +147,9 @@ const FilesScreen = () => {
             </Animatable.View>
             <TextInput
               style={styles.input}
-              placeholder="Course Tag"
-              value={courseTag}
-              onChangeText={setCourseTag}
+              placeholder="File Name"
+              value={fileName}
+              onChangeText={setFileName}
             />
             <Button title="Upload File" onPress={() => {/* handle file upload */}} />
             <Button title="Add File" onPress={() => setModalVisible(false)} />

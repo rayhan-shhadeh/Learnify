@@ -19,7 +19,7 @@ const NavBar = () => {
                 <Icon name="compass" size={24} color="#888" />
                 <Text style={styles.navTextInactive}>Explore</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.navButton}>
+            <TouchableOpacity style={styles.navButton} onPress={()=> router.push("/(tabs)/CoursesTestFetching")}>
                 <Icon name="bar-chart" size={24} color="#888" />
                 <Text style={styles.navTextInactive}>Habits</Text>
             </TouchableOpacity>

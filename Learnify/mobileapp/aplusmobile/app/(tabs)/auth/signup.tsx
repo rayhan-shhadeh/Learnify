@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useContext, useState } from "react";
 import {
   View,
   Text,
@@ -16,8 +16,14 @@ import * as Animatable from "react-native-animatable";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRootNavigationState, useRouter } from "expo-router";
 import requestPhotoLibraryPermission from "../../../utils/permissions";
+import { AuthContext } from '../../../components/store/auth-context';
+import AuthContent from '../../../components/Auth/AuthContent';
 
 const Signup = () => {
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+
+  const authCtx = useContext(AuthContext);
+
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -66,6 +72,7 @@ const Signup = () => {
   const handleSignUp = async () => {
   
     const navigationState = useRootNavigationState(); // Check navigation readiness
+    setIsAuthenticating(true);
 
     try {
       const response = await fetch('http://192.168.68.57:8080/api/signup', {
@@ -87,6 +94,7 @@ const Signup = () => {
       const data = await response.json();
       if (data.success) {
         Alert.alert('Success', 'Account created successfully');
+        authCtx.authenticate(data.token);
         // Check if navigation is ready
       if (navigationState?.key) {
         router.push("/(tabs)/HomeScreen");
@@ -95,6 +103,8 @@ const Signup = () => {
       }
       }
       router.push("/(tabs)/HomeScreen");
+      setIsAuthenticating(false);
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       Alert.alert('Error', `Connection failed: ${errorMessage}`);
@@ -185,7 +195,7 @@ const Signup = () => {
             <Text style={styles.primaryButtonText}>Create Account</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.secondaryButton} onPress={() => router.push("/+not-found")}>
+          <TouchableOpacity style={styles.secondaryButton} onPress={() => router.push("/(tabs)/auth/signin")}>
             <Text style={styles.dateText}>Already a user?</Text>
             <Text style={styles.secondaryButtonText}>Log in</Text>
           </TouchableOpacity>
