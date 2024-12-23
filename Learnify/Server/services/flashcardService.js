@@ -1,4 +1,6 @@
 import { PrismaClient } from '@prisma/client';
+import { reviewService } from "../services/reviewService.js";
+
 const prisma = new PrismaClient();
 
 export const flashcardService = {
@@ -16,6 +18,14 @@ export const flashcardService = {
     },
 
     async deleteFlashcard(id) {
+        const review = await reviewService.getReviewByFlashcardId(id);
+
+        if (review != null) {
+            const reviewId = review.reviewId;
+            await prisma.review.delete({
+                where: { flashcardid: parseInt(id) , reviewId : parseInt(reviewId)}
+            });
+        }
         return await prisma.flashcard.delete({
             where: { flashcardId: parseInt(id) }
         });
