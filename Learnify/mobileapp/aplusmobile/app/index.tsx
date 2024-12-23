@@ -3,7 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { CoursesProvider } from '../app/(tabs)/hooks/CoursesContext';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import FilesScreen from './(tabs)/FilesScreen';
+import PdfScreen from './(tabs)/Files/PdfScreen';
 
+const Stack = createStackNavigator();
 
 const IndexScreen = () => {
   const router = useRouter();
@@ -31,6 +36,7 @@ const IndexScreen = () => {
       <TouchableOpacity style={styles.button} onPress={handleStartPress}>
         <Text style={styles.buttonText}>Start</Text>
       </TouchableOpacity>
+
     </LinearGradient>
     </CoursesProvider>
   );

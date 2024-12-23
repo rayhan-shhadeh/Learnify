@@ -71,7 +71,7 @@ const ForgotPassword = () => {
   return (
     <View style={styles.container} >
       <Image source={require('../../../assets/images/a-plus-4.gif')} style={styles.logo} />
-      <Text style={styles.title}>Login to your account</Text>
+      <Text style={styles.title}>please enter your email</Text>
 
       <View style={styles.inputContainer}>
         <TextInput
@@ -86,9 +86,7 @@ const ForgotPassword = () => {
         <TouchableOpacity style={styles.loginButton} onPress= {handleLogin}>
           <Text style={styles.loginButtonText}>Send me an Email</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.signUpButton} onPress={() => router.push("/(tabs)/auth/signup")}>
-          <Text style={styles.signUpButtonText}>New user? Sign Up</Text>
-        </TouchableOpacity>
+
         
       </View>
     </View>

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, Modal, TextInput, Button, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import Back from '../(tabs)/Back'
-import NavBar from '../(tabs)/NavBar'
+import Back from '../Back'
+import NavBar from '../NavBar'
 import * as Animatable from 'react-native-animatable';
 import { FontAwesome } from '@expo/vector-icons';
 

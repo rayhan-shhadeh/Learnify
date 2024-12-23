@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Button, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { Calendar as BigCalendar } from 'react-native-big-calendar';
-import Back from './Back';
-import NavBar from './NavBar';
+import Back from '../Back';
+import NavBar from '../NavBar';
 import axios from 'axios';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Modal from 'react-native-modal';
 import dayjs from 'dayjs';
 import Cookies from 'js-cookie';
-import jwtDecode from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';
 import {useRouter} from 'expo-router';
 
 

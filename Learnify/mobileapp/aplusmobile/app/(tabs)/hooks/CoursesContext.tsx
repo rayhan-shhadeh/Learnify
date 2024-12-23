@@ -1,37 +1,33 @@
 import React, { createContext, useState, useContext, ReactNode, Dispatch, SetStateAction } from 'react';
 
-// Define the shape of the context state
 interface CoursesContextType {
-  courses: any[];  // Adjust 'any' to the appropriate type for your course objects
-  setCourses: Dispatch<SetStateAction<any[]>>;  // Adjust 'any' if necessary
+  mycourses: any[];  
+  setmyCourses: Dispatch<SetStateAction<any[]>>;
+  selectedCourseId: string | null;  // Add a selectedCourseId to store the selected course's ID
+  setSelectedCourseId: Dispatch<SetStateAction<string | null>>;  // Add setter for selectedCourseId
 }
 
-// Create the context with a default value of undefined
 const CoursesContext = createContext<CoursesContextType | undefined>(undefined);
 
-// Define the provider's props
 interface CoursesProviderProps {
   children: ReactNode;
 }
 
-// Provider component
 export const CoursesProvider: React.FC<CoursesProviderProps> = ({ children }) => {
-  const [courses, setCourses] = useState<any[]>([]);  // Adjust 'any' if you have a defined type for courses
+  const [mycourses, setmyCourses] = useState<any[]>([]);
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);  // State to store selected course ID
 
   return (
-    <CoursesContext.Provider value={{ courses, setCourses }}>
+    <CoursesContext.Provider value={{ mycourses, setmyCourses, selectedCourseId, setSelectedCourseId }}>
       {children}
     </CoursesContext.Provider>
   );
 };
 
-// Hook to use the context
 export const useCourses = (): CoursesContextType => {
   const context = useContext(CoursesContext);
-  
   if (!context) {
     throw new Error('useCourses must be used within a CoursesProvider');
   }
-  
   return context;
 };

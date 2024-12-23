@@ -4,17 +4,15 @@ import { FontAwesome } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useRouter } from 'expo-router';
-import NavBar from './NavBar';
+import NavBar from '../NavBar';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
-import Back from './Back'
+import Back from '../Back'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {jwtDecode} from 'jwt-decode';
-import API from '../../api/axois';
-import {useCourses} from './hooks/CoursesContext';
 const randomGradient = (): [string, string, ...string[]] => {
   const colors: [string, string, ...string[]][] = [
     ['#4c669f', '#3b5998', '#192f6a'],
@@ -29,8 +27,7 @@ const randomGradient = (): [string, string, ...string[]] => {
   return colors[Math.floor(Math.random() * colors.length)];
 };
 
-const CoursesScreen = () => {
-  const { mycourses, setmyCourses, selectedCourseId, setSelectedCourseId } = useCourses();
+const EditCourse = () => {
   const router = useRouter();
   const [dateofbirth, setDateOfBirth] = useState<Date | undefined>(undefined);
   const [modalVisible, setModalVisible] = useState(false);
@@ -40,16 +37,13 @@ const CoursesScreen = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [files, setFiles] = useState();
   const [fileURL, setFileURL] = useState('');
-  const [courses, setCourses] = useState<any[]>([]); 
-  const [userId, setUserId] = useState<string | null>(null);
+  const [courses, setCourses] = useState<any[]>([]); // State to hold the courses
+  const [userId, setUserId] = useState<string | null>(null); // State to store user ID
   const [courseName, setCourseName] = useState('');
   const [courseTag, setCourseTag] = useState('');
   const [courseDescription, setCourseDescription] = useState('');
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [currentCourse, setCurrentCourse] = useState<{ id: string } | null>(null);
-  const [newCourseName, setNewCourseName] = useState('');
-  const [newCourseDescription, setNewCourseDescription] = useState('');
-  const [newCourseTag, setNewCourseTag] = useState('');
+  const [currentCourse, setCurrentCourse] = useState(null);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -63,32 +57,23 @@ const CoursesScreen = () => {
         const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
         setUserId(decoded?.id ?? null); // Adjust this based on the token structure
         
-        const response = await API.get(`/api/user/courses/${decoded?.id}`);
-        if ( response.status !== 200) {
+        const response = await fetch(`http://192.168.68.53:8080/api/user/courses/${decoded?.id}`);
+        if (!response.ok) {
           Alert.alert('Error', 'Failed to fetch courses');
           return;
         }
         Alert.alert('Success', 'Courses fetched successfully');
-        const data = await response.data;
+        const data = await response.json();
         setCourses(data); // Set courses to state
         //Alert.alert('Courses', JSON.stringify(data));
-        setmyCourses(data);
-        mycourses.map((course) => {
-          console.log(course.courseName);
-        }
-        );
       } catch (error) {
         Alert.alert('Error', 'An error occurred while fetching courses');
       }
     };
     fetchCourses();
-    
 
   }, []) ;
-  const handleCourseSelect = (courseId: string) => {
-    setSelectedCourseId(courseId);  // Set the selected course ID in the context
-    router.push('/(tabs)/FilesScreen');  // Navigate to the files screen when a course is selected
-  };
+
   const addNewCourse = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
@@ -102,7 +87,12 @@ const CoursesScreen = () => {
       // }
       const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
       setUserId(decoded?.id ?? null); // Adjust this based on the token structure
-      const response = await  API.post(`/api/course`, {
+      const response = await fetch(`http://192.168.68.53:8080/api/course`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           courseName: courseName,
           courseDescription: courseDescription,
           courseTag: courseTag,
@@ -111,15 +101,15 @@ const CoursesScreen = () => {
               userId: decoded?.id,
             }
           }
+        }),
       });
-      if ( response.status !== 200) {
+      if (!response.ok) {
         Alert.alert('Error', 'Failed to add new course');        
         return;
       }
       Alert.alert('Success', 'New course added successfully');
-      const data = await response.data;
+      const data = await response.json();
       setCourses([...courses, data]); // Add new course to the list of courses
-      setmyCourses([...mycourses, data]);
       // setCourses([...courses, { id: Date.now().toString(), title: newCourseName, description: newCourseDescription, tag: newCourseTag }]);
       // setNewCourseName('');
       // setNewCourseDescription('');
@@ -139,8 +129,13 @@ const CoursesScreen = () => {
       }
       const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
       setUserId(decoded?.id ?? null); // Adjust this based on the token structure
-      const response = await  API.delete(`/api/course/${courseId}`);
-      if ( response.status !== 200) {
+      const response = await fetch(`http://192.168.68.53:8080/api/course/${courseId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
         Alert.alert('Error', 'Failed to delete course');
         return;
       }
@@ -171,7 +166,12 @@ const closeEditModal = () => {
       }
       const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
       setUserId(decoded?.id ?? null); // Adjust this based on the token structure
-      const response = await API.put(`/api/course/${courseId}`, {
+      const response = await fetch(`http://192.168.68.53:8080/api/course/${courseId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           courseName: newCourseName,
           courseDescription: newCourseDescription,
           courseTag: newCourseTag,
@@ -180,8 +180,9 @@ const closeEditModal = () => {
               userId: decoded?.id,
             }
           }
-        });
-      if (response.status !== 200) {
+        }),
+      });
+      if (!response.ok) {
         Alert.alert('Error', 'Failed to edit course');
         return;
       }
@@ -216,7 +217,7 @@ const closeEditModal = () => {
           <View style={styles.iconContainer}>
           <TouchableOpacity onPress={openEditModal}>
             <FontAwesome name="edit" size={20} color="url(#grad)" />
-            {/* <Button title="Edit Course" onPress={() =>{openEditModal}}/> */}
+
             </TouchableOpacity>            
             <TouchableOpacity onPress={() => deleteCourse(courseId)}>
             <FontAwesome name="trash" size={20} color="url(#grad)"  />
@@ -266,6 +267,8 @@ const closeEditModal = () => {
   };
 
 const renderEditModal = () => {
+  if (!isEditModalVisible || !currentCourse) return null;
+
   return (
     <Modal visible={isEditModalVisible} transparent={true} animationType="slide">
       <View style={styles.modalContainer}>
@@ -277,23 +280,23 @@ const renderEditModal = () => {
           <TextInput
             style={styles.input}
             placeholder="Course Name"
-            value={newCourseName}
-            onChangeText={setNewCourseName}
+            value={courseName}
+            onChangeText={setCourseName}
           />
-            <TextInput
+                      <TextInput
             style={styles.input}
             placeholder="Course Description"
-            value={newCourseDescription}
-            onChangeText={setNewCourseDescription}
+            value={courseDescription}
+            onChangeText={setCourseDescription}
           />
           <TextInput
             style={styles.input}
             placeholder="Course Tag"
-            value={newCourseTag}
-            onChangeText={setNewCourseTag}
+            value={courseTag}
+            onChangeText={setCourseTag}
           />
 
-          <Button title="edit Course" onPress={() => currentCourse?.id && editCourse(currentCourse.id, newCourseName, newCourseDescription, newCourseTag)} />
+          <Button title="edit Course" onPress={addNewCourse}/>
           <Button title="Cancel" color="red" onPress={() =>setIsEditModalVisible(false)} />
         </View>
       </View>
@@ -315,12 +318,12 @@ const renderEditModal = () => {
                 <Icon name="list" size={27} color="#778899" />
                 <Text style={styles.header}>  My Courses</Text>
               </View>
-              <Animatable.View animation="fadeInUp" delay={200} duration={800} >
-                <FlatList style={styles.fileList} 
+              
+              <Animatable.View animation="fadeInUp" delay={200} duration={800}>
+                <FlatList style={styles.fileList}
                   data={courses} // Adjust this based on the course structure
-                  
                   renderItem={({ item }) => (
-                    <FileCard
+                    <FileCard 
                     title={item.courseName} 
                     tag={item.courseTag} 
                     description={item.courseDescription} 
@@ -349,8 +352,7 @@ const renderEditModal = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#f5f5f5',
-    paddingLeft: 20,
-    paddingRight: 20,
+    padding: 20,
   },
   header: {
     fontSize: 24,
@@ -389,7 +391,6 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 18,
     alignItems: 'center',
-    marginBottom: 50,
   },
   addButtonText: {
     color: '#fff',
@@ -482,7 +483,7 @@ paddingBlock:20,
   card: {
     flex: 1,
     padding: 15,
-    borderRadius: 40,
+    borderRadius: 18,
     marginBottom: 10,
     justifyContent: 'center',
     shadowColor: '#000',
@@ -494,5 +495,5 @@ paddingBlock:20,
   },
 });
 
-export default CoursesScreen;
+export default EditCourse;
 
