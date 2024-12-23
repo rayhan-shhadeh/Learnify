@@ -1,7 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import AppError from '../utils/appError.js';
 import util ,{promisify} from 'util';
-import jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
+import { userService } from '../services/userService.js';
 
 const prisma = new PrismaClient();
 
@@ -107,6 +108,29 @@ export const userController = {
       });
     }
   },  
+  async getUserData(req, res, next) {
+    try {
+      const user = await userService.getUserData(req.params.id);
+      if (!user) {
+        return res.status(404).json({
+          status: "fail",
+          message: "User not found",
+        });
+      }
+      
+      res.status(200).json({
+        status: "success",
+        data: user,
+      });
+    }
+    catch (err) {
+      console.error("Error getting user data:", err);
+      res.status(500).json({
+        status: "error",
+        message: "Failed to get user data",
+      });
+    }
+  }
   
 };
 

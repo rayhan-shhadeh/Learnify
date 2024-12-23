@@ -52,23 +52,29 @@ const StudyFlashcardsScreen = () => {
 
   if (showCelebration) {
     return (
-      <LinearGradient colors={['#ddf3f5', '#f7f7f7', '#fbfbfb', '#9ad9ea']} style={styles.container}>
+      <LinearGradient colors={['#e8dcf4', '#dbd1e9', '#989eeb', '#989bbe']} style={styles.container}>
         <Back title="Back" onBackPress={() => router.back()} />
         <View style={styles.celebrationContainer}>
-          {/* <LottieView
-            source={require('../../assets/Animation.json')} // Place your Lottie file in the project directory
+           <LottieView
+            source={require('../../../aplusmobile/assets/prize.json')} // Place your Lottie file in the project directory
             autoPlay
-            loop={false}
+            loop={true}
             style={styles.lottie}
-          /> */}
-          <Text style={styles.congratsText}>Congratulations! 🎉 You've completed all flashcards!</Text>
+          /> 
+            <Animatable.Text
+            animation="bounceIn"
+            duration={1500}
+            style={styles.congratsText}
+            >
+            Congratulations! 🎉 You've completed all flashcards!
+            </Animatable.Text>
         </View>
       </LinearGradient>
     );
   }
 
   return (
-    <LinearGradient colors={['#ddf3f5', '#f7f7f7', '#fbfbfb', '#9ad9ea']} style={styles.container}>
+    <LinearGradient colors={['#ddf3f5', '#f7f7f7', '#3681a7', '#21277b']} style={styles.container}>
       <ScrollView style={styles.container}>
         <Back title="Back" onBackPress={() => router.back()} />
         <View style={styles.headerContainer}>
@@ -89,10 +95,10 @@ const StudyFlashcardsScreen = () => {
               </Text>
             </Card.Content>
           </Card>
-          <TouchableOpacity style={styles.flipButton} onPress={flipCard}>
+          {/* <TouchableOpacity style={styles.flipButton} onPress={flipCard}>
             <Ionicons name="swap-horizontal" size={24} color="white" />
             <Text style={styles.flipButtonText}>Flip</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </Animatable.View>
 
         {expressionVisible && (
@@ -183,30 +189,38 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   ratingContainer: {
-    flexDirection: 'row',
     justifyContent: 'space-around',
     marginTop: 20,
-  },
+    padding: 10,
+    display: 'flex',
+    flexDirection: 'row',
+paddingBlock: 10, 
+},
   ratingButton: {
     flex: 1,
     marginHorizontal: 5,
-    backgroundColor: '#1ca7ec',
+    backgroundColor: 'transparent',
+    
   },
   celebrationContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    marginVertical: 60,
   },
   lottie: {
     width: 200,
     height: 200,
+    flex: 1,
   },
   congratsText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1ca7ec',
+    color: '#21277b',
     textAlign: 'center',
-    marginTop: 20,
+  
+    paddingTop: -10,
+    marginBottom: 20,
   },
 });
 

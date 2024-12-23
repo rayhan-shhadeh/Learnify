@@ -36,34 +36,28 @@ const SignIn = () => {
       return;
     }
     try {
-      const response = await fetch('http://192.168.68.58:8080/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
+      const response = await API.post(`/api/login`, 
+        {
+          email: email,
+          password: password,
       });
-
-      const data = await response.json();
-
-      if (response.ok) {
+      if ( response.status === 200) {
         //Alert.alert('Success', `Server response: ${JSON.stringify(data)}`);
-        const token = data.token;        // Check if navigation is ready
+        const token = response.data.token;        // Check if navigation is ready
         authCtx.authenticate(token);
         Alert.alert('Success, token:',token);
         AsyncStorage.setItem('token', token);
         router.push("/(tabs)/HomeScreen");
 
       } else {
-        Alert.alert('Error', `Please enter valid credentials: ${data.message }`);
+        Alert.alert('Error', `Please enter valid credentials: ${response?.data.message }`);
       }
      
 
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    } catch (error: any) {
+      console.log("Login Error: ", error);
+      const errorMessage = error?.response?.data?.message ??
+       (error instanceof Error ? error.message : 'Unknown error') ;
       Alert.alert('Error', `Connection failed: ${errorMessage}`);
     }
   };

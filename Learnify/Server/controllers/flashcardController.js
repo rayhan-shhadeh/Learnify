@@ -16,7 +16,8 @@ export const flashcardController = {
             const fileDeadline = new Date(file.fileDeadline).toISOString();
             //prepare prompt and fullpath for openAI function
             const prompt = 'Create Flashcards for attached file In following format as array of json with QA pairs[{"Q": "What is today", "A": "Tuesday"},............] without any additional text before or after json object and without ```json```';
-            const fullPath = process.env.SAVE_PATH+filename;
+            const fullPath = "C:\\Users\\rshha\\Documents\\VSCode\\projects\\Graduation-v7\\Learnify\\Server\\TempPDFs\\"+filename;
+            console.log("this is my full path",fullPath);
             //download pdf, send to openAI, delete pdf
             await downloadPDF(fileurl , process.env.SAVE_PATH ,filename);//url, savePath, filename
             const response = await OpenAIPromptHandling(fullPath,prompt); //filename,prompt
@@ -30,7 +31,7 @@ export const flashcardController = {
             }
             //store flashcards in db
                jsonArrayResponse.forEach(flashcard => {
-               const JSONflashcard = createJSONFlashcard("flashcard"+fileid,flashcard.Q,flashcard.A,fileDeadline,fileid);
+               const JSONflashcard = createJSONFlashcard("flashcard"+fileid,flashcard.Q,flashcard.A,fileid);
                flashcardService.createFlashcard(JSONflashcard);
             });
             res.status(201).json(response);

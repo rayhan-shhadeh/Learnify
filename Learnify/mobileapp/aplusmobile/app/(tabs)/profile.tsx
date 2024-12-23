@@ -1,58 +1,97 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
+import React , {useState,useEffect} from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import LinearGradient from 'react-native-linear-gradient';
 import Back from './Back';
 import NavBar from './NavBar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import API from "../../api/axois";
+import {jwtDecode} from  'jwt-decode';
+
+
 export default function Profile() {
+  const [userId, setUserId] = React.useState<string | null>(null);
+  const [userData, setUserData] = React.useState([]);
+
+  
+useEffect(() => {
+  const fetchUserData = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        Alert.alert('Error', 'Token not found');
+        return;
+      }
+      
+      const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
+      setUserId(decoded?.id ?? null); // Adjust this based on the token structure
+      
+      const response = await API.get(`/api/users/getme/${decoded?.id}`);
+      if ( response.status !== 200) {
+        Alert.alert('Error', 'Failed to fetch courses');
+        return;
+      }
+      Alert.alert('Success', 'fetched data successfully');
+      const data = await response.data;
+      setUserData(data);
+      //Alert.alert('Success',data);
+    } catch (error) {
+      Alert.alert('Error', 'An error occurred while fetching courses');
+    }
+  };
+  fetchUserData();
+}, []);
   return (
     <ScrollView contentContainerStyle={styles.container}>
+
+      <View style={styles.header}>
       <Back title={'/homepage'} onBackPress={function (): void {
         throw new Error('Function not implemented.');
       } } />
-      <View style={styles.header}>
-        <Text style={styles.logo}>logo</Text>
+            {/* <Image source={require('../../assets/images/a-plus-4.gif')} style={styles.logoImage} /> */}
         <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.notificationButton}>
             <Icon name="bell" size={24} color="#647987" />
             <View style={styles.notificationDot} />
           </TouchableOpacity>
-          <View style={styles.profileImageContainer}>
+          {/* <View style={styles.profileImageContainer}>
             <Image
               source={{ uri: 'https://creatie.ai/ai/api/search-image?query=professional headshot of a young person with a friendly smile, wearing business casual attire, natural lighting, clean background&width=100&height=100&orientation=squarish&flag=219149b1-5e7b-4a8c-a08c-43c638057645' }}
               style={styles.profileImage}
             />
-          </View>
+          </View> */}
         </View>
       </View>
 
       <View style={styles.main}>
         <View style={styles.welcomeSection}>
           <View>
-            <Text style={styles.welcomeText}>Welcome back, Rayhan!</Text>
+            <Text style={styles.welcomeText}>Welcome back!</Text>
             <Text style={styles.subText}>Keep up the great work</Text>
           </View>
-          <View style={styles.progressChartContainer}>
+          {/* <View style={styles.progressChartContainer}>
             <View style={styles.progressChart}>
               <Text style={styles.progressText}>78%</Text>
             </View>
-          </View>
+          </View> */}
         </View>
-
+            {/* <View>
+              <Text> Your info:</Text>
+              <Text> {userData}</Text>
+            </View> */}
         <View style={styles.streakSection}>
           <View style={styles.streakHeader}>
             <Icon name="fire" size={24} color="#FFA500" />
             <Text style={styles.streakText}>15 Day Streak!</Text>
           </View>
           <View style={styles.streakDetails}>
-            <View style={styles.streakDetail}>
+            {/* <View style={styles.streakDetail}>
               <Text style={styles.subText}>Tasks Today</Text>
               <Text style={styles.detailText}>4/6</Text>
             </View>
             <View style={styles.streakDetail}>
               <Text style={styles.subText}>Weekly Goal</Text>
               <Text style={styles.detailText}>85%</Text>
-            </View>
+            </View> */}
           </View>
         </View>
 
@@ -75,10 +114,10 @@ export default function Profile() {
           <Text style={styles.sectionTitle}>Continue Learning</Text>
           <ScrollView horizontal style={styles.coursesSection}>
             <View style={styles.courseCard}>
-              <Image
+              {/* <Image
                 source={{ uri: 'https://creatie.ai/ai/api/search-image?query=modern classroom with digital learning setup, interactive whiteboard, clean and minimalist design, soft natural lighting&width=200&height=100&orientation=landscape&flag=40259e5f-04a5-4f52-9ef4-629fd138cca5' }}
                 style={styles.courseImage}
-              />
+              /> */}
               <View style={styles.courseContent}>
                 <Text style={styles.courseTitle}>Advanced Mathematics</Text>
                 <View style={styles.progressBar}>
@@ -88,7 +127,7 @@ export default function Profile() {
               </View>
             </View>
             <View style={styles.courseCard}>
-              <Image
+              {/* <Image
                 source={{ uri: 'https://creatie.ai/ai/api/search-image?query=modern physics laboratory with advanced equipment, clean and organized workspace, bright lighting&width=200&height=100&orientation=landscape&flag=6656773a-8484-438b-97db-eb4de9ce25f3' }}
                 style={styles.courseImage}
               />
@@ -98,12 +137,12 @@ export default function Profile() {
                   <View style={[styles.progress, { width: '75%' }]} />
                 </View>
                 <Text style={styles.subText}>75% Complete</Text>
-              </View>
+              </View> */}
             </View>
           </ScrollView>
         </View>
 
-        <View style={styles.activitySection}>
+        {/* <View style={styles.activitySection}>
           <Text style={styles.sectionTitle}>Recent Activity</Text>
           <View style={styles.activityCard}>
             <Icon name="file-pdf" size={24} color="#FF0000" />
@@ -126,7 +165,7 @@ export default function Profile() {
               <Text style={styles.subText}>3 new messages</Text>
             </View>
           </View>
-        </View>
+        </View> */}
       </View>
 <NavBar />
     </ScrollView>
@@ -149,10 +188,16 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
   },
-  logo: {
-    fontFamily: 'Pacifico',
-    fontSize: 24,
-    color: '#2a93d5',
+  // logo: {
+  //   fontFamily: 'Pacifico',
+  //   fontSize: 24,
+  //   color: '#2a93d5',
+  // },
+  logoImage: {
+    width: 70,
+    height: 70,
+    alignContent: 'center',
+    justifyContent: 'center',
   },
   headerIcons: {
     flexDirection: 'row',
@@ -372,3 +417,7 @@ const styles = StyleSheet.create({
     color: '#888',
   },
 });
+
+function fetchCourses() {
+  throw new Error('Function not implemented.');
+}
