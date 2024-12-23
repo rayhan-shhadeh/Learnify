@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Button, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { Calendar as BigCalendar } from 'react-native-big-calendar';
 import Back from './Back';
@@ -7,6 +7,9 @@ import axios from 'axios';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Modal from 'react-native-modal';
 import dayjs from 'dayjs';
+import Cookies from 'js-cookie';
+import jwtDecode from 'jwt-decode';
+import {useRouter} from 'expo-router';
 
 
 const initialEvents = [
@@ -25,10 +28,38 @@ const initialEvents = [
 ];
 
 export default function CalendarScreen() {
+  const router = useRouter();
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('week');
   const [events, setEvents] = useState(initialEvents);
   const [modalVisible, setModalVisible] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
+// Initialize user and set userId
+useEffect(() => {
+  const initializeUser = async () => {
+    const token = Cookies.get('token');
+    console.log('Retrieved Token:', token);
+    if (token) {
+      try {
+        console.log('Decoding token... from courses Page');
+        const decoded = jwtDecode<{ id: string }>(token);
+        setUserId(decoded.id); // Adjust this based on the token structure
+        console.log('Decoded Token:', decoded);
+      } catch (error) {
+        console.error('Failed to decode token:', error);
+        
+      }
+    } else {
+      console.log('No token found.');
+    }
+  };
+  initializeUser();
+}, []);
+
+useEffect(() => {
+  if (!userId) {
+    return; // Guard condition to prevent premature execution
+  }
   // Function to handle creating a new event
   const handleCreateEvent = async (start: Date, end: Date) => {
     const newEvent = {
@@ -45,7 +76,7 @@ export default function CalendarScreen() {
     };
     // 172.23.129.135
     try {
-      const response = await fetch('http://172.23.129.135:8081  /api/event', {
+      const response = await fetch(`http://192.168.68.57:8081/api/event/${userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,6 +104,13 @@ export default function CalendarScreen() {
       Alert.alert('Error', `Something went wrong: ${errorMessage}`);
     }
   };
+  const start = new Date(); // Replace with appropriate start date
+  const end = new Date(start.getTime() + 60 * 60 * 1000); // Replace with appropriate end date (1 hour later)
+  handleCreateEvent(start, end);
+}, [userId]);
+
+  function handleCreateEvent(start: Date, end: Date) {
+  }
 
   return (
     <View style={styles.container}>

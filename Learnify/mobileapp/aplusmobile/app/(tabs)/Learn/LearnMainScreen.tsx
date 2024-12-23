@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
@@ -6,8 +6,9 @@ import {useRouter} from "expo-router";
 import NavBar from '../../(tabs)/NavBar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import { AuthContext } from '../../../components/store/auth-context';
 const LearnMainScreen = () => {
+  const authCtx = useContext(AuthContext);
   const router = useRouter();
   return (
 
@@ -37,7 +38,7 @@ const LearnMainScreen = () => {
           </View>
         </Animatable.View>    
         </TouchableOpacity>    
-        <TouchableOpacity onPress={() => router.push("/(tabs)/ExplorePage")} style={styles.card} > 
+        <TouchableOpacity onPress={() => router.push("/(tabs)/CoursesScreen")} style={styles.card} > 
           <Animatable.View animation="fadeInUp" delay={200} duration={800}>         
           <View style={styles.cardTextContainer}>
           <MaterialCommunityIcons name="search-web" size={24} color="#fff" />

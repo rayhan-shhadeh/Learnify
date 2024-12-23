@@ -1,3 +1,4 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
@@ -12,10 +13,13 @@ const Back: React.FC<CustomToolbarProps> = ({ title, onBackPress }) => {
   return (
     <View style={styles.toolbar}>
       <TouchableOpacity onPress={()=> router.back()} style={styles.backButton}>
-        <Text style={styles.backText}>◀</Text>
+        <MaterialCommunityIcons style={styles.backText} name="arrow-left" size={24} color="#1CA7EC" />
       </TouchableOpacity>
       <Text style={styles.title}>{title}</Text>
       <View style={styles.rightPlaceholder} />
+      {/* <TouchableOpacity style={styles.notificationButton}>
+          <MaterialCommunityIcons name="bell-outline" size={24} color="#111517" />
+      </TouchableOpacity> */}
     </View>
   );
 };
@@ -46,6 +50,12 @@ const styles = StyleSheet.create({
   rightPlaceholder: {
     width: 30, // Placeholder for future icons or elements
   },
+  notificationButton: {
+    padding: 8,
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    },
 });
 
 export default Back;

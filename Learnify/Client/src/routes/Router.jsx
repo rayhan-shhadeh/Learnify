@@ -22,7 +22,7 @@ const Shadow = Loadable(lazy(() => import('../views/utilities/Shadow')))
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
-
+const UpdatePassword = Loadable(lazy(() => import('../views/authentication/auth/UpdatePassword')));
 
 const Router = [
   /*
@@ -49,6 +49,7 @@ const Router = [
       { path: '/auth/register', element: <Register /> },
       { path: '/auth/login', element: <Login /> },
       { path: '/auth/logout', element: <Login /> },
+      { path: '/auth/forgotpassword', element: <UpdatePassword /> },
       { path: '*', element: <Navigate to="/auth/404" /> },
     ],
   },

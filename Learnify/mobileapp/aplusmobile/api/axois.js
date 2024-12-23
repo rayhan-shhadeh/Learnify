@@ -9,7 +9,9 @@ const API = axios.create({
 //   'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
 
 // }
+
 });
+const token = response.data.token;
 
 
 export default API;

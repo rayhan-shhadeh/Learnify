@@ -10,5 +10,5 @@ courseRouter.delete('/course/:id',/* authController.protect, restrictTo( 1,2)*/c
 courseRouter.get('/course/:id',authController.protect, restrictTo( 1,2), courseController.getCourseById);
 courseRouter.get('/course/files/:id',authController.protect, restrictTo( 1,2), courseController.getFilesByCourseId);
 courseRouter.get('/courses/:Name', authController.protect, restrictTo( 1,2),courseController.getCoursesByName);
-courseRouter.get('/user/courses/:userId'/*, authController.protect, restrictTo( 1,2)*/,courseController.getCoursesByUserId);
+courseRouter.get('/user/courses/:userId', /* authController.protect, restrictTo( 1,2), */ courseController.getCoursesByUserId);
 courseRouter.get('/user/course/files/:courseId', courseController.getFilesByCourseId);

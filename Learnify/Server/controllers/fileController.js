@@ -67,6 +67,19 @@ export const fileController = {
             res.status(500).json({ error: 'Error retrieving file' });
         }
     },
+    async getFileByCourseId(req,res){
+        try {
+            const courseId = req.params.courseId;
+            const file = await fileService.getFileByCourseId(courseId);
+            if (!file) {
+                return res.status(404).json({ error: 'file not found' });
+            }
+            res.status(200).json(file);
+        }catch(error){
+            console.log(error);
+            res.status(500).json({ error: 'Error retrieving file' });
+        }
+    },
 
     async updateFileDetails(req, res) {
         try {
@@ -175,4 +188,5 @@ export const fileController = {
             return res.status(404).json({ error: 'Resource not found in database' });
         }
     }
+    
 }

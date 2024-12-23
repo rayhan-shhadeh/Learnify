@@ -1,7 +1,10 @@
 import React from 'react';
 import { View, Button, Alert } from 'react-native';
+import Back from './(tabs)/Back';
+import { useRouter } from 'expo-router';
 
 const TestAPI = () => {
+  const router = useRouter();
   const testServerConnection = async () => {
     try {
       const response = await fetch('http://192.168.68.57:8080/api/login', {
@@ -29,9 +32,14 @@ const TestAPI = () => {
   };
 
   return (
+    <>
+    <View>
+      <Back title={''} onBackPress={() => {router.back}} />
+    </View>
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <Button title="Test Server Connection" onPress={testServerConnection} />
     </View>
+    </>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useContext, useState } from "react";
 import {
   View,
   Text,
@@ -14,9 +14,16 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { launchImageLibrary } from 'react-native-image-picker';
 import * as Animatable from "react-native-animatable";
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useRouter } from "expo-router";
+import { useRootNavigationState, useRouter } from "expo-router";
+import requestPhotoLibraryPermission from "../../../utils/permissions";
+import { AuthContext } from '../../../components/store/auth-context';
+import AuthContent from '../../../components/Auth/AuthContent';
 
 const Signup = () => {
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+
+  const authCtx = useContext(AuthContext);
+
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,16 +34,32 @@ const Signup = () => {
   const flag = 1;
   const subscription = 1;
   const router = useRouter();
-
-  const handleChoosePhoto = () => {
-    launchImageLibrary({
-      mediaType: "photo"
-    }, response => {
-      if (response.assets && response.assets.length > 0) {
-        setPhoto(response.assets[0].uri || '');
+  const handleChoosePhoto = async () => {
+    if (Platform.OS === "android") {
+      await requestPhotoLibraryPermission();
+    }
+  
+    launchImageLibrary(
+      {
+        mediaType: "photo",
+        includeBase64: false,
+        quality: 0.8,
+      },
+      (response) => {
+        if (response.didCancel) {
+          console.log("User cancelled image picker");
+        } else if (response.errorMessage) {
+          console.error("Image picker error: ", response.errorMessage);
+          Alert.alert("Error", "Could not select image. Please try again.");
+        } else if (response.assets && response.assets.length > 0) {
+          setPhoto(response.assets[0].uri || '');
+        } else {
+          console.warn("No image selected");
+        }
       }
-    });
+    );
   };
+  
 
   const handleDateChange = (event: any, selectedDate: Date | undefined) => {
     const currentDate = selectedDate || dateOfBirth;
@@ -47,6 +70,10 @@ const Signup = () => {
   const displayDate = dateOfBirth ? dateOfBirth.toDateString() : 'Select Date';
 
   const handleSignUp = async () => {
+  
+    const navigationState = useRootNavigationState(); // Check navigation readiness
+    setIsAuthenticating(true);
+
     try {
       const response = await fetch('http://192.168.68.57:8080/api/signup', {
         method: 'POST',
@@ -67,11 +94,17 @@ const Signup = () => {
       const data = await response.json();
       if (data.success) {
         Alert.alert('Success', 'Account created successfully');
+        authCtx.authenticate(data.token);
+        // Check if navigation is ready
+      if (navigationState?.key) {
         router.push("/(tabs)/HomeScreen");
       } else {
-        Alert.alert('Error', data.message || 'Failed to create account');
+        console.warn("Navigation is not yet ready");
+      }
       }
       router.push("/(tabs)/HomeScreen");
+      setIsAuthenticating(false);
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       Alert.alert('Error', `Connection failed: ${errorMessage}`);
@@ -162,7 +195,7 @@ const Signup = () => {
             <Text style={styles.primaryButtonText}>Create Account</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.secondaryButton} onPress={() => router.push("/auth/signin")}>
+          <TouchableOpacity style={styles.secondaryButton} onPress={() => router.push("/(tabs)/auth/signin")}>
             <Text style={styles.dateText}>Already a user?</Text>
             <Text style={styles.secondaryButtonText}>Log in</Text>
           </TouchableOpacity>
