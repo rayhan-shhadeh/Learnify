@@ -13,13 +13,12 @@ export const flashcardController = {
             const fileid = file.fileId;
             const filename = file.fileName;
             const fileurl = file.fileURL;
-            const fileDeadline = new Date(file.fileDeadline).toISOString();
             //prepare prompt and fullpath for openAI function
             const prompt = 'Create Flashcards for attached file In following format as array of json with QA pairs[{"Q": "What is today", "A": "Tuesday"},............] without any additional text before or after json object and without ```json```';
             const fullPath = process.env.SAVE_PATH+filename;
             //download pdf, send to openAI, delete pdf
             await downloadPDF(fileurl , process.env.SAVE_PATH ,filename);//url, savePath, filename
-            const response = await OpenAIPromptHandling(fullPath,prompt); //filename,prompt
+            const response = await OpenAIPromptHandling(fullPath,prompt);//filename,prompt
             await deletePDF(fullPath);
             //parse the response to deal with it as json
             console.log(response);
@@ -29,11 +28,16 @@ export const flashcardController = {
                 throw new Error("Something went wrong in response from openai api!");
             }
             //store flashcards in db
-               jsonArrayResponse.forEach(flashcard => {
-               const JSONflashcard = createJSONFlashcard("flashcard"+fileid,flashcard.Q,flashcard.A,fileDeadline,fileid);
-               flashcardService.createFlashcard(JSONflashcard);
+            const flashcardPromises = jsonArrayResponse.map(async (flashcard) => {
+                const JSONflashcard = createJSONFlashcard("flashcard"+fileid,flashcard.Q,flashcard.A,fileid);
+                const createdFlahcard = await flashcardService.createFlashcard(JSONflashcard);
+                return createdFlahcard;
             });
-            res.status(201).json(response);
+            await Promise.all(flashcardPromises);
+            //get complete flashcards from db (with thier ids) 
+            const flashcardsResponse = await fileService.getFlashcardsByFileId(fileid);
+            //response
+            res.status(201).json(flashcardsResponse);
         } catch (error) {
             console.log(error);
             res.status(500).json({ error: 'Error creating flash card' });
