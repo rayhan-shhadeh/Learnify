@@ -32,6 +32,10 @@ const corsOption = {
    "http://192.168.68.58.19000"
     ],
   credentials: true,            //access-control-allow-credentials:true
+  header:[ "Access-Control-Allow-Origin", "Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization"],
+  
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  exposedHeaders: "Content-Disposition",
   
 };
 

@@ -11,7 +11,7 @@ import { createUser } from '../../../utils/auth';
 import AuthContent from "@/components/Auth/AuthContent";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const SignIn = () => {
+const ForgotPassword = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,19 +31,18 @@ const SignIn = () => {
     }
   }
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Error", "Please fill in both fields.");
+    if (!email) {
+      Alert.alert("Error", "Please fill your email.");
       return;
     }
     try {
-      const response = await fetch('http://192.168.68.58:8080/api/login', {
+      const response = await fetch('http://192.168.68.58:8080/api/forgot', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           email,
-          password,
         }),
       });
 
@@ -55,7 +54,7 @@ const SignIn = () => {
         authCtx.authenticate(token);
         Alert.alert('Success, token:',token);
         AsyncStorage.setItem('token', token);
-        router.push("/(tabs)/HomeScreen");
+        router.push("/(tabs)/auth/signin");
 
       } else {
         Alert.alert('Error', `Please enter valid credentials: ${data.message }`);
@@ -83,26 +82,9 @@ const SignIn = () => {
           onChangeText={setEmail}
         />
       </View>
-
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="Password"
-          placeholderTextColor="#647987"
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry={false}
-          // secureTextEntry
-        />
-      </View>
-
-      <TouchableOpacity onPress={() => router.push("/(tabs)/auth/ForgotPassword")}>
-        <Text style={styles.forgotPassword}>Forgot password?</Text>
-      </TouchableOpacity>
-
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.loginButton} onPress= {handleLogin}>
-          <Text style={styles.loginButtonText}>Log in</Text>
+          <Text style={styles.loginButtonText}>Send me an Email</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.signUpButton} onPress={() => router.push("/(tabs)/auth/signup")}>
           <Text style={styles.signUpButtonText}>New user? Sign Up</Text>
@@ -193,4 +175,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignIn;
+export default ForgotPassword;
