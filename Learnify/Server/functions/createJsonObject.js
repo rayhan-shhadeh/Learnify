@@ -39,7 +39,7 @@ export function createJSONkeyterm(key,def,fileid) {
     return jsonObject;
 } 
 
-export  function createJSONQuiz( num,title ,description,fileid,userid) {
+export  function createJSONQuiz( num,title ,description,fileid){
     const jsonObject = {
         "numOfQuestions": num ,
         "quizTitle": title,
@@ -47,11 +47,6 @@ export  function createJSONQuiz( num,title ,description,fileid,userid) {
         "file":{
             "connect": {
               "fileId": fileid
-            }
-        },
-        "user_": {
-            "connect": {
-              "userId": userid
             }
         }
     };
@@ -142,10 +137,22 @@ export function createJSONReview(flashcardId,interval,repetitions,nextReviewDate
         "nextReviewDate":nextReviewDate,
         "easeFactor" : easeFactor ,
         "flashcard":{
-            connect: { flashcardId: flashcardId }, // Use `connect` to link to an existing flashcard
+            connect: { flashcardId: parseInt(flashcardId)}, // Use `connect` to link to an existing flashcard
         },
 
     };
     return jsonObject;
 }
 
+export function createJSONAnswer(chosenAnswer, isCorrect,questionId ){
+    const jsonObject = {
+        "chosenAnswer": chosenAnswer,
+        "isCorrect": isCorrect,
+        "question":{
+        "connect": {
+          "questionId": questionId
+        }
+    }
+    };
+    return jsonObject;
+}
