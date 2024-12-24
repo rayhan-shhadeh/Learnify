@@ -1,0 +1,30 @@
+.loading-container {
+    display: flex !important; /* Ensure flexbox is applied */
+    justify-content: center !important; /* Center horizontally */
+    align-items: center !important; /* Center vertically */
+    position: fixed !important; /* Lock to the viewport */
+    top: 50% !important; /* Vertically center */
+    left: 50% !important; /* Horizontally center */
+    transform: translate(-50%, -50%) !important; /* Correct for element size */
+    background-color: rgba(255, 255, 255,0) !important; /* Translucent overlay */
+    z-index: 9999 !important; /* Bring to front */
+    width: 100vw !important; /* Full viewport width */
+    height: 100vh !important; /* Full viewport height */
+    margin: 0 !important; /* Reset any margins */
+    padding: 0 !important; /* Reset any paddings */
+    box-sizing: border-box !important; /* Include padding and border in dimensions */
+  }
+  
+  .loading-image {
+    width: 300px !important; /* Set spinner width */
+    height: 300px !important; /* Set spinner height */
+    object-fit: contain !important; /* Maintain aspect ratio */
+  }
+  
+  .loading-container h2{
+   font-weight:bold ;
+   color: #1414bb;
+   font-size: 25px;
+   margin-top:350px;
+   
+   }

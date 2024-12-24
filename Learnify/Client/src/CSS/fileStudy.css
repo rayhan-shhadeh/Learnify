@@ -1,0 +1,151 @@
+/* Main Container */
+.app-container {
+  display: flex;
+  height: 100vh;
+  background-color: #f8f9fa;
+}
+
+/* Left Section */
+.app-left-section {
+  flex: 1;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow-y: auto;
+  border-right: 1px solid #ccc;
+}
+
+/* Tabs */
+.app-tab-buttons {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.app-tab-button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background-color: #e8f0ff;
+  color: #262626;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 10px 10px 4px 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.app-tab-button.active {
+  background-color: #3785D8;
+  color: #fff;
+}
+
+.app-tab-button:hover {
+  background-color: #e1e5ff;
+  color: #000000;
+}
+
+/* Search Section */
+.app-search-section {
+  margin-bottom: 20px;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  background-color: #f1f1f1;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.search-icon {
+  color: #555;
+  margin-right: 8px;
+}
+
+.app-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background-color: transparent;
+}
+
+/* Flashcards Section */
+.app-flashcards-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.app-keyterm {
+    display: center;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    font-family: "Arial", sans-serif;
+    font-weight:20px ;
+    background: linear-gradient(135deg, #f9f9f9, #e8f0ff) !important;
+}
+
+.keyterm-text{
+  font-family: "Arial", sans-serif;
+  font-weight:60px ;
+
+}
+.app-flashcard hr {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 10px 0;
+}
+
+.app-flashcard-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  align-items: center;
+}
+
+.edit-button,
+.delete-button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.edit-button {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+.delete-button {
+  background-color: #f44336;
+  color: #fff;
+}
+
+.edit-button:hover,
+.delete-button:hover {
+  opacity: 0.8;
+}
+
+/* PDF Section */
+.app-pdf-section {
+  flex: 1.11;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fafafa;
+}
+
+.app-pdf-viewer {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-left: 1px solid #ddd;
+}
