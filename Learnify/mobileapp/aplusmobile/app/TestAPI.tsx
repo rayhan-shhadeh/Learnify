@@ -7,7 +7,7 @@ const TestAPI = () => {
   const router = useRouter();
   const testServerConnection = async () => {
     try {
-      const response = await fetch('http://192.168.68.57:8080/api/login', {
+      const response = await fetch('http://192.168.68.53:8080/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

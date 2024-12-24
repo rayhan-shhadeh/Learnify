@@ -11,12 +11,22 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import Back from "./Back";
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import { useRoute, RouteProp } from '@react-navigation/native';
+
+type RootStackParamList = {
+  FlashcardScreen: { fileId: string };
+};
+
+type FlashcardScreenRouteProp = RouteProp<RootStackParamList, 'FlashcardScreen'>;
 
 
 const FlashcardsScreen = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const files = ["File1.pdf", "File2.docx", "File3.txt"]; // Example files
+  const route = useRoute<FlashcardScreenRouteProp>();
+  const { fileId } = route.params;
 
   const toggleFileSelection = (fileName: string) => {
     if (selectedFiles.includes(fileName)) {
@@ -43,16 +53,23 @@ const FlashcardsScreen = () => {
 
   return (
     <View style={styles.container}>
+      {/* <Image source={require('../../assets/images/a-plus-3.png')} style={styles.logo} /> */}
 
         <TouchableOpacity style={styles.backArrow} onPress={() => router.back()} >
         <Back title={""} onBackPress={function (): void {
           throw new Error("Function not implemented.");
         } }/>
       </TouchableOpacity>
-      <Image source={require('../../assets/images/a-plus-3.png')} style={styles.logo} />
       <Text style={styles.title}>Flashcards</Text>
 
+<TouchableOpacity style={styles.iconContainer}>
+
+<Image source={require('../../assets/images/smartflashcard1.gif')} style={styles.smarticon} />
+<Image source={require('../../assets/images/manualflashcard.gif')} style={styles.manualicon} />
+
+</TouchableOpacity>
       <View style={styles.buttonsContainer}>
+        
         <TouchableOpacity
           style={[styles.mainButton, styles.smartButton]}
           onPress={() => setModalVisible(true)}
@@ -61,7 +78,7 @@ const FlashcardsScreen = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.mainButton, styles.manualButton]}
-          onPress={() => setModalVisible(true)}
+          onPress={() => router.push("../(tabs)/Flashcards/ManualFlashcard")}
         >
           <Text style={styles.buttonText}>Manual Flashcards</Text>
         </TouchableOpacity>
@@ -75,6 +92,7 @@ const FlashcardsScreen = () => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
+            <Icon name="close" size={24} color="#333" onPress={() => setModalVisible(false)} />
             <Text style={styles.modalTitle}>Select Files</Text>
             <FlatList
               data={files}
@@ -108,6 +126,13 @@ const FlashcardsScreen = () => {
       </Modal>
     </View>
   );
+
+  function navigateToManualFlashcard(fileId: string) {
+    router.push("../(tabs)/ManualFlashcard");
+    <param name="fileId" value="fileId" />;
+
+
+  }
 };
 
 const styles = StyleSheet.create({
@@ -137,9 +162,28 @@ const styles = StyleSheet.create({
   },
   smartButton: {
     backgroundColor: "#4CAF50",
+    shadowColor: "#4CAF50",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    display: "flex",
+    flexDirection: "column",
   },
   manualButton: {
     backgroundColor: "#2196F3",
+    shadowColor: "#2196F3",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+
   },
   buttonText: {
     fontSize: 16,
@@ -220,7 +264,26 @@ const styles = StyleSheet.create({
     height: 60,
     marginBottom: 70,
     marginLeft: 40,
+    top: 10,
+    alignContent: "center",
+  },
+  smarticon: {
+    width: 60,
+    height: 60,
+    marginLeft: 40,
+    top: 10,
+    
+  },
+  manualicon: {
+    width: 60,
+    height: 60,
+    marginLeft: 40,
+    top: 10,
+  },
+  iconContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginVertical: 20,
   },
 });
-
 export default FlashcardsScreen;

@@ -15,6 +15,7 @@ userRouter.patch('/users/updatepassword', authController.updatePassword);//retur
 userRouter.patch('/users/updateme', authController.protect, userController.updateMe);//return an email to return password
 userRouter.delete('/users/deleteme', authController.protect,userController.deleteMe);//return an email to return password
 userRouter.patch('/users/updateprofile', authController.protect,userController.updateUserData);//return an email to return password
+userRouter.get('/users/getme/:id',userController.getUserData);
 
 
 // Google Login Route

@@ -6,6 +6,7 @@ export async function downloadPDF(url, savePath, filename) {
   try {
     const fullPath= savePath+filename;
     const directory = path.dirname(savePath);
+    console.log("this is my directory",directory);
     // Ensure the directory
     if (!fs.existsSync(directory)) {
       fs.mkdirSync(directory, { recursive: true });
