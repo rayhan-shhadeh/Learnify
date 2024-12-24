@@ -29,12 +29,6 @@ export const fileController = {
                 Body: file.buffer, 
                 ContentType: 'application/pdf'
             };
-            // Convert file buffer to base64
-            //const base64Data = file.buffer.toString('base64');
-            // Decode the base64 string
-            //const buffer = Buffer.from(base64Data, 'base64');
-            // Prepare S3 upload parameters
-            // Upload the file to S3
             const command = new PutObjectCommand(params);
             await s3.send(command);
             // Construct the file URL
@@ -63,19 +57,6 @@ export const fileController = {
             }
             res.status(200).json(file);
         } catch (error) {
-            console.log(error);
-            res.status(500).json({ error: 'Error retrieving file' });
-        }
-    },
-    async getFileByCourseId(req,res){
-        try {
-            const courseId = req.params.courseId;
-            const file = await fileService.getFileByCourseId(courseId);
-            if (!file) {
-                return res.status(404).json({ error: 'file not found' });
-            }
-            res.status(200).json(file);
-        }catch(error){
             console.log(error);
             res.status(500).json({ error: 'Error retrieving file' });
         }
@@ -188,5 +169,4 @@ export const fileController = {
             return res.status(404).json({ error: 'Resource not found in database' });
         }
     }
-    
 }

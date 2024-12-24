@@ -2,7 +2,6 @@ import { answerService } from '../services/answerService.js';
 export const answerController = {
     async createAnswer(req, res) {
         try {
-            console.log(req);
             const newAnswer =await answerService.createAnswer(req.body);
             res.status(201).json(newAnswer);
         } catch (error) {
@@ -63,6 +62,7 @@ export const answerController = {
             console.log(error);
             res.status(500).json({ error: 'Error retrieving answer' });
         }
-    }
+    },
+
 };
 
