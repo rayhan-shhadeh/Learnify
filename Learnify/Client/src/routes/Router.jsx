@@ -7,6 +7,10 @@ import Main from "../layouts/Main";
 import Home from "../views/Home";
 import Calender from "../views/Calender";
 import CourseFilesPage from "../views/CourseFilesPage"
+//import App from '../Components/fileComponents/file-study'
+import FileStudyPage from '../views/fileStudyPage';
+import FilePracticePage from '../views/filePracticePage'
+import QuizPage from '../views/QuizPage'
 
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
 const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')));
@@ -22,25 +26,9 @@ const Shadow = Loadable(lazy(() => import('../views/utilities/Shadow')))
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
-const UpdatePassword = Loadable(lazy(() => import('../views/authentication/auth/UpdatePassword')));
+
 
 const Router = [
-  /*
-  {  path: '//',
-    element: <FullLayout />,
-    children: [
-      { path: '/', element: <Navigate to="/Home" /> },
-      { path: '/Home', element: <Home1 /> },
-      { path: '/Homepage', element: <HomePage /> },
-      { path: '/dashboard', exact: true, element: <Dashboard /> },
-      { path: '/sample-page', exact: true, element: <SamplePage /> },
-      { path: '/icons', exact: true, element: <Icons /> },
-      { path: '/ui/typography', exact: true, element: <TypographyPage /> },
-      { path: '/ui/shadow', exact: true, element: <Shadow /> },
-      { path: '*', element: <Navigate to="/auth/404" /> },
-    ]
-  }
-  */
   {
     path: '/auth',
     element: <BlankLayout />,
@@ -49,7 +37,6 @@ const Router = [
       { path: '/auth/register', element: <Register /> },
       { path: '/auth/login', element: <Login /> },
       { path: '/auth/logout', element: <Login /> },
-      { path: '/auth/forgotpassword', element: <UpdatePassword /> },
       { path: '*', element: <Navigate to="/auth/404" /> },
     ],
   },
@@ -79,8 +66,19 @@ const Router = [
   {
     path: '/files',
     element: <CourseFilesPage></CourseFilesPage>,
-  }
-  
+  },
+  {
+    path: '/files/fileStudy',
+    element: <FileStudyPage></FileStudyPage>,
+  },
+  {
+    path: '/files/fileQuiz',
+    element: <QuizPage></QuizPage>,
+  },
+  {
+    path: '/files/filePractice',
+    element: <FilePracticePage></FilePracticePage>,
+  },
 ];
 
 export default Router;
