@@ -13,26 +13,10 @@ import { Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {jwtDecode} from 'jwt-decode';
-
-const files = [
-  { id: '1', title: 'File 1', uri: 'file:///path/to/your/file2.pdf' },
-  { id: '2', title: 'File 2', uri: 'file:///path/to/your/file2.pdf' },
-  { id: '3', title: 'File 3', uri: 'file:///path/to/your/file3.pdf' },
-];
-
-const randomGradient = (): [string, string, ...string[]] => {
-  const colors: [string, string, ...string[]][] = [
-    ['#4c669f', '#3b5998', '#192f6a'],
-    ['#ffffff', '#5F83B1'],
-    ['#21277B', '#9AD9EA'],
-    ['#9AD9EA', '#006A67'],
-    ['#92e1ff', '#4682b4'],
-    ['#5f9ea0', '#ffffff'],
-    ['#778899', '#5F83B1'],
-    ['#708090', '#5F83B1'],
-  ];
-  return colors[Math.floor(Math.random() * colors.length)];
-};
+import { useCourses } from './hooks/CoursesContext';  // Import the useCourses hook
+import API from '../../api/axois';
+import DocumentPicker from 'react-native-document-picker';
+import { Picker } from '@react-native-picker/picker';
 
 const FilesScreen = () => {
   const router = useRouter();
@@ -42,10 +26,14 @@ const FilesScreen = () => {
   const [fileDeadline, setFileDeadline] = useState('');
   const [fileToUpload, setFileToUpload] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [files, setFiles] = useState();
   const [userId, setUserId] = useState<string | null>(null);
   const [fileURL, setFileURL] = useState('');
+  const { mycourses } = useCourses();  // Get the courses from context
+  const [files, setFiles] = useState<any[]>([]);
+const [courses, setmyCourses] = useState<any[]>([]);
+  const [courseTag, setCourseTag] = useState('');
 
+  
   const handleDateChange = (event: any, selectedDate: Date | undefined) => {
     const currentDate = selectedDate;
     const todaysDate = new Date();
@@ -58,57 +46,106 @@ const FilesScreen = () => {
     setDateOfBirth(currentDate);
   };
   useEffect(() => {
-
-    const fetchCourses = async () => {
+    const fetchFiles = async () => {
       try {
-        
-        const token = await AsyncStorage.getItem('token');
-        Alert.alert('Token', token ?? 'No token found');
-        const decoded: { id: string } | null = token ? jwtDecode<{ id: string }>(token) : null;
-        setUserId(decoded?.id ?? null); // Adjust this based on the token structure
-       // Alert.alert('Decoded Token', JSON.stringify(decoded));
-        if (!token) {
-          Alert.alert('Error', 'Token not found');
-          setFileName('');
-          setFileDeadline('');
-          setFileURL('');
-          return;
+        const filesData: any[] = [];
+        // Loop through each course ID and fetch the associated files
+        for (const course of mycourses) {
+          const courseId = course.courseId; // Use the course ID from context
+          const response = await API.get(`/api/user/course/files/${courseId}`);
+          if (response.status === 200) {
+            const filesForCourse = await response.data;
+            filesData.push(...filesForCourse); // Append the files to the array
+          } else {
+            Alert.alert('Error', `Failed to fetch files for course ${courseId}`);
+          }
         }
-        //const userId = JSON.parse(atob(token.split('.')[1])).userId; // Decode userId from the token
-        const userId = decoded?.id;
-        const response = await fetch(`http://192.168.68.58:8080/api/user/courses/${userId}`,
-         {
-          method: 'GET',
-        });
-        if (!response.ok) {
-          Alert.alert('Error', 'Failed to fetch courses');
-          return;
-        }
-        const data = await response.json();
-     // Alert.alert('Success', 'Courses fetched successfully');
-     // Alert.alert('Courses', JSON.stringify(data));
-        setFiles(data);
+        setFiles(filesData); // Set all files in state
       } catch (error) {
-        Alert.alert('Error');
+        Alert.alert('Error', 'An error occurred while fetching files');
       }
     };
-fetchCourses();
-  }, []);
-  const FileCard = ({ title, uri }: { title: string, uri: string }) => {
+
+    if (mycourses.length > 0) {
+      fetchFiles();  // Only fetch files if courses are available in context
+    }
+  }, [mycourses]);
+
+  const fetchCourses = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        Alert.alert('Error', 'Token not found');
+        return;
+      }
+      
+      const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
+      setUserId(decoded?.id ?? null); // Adjust this based on the token structure
+      
+      const response = await API.get(`/api/user/courses/${decoded?.id}`);
+      if ( response.status !== 200) {
+        Alert.alert('Error', 'Failed to fetch courses');
+        return;
+      }
+      Alert.alert('Success', 'Courses fetched successfully');
+      const data = await response.data;
+
+      setmyCourses(data);
+      mycourses.map((course) => {
+        console.log(course.courseName);
+      }
+      );
+    } catch (error) {
+      Alert.alert('Error', 'An error occurred while fetching courses');
+    }
+  };
+const handlefileDelete = async (fileId: string) => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+    if (!token) {
+      Alert.alert('Error', 'Token not found');
+      return;
+    }
+    const response = await API.delete(`/api/file/delete/${fileId}`);
+    if (response.status !== 200) {
+      Alert.alert('Error', 'Failed to delete file');
+      return;
+    }
+    Alert.alert('Success', 'File deleted successfully');
+  } catch (error) {
+    Alert.alert('Error', 'An error occurred while deleting file');
+  }
+}
+const handleFileView = (uri: string) => {
+  router.push({
+    pathname: `/Files/PdfScreen`,
+    params: { uri }, // Pass the file URL to the PDF screen
+  });
+};
+const handlefilegenerateflashcards = (fileId: string) => {
+  router.push({
+    pathname: `/(tabs)/FlashcardsScreen`,
+    params: { fileId },
+  });
+};
+
+  const FileCard = ({ title, uri ,fileDeadline , fileId}: { title: string, uri: string , fileDeadline:string , fileId:string} ) => {
     return (
       <LinearGradient colors={['#1CA7EC', '#1CA7EC']} style={styles.card}>
+       
         <View style={styles.cardHeader} >
           <Text style={styles.cardTitle}  onPress={() => router.push("/(tabs)/FlashcardsScreen")}>{title}</Text>
+          <Text style={styles.cardTitle} >{fileDeadline.split("T")[0]}</Text>
+          
           <View style={styles.iconContainer}>
+            <TouchableOpacity onPress={() => handleFileView(uri)}>
             <FontAwesome name="eye" size={20} color="url(#grad)"  />
-            <FontAwesome name="edit" size={20} color="url(#grad)" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handlefileDelete(fileId)}>
             <FontAwesome name="trash" size={20} color="url(#grad)" />
-            {/* <svg width="0" height="0">
-              <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style={{ stopColor: '#1ca7ec', stopOpacity: 1 }} />
-                <stop offset="100%" style={{ stopColor: '#1f2f98', stopOpacity: 1 }} />
-              </linearGradient>
-            </svg> */}
+            </TouchableOpacity>
+          
+
           </View>
         </View>
       </LinearGradient>
@@ -147,9 +184,9 @@ fetchCourses();
             </Animatable.View>
             <TextInput
               style={styles.input}
-              placeholder="File Name"
-              value={fileName}
-              onChangeText={setFileName}
+              placeholder="Course Tag"
+              value={courseTag}
+              onChangeText={setCourseTag}
             />
             <Button title="Upload File" onPress={() => {/* handle file upload */}} />
             <Button title="Add File" onPress={() => setModalVisible(false)} />
@@ -174,12 +211,17 @@ fetchCourses();
                 <Text style={styles.header}>  My files</Text>
               </View>
               <Animatable.View animation="fadeInUp" delay={200} duration={800}>
+              <View>
                 <FlatList
-                  data={files}
-                  renderItem={({ item }) => <FileCard title={item.title} uri={item.uri} />}
-                  keyExtractor={(item) => item.id}
+                  style={styles.fileList}
+                  data={files} // Adjust this based on the course structure
+                  renderItem={({ item }) => (
+                    <FileCard fileId={item.fileId}  title={item.fileName} uri={item.fileURL} fileDeadline={item.fileDeadline} />
+                  )}
+                  keyExtractor={(item, index) => index.toString()}
                   contentContainerStyle={styles.fileList}
                 />
+              </View>
               </Animatable.View>
               <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
                 <Text style={styles.addButtonText}>Add File</Text>
@@ -220,7 +262,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   cardHeader: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
@@ -231,7 +273,7 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     width: 100,
   },
   addButton: {
@@ -269,6 +311,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     borderRadius: 5,
+    color: '#000',
   },
   headercontainer: {
     flexDirection: 'row',
@@ -298,6 +341,18 @@ const styles = StyleSheet.create({
   dateText: {
     color: '#647987',
     fontSize: 14,
+  },  picker: {
+    width: 200,
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    marginBottom: 20,
+  },
+  selectedText: {
+    fontSize: 16,
+    marginTop: 20,
+    color: '#333',
   },
 });
 

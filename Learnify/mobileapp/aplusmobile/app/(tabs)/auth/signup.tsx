@@ -75,7 +75,7 @@ const Signup = () => {
     setIsAuthenticating(true);
 
     try {
-      const response = await fetch('http://192.168.68.57:8080/api/signup', {
+      const response = await fetch('http://192.168.68.53:8080/api/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

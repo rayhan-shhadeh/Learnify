@@ -45,7 +45,7 @@ const HomePage = () => {
         </Animatable.View>
         </TouchableOpacity>
         {/* Flashcards Card */}
-        <TouchableOpacity onPress={() => router.push("/(tabs)/ExplorePage")} style={styles.card} > 
+        <TouchableOpacity onPress={() => router.push("/(tabs)/StudyFlashcardsScreen")} style={styles.card} > 
           <Animatable.View animation="fadeInUp" delay={200} duration={800}>
             <View style={styles.cardTextContainer}>
             <MaterialCommunityIcons name="lightning-bolt-outline" size={24} color="#fff" />

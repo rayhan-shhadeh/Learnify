@@ -15,15 +15,15 @@ const NavBar = () => {
                 <Icon name="comment-o" size={24} color="#888" />
                 <Text style={styles.navTextInactive}>Groups</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.navButton} onPress={()=> router.push("/(tabs)/ExplorePage")}>
-                <Icon name="compass" size={24} color="#888" />
-                <Text style={styles.navTextInactive}>Explore</Text>
+            <TouchableOpacity style={styles.navButton} onPress={()=> router.push("/(tabs)/profile")}>
+                <Icon name="user-circle" size={24} color="#888" />
+                <Text style={styles.navTextInactive}>Profile</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.navButton} onPress={()=> router.push("/(tabs)/CoursesTestFetching")}>
                 <Icon name="bar-chart" size={24} color="#888" />
                 <Text style={styles.navTextInactive}>Habits</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.navButton} onPress={()=> router.push("/(tabs)/Calender2")}>
+            <TouchableOpacity style={styles.navButton} onPress={()=> router.push("/(tabs)/delete")}>
                 <Icon name="calendar" size={24} color="#888" />
                 <Text style={styles.navTextInactive}>Calendar</Text>
             </TouchableOpacity>

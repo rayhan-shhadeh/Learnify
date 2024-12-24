@@ -4,7 +4,7 @@ import fs from "fs";
 
 export  async function OpenAIPromptHandling(filePath,prompt){
     const client = new OpenAIApi(new Configuration({
-      apiKey:OPENAI_API_KEY
+      apiKey: process.env.OPENAI_API_KEY
     }));
     // Create an assistant
     const pdfAssistant = await client.beta.assistants.create({

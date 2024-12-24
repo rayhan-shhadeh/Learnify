@@ -6,7 +6,9 @@ import Modal from 'react-native-modal';
 import dayjs from 'dayjs';
 import Back from './Back';
 import NavBar from './NavBar';
-
+import API from '../../api/axois';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {jwtDecode} from 'jwt-decode';
 // Mock Events Data
 const initialEvents = [
   {
@@ -36,14 +38,20 @@ export default function CalendarScreen() {
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
 
-  const handleAddEvent = () => {
+  const handleAddEvent = async () => {
     if (!newEvent.title || !newEvent.description) {
       Alert.alert('Error', 'Please fill all the fields');
       return;
     }
+        const token = await AsyncStorage.getItem('token');
+    if (!token) {
+      Alert.alert('Error', 'Please login to add events');
+      return;
+    }
+ const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
 
     // Add new event to server
-    fetch('http://172.23.129.135:8080/api/event', {
+    const response =  API.post('/api/event', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -56,12 +64,12 @@ export default function CalendarScreen() {
         allDay: 0,
         user_: {
           connect: {
-            userId: 2, // Replace with dynamic user ID if applicable
+            userId: decoded.id, // Replace with dynamic user ID if applicable
           },
         },
       }),
     })
-      .then((response) => response.json())
+     // .then((response) => response.json())
       .then((data) => {
         setEvents((prevEvents) => [
           ...prevEvents,
