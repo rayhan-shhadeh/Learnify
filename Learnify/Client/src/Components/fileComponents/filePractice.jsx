@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Button, IconButton } from '@mui/material';
-import EmojiObjectsRoundedIcon from '@mui/icons-material/EmojiObjectsRounded';
+import { IconButton } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { IconBrain } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useLocation } from "react-router-dom";
+import BadgeComponent from '../loadingAndErrorComponents/badge';
+import NoFlashcardsComponent from '../../Components/loadingAndErrorComponents/NoFlashcardsComponent'
 import '../../CSS/filePractice.css';
 
 const Practice = () => {
@@ -15,8 +16,9 @@ const Practice = () => {
   const [loading, setLoading] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(); 
   const location = useLocation();
-  const { fileId } = location.state; // Retrieve courseId from state
-
+  const { fileId,courseId ,title} = location.state;
+  const [finish,setFinish]=useState(false);
+  const [practiceFlag,setPracticeFlag] = useState(true); 
   const gradients = [
     "linear-gradient(135deg, #f9f9f9, #e8f0ff)",
     "linear-gradient(135deg, #fff4e6, #ffe9f0)",
@@ -32,6 +34,7 @@ const Practice = () => {
   function getRandomGradient() {
     return gradients[Math.floor(Math.random() * gradients.length)];
   }
+
   useEffect(() => {
     const fetchFlashcards = async () => {
       try {
@@ -48,9 +51,14 @@ const Practice = () => {
         setLoading(false);
       }
     };
+    if (!practiceFlag) return;
+    if(practiceFlag){
+      fetchFlashcards();
+      setPracticeFlag(false);
+      return
+    }  
+  }, [fileId,practiceFlag]);
 
-    fetchFlashcards();
-  }, [fileId]);
 
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
@@ -58,9 +66,12 @@ const Practice = () => {
 
   const handleNext = () => {
     setIsFlipped(false);
-    setSelectedIndex(null); // Update the selected index
+    setSelectedIndex(null);
     if (currentIndex < flashcards.length - 1) {
       setCurrentIndex(currentIndex + 1);
+    }
+    else if (currentIndex === flashcards.length - 1) {
+      setFinish(true);
     }
   };
 
@@ -74,11 +85,15 @@ const Practice = () => {
   };
 
   if (loading) return <div className="practice-page">Loading...</div>;
-  if (flashcards.length === 0) return <div className="practice-page">No flashcards available.</div>;
+  if (flashcards.length === 0) return <NoFlashcardsComponent/>;
 
   return (
+    finish?(
+      <div>
+      <BadgeComponent courseId={courseId} title={title}></BadgeComponent>
+      </div>
+    ):(
     <div className="practice-page">
-
       <div className="progress-bar-container-practice">
         <h1>
         <IconBrain size={40} color={"#E893C5"}className='ICON-BRAIN'/>
@@ -178,6 +193,7 @@ const Practice = () => {
 </div>
 
 </div>
+    )
   );
 };
 

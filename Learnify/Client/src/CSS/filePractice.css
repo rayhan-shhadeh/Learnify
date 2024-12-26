@@ -143,8 +143,8 @@
 
 }
 
-.rating-item:hover .emoji-circle {
-  transform: scale(1.1);
+.rating-item:hover {
+  transform: scale(1.2);
 }
 
 .rating-item.selected .emoji-circle {

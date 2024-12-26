@@ -3,8 +3,8 @@
     justify-content: left !important; /* Center horizontally */
     align-items: left !important; /* Center vertically */
     position: absolute !important; /* Position relative to parent */
-    top: 18% !important; /* Align to the top of the parent */
-    left: 9% !important; /* Align to the left of the parent */
+    top: 22% !important; /* Align to the top of the parent */
+    left: 12% !important; /* Align to the left of the parent */
     width: 100% !important; /* Full width of the parent */
     height: 100% !important; /* Full height of the parent */
     background-color: rgba(255, 255, 255, 0) !important; /* Translucent overlay */
@@ -15,8 +15,8 @@
 }
 
 .loading-image-partial {
-    width: 450px !important; /* Set spinner width */
-    height:450px !important; /* Set spinner height */
+    width: 320px !important; /* Set spinner width */
+    height:320px !important; /* Set spinner height */
     object-fit: contain !important; /* Maintain aspect ratio */
 }
 

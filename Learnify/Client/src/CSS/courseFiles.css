@@ -3,7 +3,7 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f9f9f9;
+  background-color:#f9f9f9 ;
   font-family: "Arial", sans-serif;
   overflow: hidden; /* Prevent outer scroll */
 }
@@ -52,16 +52,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  border: 1.5px solid #d8d8d8;
-  border-radius: 6px;
+  padding: 16px 16px;
+  border: 1.8px solid #cbcbcb;
+  border-radius: 15px;
   margin-bottom: 12px;
   transition: background-color 0.3s ease;
   width: 100%;
+  font-size: 16px;
+  color: #000000;
+  font-weight: bold ;
 }
 
 .file-item:hover {
-  background: #f7f7f7;
+  background: #eeeeee;
 }
 
 .file-actions {
@@ -82,11 +85,11 @@
   color: #0056b3;
 }
 
-.delete-button {
+.delete-button-files {
   color: #ff4d4d;
 }
 
-.delete-button:hover {
+.delete-button-files:hover {
   color: #b30000;
 }
 
@@ -100,8 +103,8 @@
 
 .file-name {
   margin-top: 15px;
-  font-size: 14px;
-  color: #555;
+  font-size: 20px;
+  color: #000000;
   word-wrap: break-word;
 }
 
@@ -119,6 +122,7 @@
   position: fixed;
   top: 10%;
   overflow-y: auto; /* Scroll vertically if content overflows */
+
 }
 .left-section {
   flex: 1; /* Take half of the available space */
@@ -194,8 +198,8 @@
 
 .file-name {
   margin-top: 15px;
-  font-size: 14px;
-  color: #555;
+  font-size: 20px;
+  color: #000000;
   word-wrap: break-word;
 }
 
@@ -253,4 +257,91 @@
   display: flex;
   align-items: center; /* Vertically align the elements */
   gap: 20px; /* Add space between the search bar and dropdown */
+}
+
+/* Fullscreen overlay to blur the background */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+  backdrop-filter: blur(10px); /* Blur effect */
+  z-index: 1000; /* Above everything else */
+}
+
+/* Popup container styling */
+.popup-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 15px;
+  padding: 20px;
+  width: 40%;
+  max-width: 90%; /* Ensure responsiveness */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  z-index: 1010; /* Above overlay */
+  text-align: center;
+}
+
+/* Close button */
+.popup-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Buttons container */
+.popup-buttons {
+  display: flex; /* Change from column to row */
+  justify-content: space-between; /* Space between the buttons */
+  gap: 10px; /* Add spacing between buttons */
+  margin-top: 20px;
+}
+
+/* Individual button styling */
+.popup-button {
+  background: #f9f9f9;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  width: 40%; /* Set a fixed width for each button */
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column; /* Ensure icon and text stack vertically */
+  align-items: center;
+}
+
+.popup-button:hover {
+  background: #4f90d6;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Icon styling */
+.popup-icon {
+  font-size: 36px; /* Make icons larger */
+  margin-bottom: 10px;
+  color: #00006e
+}
+
+/* Text styling */
+.popup-text h3 {
+  margin: 5px 0;
+  font-size: 20px;
+  color: #00006e;
+  font-weight: bold;
+}
+
+.popup-text p {
+  font-size: 14px;
+  color: #1c1c1c;
 }

@@ -145,7 +145,7 @@ const Quiz = () => {
             />
           </label>
           <label>
-          <TuneIcon/>
+          <TuneIcon />
             Difficulty:
             <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
               <option value="easy">Easy</option>

@@ -34,8 +34,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 30%;
-  height : 43%;
+  width: 28%;
+  height : 45%;
   background-color: white;
   padding: 20px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -55,13 +55,12 @@
 .popup-body {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 25px;
 }
 
 .popup-body label {
   font-size: 18px;
   font-weight: bold;
-  display: flex;
   justify-content: space-between;
   align-items: center;
 }
@@ -72,6 +71,7 @@
   border: 1px solid #ddd;
   border-radius: 10px;
   font-size: 14px;
+  width: 100px;
 }
 
 .popup-footer {

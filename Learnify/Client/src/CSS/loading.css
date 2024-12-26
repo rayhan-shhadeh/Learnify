@@ -12,7 +12,7 @@
     height: 100vh !important; /* Full viewport height */
     margin: 0 !important; /* Reset any margins */
     padding: 0 !important; /* Reset any paddings */
-    box-sizing: border-box !important; /* Include padding and border in dimensions */
+    box-sizing: border-box !important;
   }
   
   .loading-image {
@@ -23,8 +23,36 @@
   
   .loading-container h2{
    font-weight:bold ;
-   color: #1414bb;
+   color: #3785d8;
    font-size: 25px;
    margin-top:350px;
-   
    }
+
+   .loading-container button{
+    padding: 12px 24px;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight:bold;
+    margin-top: 350px;  
+    }
+ 
+    .loading-container button :hover {
+      background-color: #0056b3;
+    }
+    
+    .loading-container button:active {
+      transform: scale(0.95);
+    }
+
+   .button-finish{
+    margin-top: 0px;
+    font-weight:bold ;
+    background-color: #ffffff;
+    font-size: 25px;
+    border: white;
+
+    }
