@@ -7,7 +7,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from"@mui/icons-material/Save";
 import DeleteIcon from"@mui/icons-material/Delete";
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import Add from '@mui/icons-material/Add'; // Plus Icon
+import Add from '@mui/icons-material/Add';
 import { useLocation } from "react-router-dom"; 
 import PartialLoadingImageComponent from '../../Components/loadingAndErrorComponents/partialLoadingComponent'
 import PartialErrorComponent from "../loadingAndErrorComponents/partialErrorComponent";
@@ -25,9 +25,10 @@ const FileStudy = () => {
     const [editedDef, setEditedDef] = useState("");
     const [newItem, setNewItem] = useState(null);
     const location = useLocation();
-    const {fileId} = location.state; // Retrieve courseId from state
+    const {fileId,fileURL} = location.state; 
     const [wait,setWait] = useState(false);
     const [error,setError] = useState(false);
+
     useEffect(() => {
       if (activeTab === "flashcards") {
         fetchFlashcards();
@@ -58,7 +59,7 @@ const FileStudy = () => {
           setEditingId(newKeyterm.id);
           setNewItem(newKeyterm);
         }
-      };
+    };
       
     const handleGenerateFlashcards = async()=>{
         if (!fileId) {
@@ -152,7 +153,7 @@ const FileStudy = () => {
         } catch (error) {
           console.error("Error saving flashcard:", error);
         }
-      };
+    };
     
   
     const handleDeleteFlashcard = async (id) => {
@@ -446,12 +447,9 @@ New Keyterm
           </div>
         )}
         </div>
-          
-
-        
         <div className="app-right-section">
           <iframe
-            src="https://astudy.s3.eu-north-1.amazonaws.com/pdfs/ch5.pdf"
+            src={fileURL}
             className="app-pdf-viewer"
             title="PDF Viewer"
           ></iframe>

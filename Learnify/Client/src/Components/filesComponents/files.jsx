@@ -1,4 +1,5 @@
 import React,{ useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import "../../CSS/courseFiles.css";
 import { UploadFile } from "@mui/icons-material";
 import { useLocation } from "react-router-dom";
@@ -6,11 +7,15 @@ import axios from 'axios';
 import { Dialog, DialogContent, DialogActions, Button,TextField, DialogContentText} from '@mui/material';
 import MenuBook from "@mui/icons-material/MenuBook";
 import {Delete,Edit} from '@mui/icons-material'
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined"; // Study Icon
+import QuizOutlinedIcon from "@mui/icons-material/QuizOutlined"; // Quiz Icon
+import RepeatOutlinedIcon from "@mui/icons-material/RepeatOutlined"; // Practice Icon
 
 const Files = () => {
   const [loading, setLoading] = useState(true);    
   const location = useLocation();
-  const { courseId ,title} = location.state; // Retrieve courseId from state
+  const { courseId ,title} = location.state;
   const [files, setFiles] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null); // Course being viewed/edited
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -21,10 +26,11 @@ const Files = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortCriteria, setSortCriteria] = useState("Sort"); // Sorting criteria
   const [file, setFile] = useState(null);
-  const [uploadStatus, setUploadStatus] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
   const [newFile,setNewFile] = useState(null);
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
+  const navigate = useNavigate();
+  const [showPopup, setShowPopup] = React.useState(false );
 
   useEffect(() => {
     const rootElement = document.getElementById("root");
@@ -34,6 +40,15 @@ const Files = () => {
       button.blur(); // Remove focus from the button
     }
   }, []);
+
+  const handleClosePopup = () => {
+    setShowPopup(false);
+  };
+
+  const handleClickOnFile = (file) => {
+    setFile(file);
+    setShowPopup(true);
+  };
   
   const handleFileDrop = (event) => {
     event.preventDefault();
@@ -75,10 +90,10 @@ const Files = () => {
         fileDeadline: new Date().setDate(new Date().getDate() + 14),
         fileURL: file.fileURL,
       };
-  
       setFiles([...files, newFile]);
       setNewFile(newFile);
       setShowMetadataDialog(true); // Show dialog for metadata
+      //setUrl(file.fileURL);
     } catch (error) {
       console.error("Error uploading file:", error);
       const errorMessage = error.response?.data?.message || "Failed to upload file.";
@@ -105,7 +120,7 @@ const Files = () => {
         console.error(":", error);
       }
     };
-useEffect(() => {
+    useEffect(() => {
     if (!courseId) {
       return;
     }
@@ -165,30 +180,23 @@ useEffect(() => {
     setSelectedFile(file);
     setShowEditModal(true);
   };
-  // Handle Edit File
-const handleEditFile = async () => {
-  setRequiredDiv(false);
 
-  // Check if the file name is empty
+  const handleEditFile = async () => {
+  setRequiredDiv(false);
   const newErrors = {
-    name: !selectedFile.name, // Validate file name
+    name: !selectedFile.name,
   };
   setErrors(newErrors);
-
   if (newErrors.name) {
     setRequiredDiv(true);
     return;
   }
-
   try {
-    // Send PUT request to update the file name
     console.log("from update: "+selectedFile.id )
     console.log("from update: "+selectedFile.name )
-
     await axios.put(
       `http://localhost:8080/api/file/${selectedFile.id}/${selectedFile.name}`,
     );
-    // Update the local files state
     setFiles((prevFiles) =>
       prevFiles.map((file) =>
         String(file.id) === String(selectedFile.id)
@@ -209,15 +217,12 @@ const closePopup = () => {
 
 const handleSearch = () => {
   if (searchQuery) {
-    // Create a regex for case-insensitive matching
       const regex = new RegExp(searchQuery, "i");
-    // Filter courses based on the regex match
       const searchedFiles = files.filter((file) =>
         regex.test(file.name) 
       );
       setFiles(searchedFiles);
   } else {
-      // If no filter, reset to show all courses
       setFiles(fetchedFiles);
   }
 };
@@ -235,17 +240,29 @@ const handleSort = (criteria) => {
 
   const sortedFiles = [...files].sort((a, b) => {
     if (criteria === "soonest") {
-      return new Date(a.fileDeadline) - new Date(b.fileDeadline); // Ascending order
+      return new Date(a.fileDeadline) - new Date(b.fileDeadline); 
     } else if (criteria === "latest") {
-      return new Date(b.fileDeadline) - new Date(a.fileDeadline); // Descending order
+      return new Date(b.fileDeadline) - new Date(a.fileDeadline);
     } else if (criteria === "name") {
-      return a.name.localeCompare(b.name); // Alphabetical order
+      return a.name.localeCompare(b.name); 
     }
-    return 0; // Default: no sorting
+    return 0;
   });
 
-  setFiles(sortedFiles); // Update sorted files
-};
+  setFiles(sortedFiles);
+  };
+
+  const handleOpenStudy=(fileId,fileURL)=>{
+    navigate(`/files/fileStudy`, { state: {fileId,fileURL} });
+  };
+
+  const handleOpenPractice=(fileId)=>{
+    navigate(`/files/filePractice`, { state: {fileId,courseId ,title} });
+  };
+
+  const handleOpenQuiz=(fileId)=>{
+    navigate(`/files/fileQuiz`, { state: { fileId,courseId ,title} });
+  };
 
   return (
     <div className="page-container">
@@ -285,10 +302,14 @@ const handleSort = (criteria) => {
     <div className="file-list">
       {files.map((file) => (
         <div key={file.id} className="file-item">
-          <span>{file.name}</span>
+          <span>
+          <InsertDriveFileIcon/>
+          {file.name}
+          </span>
           <div className="file-actions">
+          <button className="action-button" onClick={()=>{handleClickOnFile(file)}}><MenuBook/></button>
             <button className="action-button" onClick={()=>{handleEdit(file)}}><Edit/></button>
-            <button className="action-button delete-button" onClick={()=>{handleDelete(file)}}><Delete/></button>
+            <button className="action-button delete-button-files" onClick={()=>{handleDelete(file)}}><Delete/></button>
           </div>
         </div>
       ))}
@@ -421,8 +442,54 @@ const handleSort = (criteria) => {
   </Button>
 </DialogActions>
   </Dialog>
+  {showPopup &&(
+    <div>
+    <div className="popup-overlay" onClick={handleClosePopup}></div>
 
+{/* Popup Content */}
+<div className="popup-container">
+  <button className="popup-close-btn" onClick={handleClosePopup}>
+    ×
+  </button>
+  <div className="popup-buttons">
+    {/* Study Button */}
+    <div
+      className="popup-button"
+      onClick={() => handleOpenStudy(file.id,file.fileURL)}
+    >
+      <div className="popup-icon"><MenuBookOutlinedIcon/></div>
+      <div className="popup-text">
+        <h3>Study</h3>
+        <p>Generate flashcards and key terms while viewing PDFs.</p>
+      </div>
+    </div>
+    {/* Practice Button */}
+    <div
+      className="popup-button"
+      onClick={() => handleOpenPractice(file.id)}
+    >
+      <div className="popup-icon"><RepeatOutlinedIcon/></div>
+      <div className="popup-text">
+        <h3>Practice</h3>
+        <p>Use spaced repetition to boost memory retention.</p>
+      </div>
+    </div>
 
+    {/* Quiz Button */}
+    <div
+      className="popup-button"
+      onClick={() => handleOpenQuiz(file.id)}
+    >
+      <div className="popup-icon"><QuizOutlinedIcon/></div>
+      <div className="popup-text">
+        <h3>Quiz</h3>
+        <p>Create customized quizzes tailored to your needs.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+)}
     </div>
   );
 };
