@@ -17,6 +17,8 @@ const StudyFlashcardsScreen = () => {
   const [expression, setExpression] = useState('');
   const [expressionVisible, setExpressionVisible] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const flipAnim = useRef(new Animated.Value(0)).current;
+
 
   const flashcards = [
     { question: "What is React?", answer: "A JavaScript library for building UI." },
@@ -47,8 +49,23 @@ const StudyFlashcardsScreen = () => {
       }
     }, 2000);
   };
+  const flipCard = () => {
+    Animated.timing(flipAnim, {
+      toValue: isFlipped ? 0 : 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start(() => setIsFlipped(!isFlipped));
+  };
 
-  const flipCard = () => setIsFlipped(!isFlipped);
+  const frontInterpolate = flipAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '180deg'],
+  });
+
+  const backInterpolate = flipAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['180deg', '360deg'],
+  });
 
   if (showCelebration) {
     return (
@@ -80,26 +97,23 @@ const StudyFlashcardsScreen = () => {
         <View style={styles.headerContainer}>
           <Text style={styles.headerText}>Study Flashcards</Text>
         </View>
+        <TouchableOpacity onPress={flipCard}>
+        <Animated.View style={[styles.card, { transform: [{ rotateY: frontInterpolate }] }]}>
+              {!isFlipped && (
+                <Card.Content>
+                  <Text style={styles.cardText}>{flashcards[currentCardIndex].question}</Text>
+                </Card.Content>
+              )}
+            </Animated.View>
+            <Animated.View style={[styles.card,styles.backcard, { transform: [{ rotateY: backInterpolate }] }]}>
+              {isFlipped && (
+                <Card.Content>
+                  <Text style={styles.cardText}>{flashcards[currentCardIndex].answer}</Text>
+                </Card.Content>
+              )}
+            </Animated.View>
+        </TouchableOpacity>
 
-        <Animatable.View
-          animation="fadeIn"
-          duration={500}
-          style={styles.cardContainer}
-        >
-          <Card style={styles.card} onPress={flipCard}>
-            <Card.Content>
-              <Text style={styles.cardText}>
-                {isFlipped
-                  ? flashcards[currentCardIndex].answer
-                  : flashcards[currentCardIndex].question}
-              </Text>
-            </Card.Content>
-          </Card>
-          {/* <TouchableOpacity style={styles.flipButton} onPress={flipCard}>
-            <Ionicons name="swap-horizontal" size={24} color="white" />
-            <Text style={styles.flipButtonText}>Flip</Text>
-          </TouchableOpacity> */}
-        </Animatable.View>
 
         {expressionVisible && (
           <Animatable.View
@@ -153,11 +167,19 @@ const styles = StyleSheet.create({
   cardContainer: {
     alignItems: 'center',
     marginVertical: 20,
+
   },
   card: {
     width: 300,
-    borderRadius: 10,
+    borderRadius: 20,
     elevation: 4,
+    backgroundColor: 'white',
+  },
+  backcard: {
+    width: 300,
+    borderRadius: 20,
+    elevation: 4,
+    backgroundColor: 'white',
   },
   cardText: {
     fontSize: 18,
@@ -169,7 +191,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#007bff',
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 20,
     marginTop: 10,
   },
   flipButtonText: {
@@ -181,7 +203,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     alignItems: 'center',
-    marginVertical: 20,
+    marginVertical: 30,
   },
   expressionText: {
     fontSize: 16,
@@ -190,7 +212,7 @@ const styles = StyleSheet.create({
   },
   ratingContainer: {
     justifyContent: 'space-around',
-    marginTop: 20,
+    marginTop: 50,
     padding: 10,
     display: 'flex',
     flexDirection: 'row',

@@ -36,6 +36,7 @@
       ],
       "react-native-add-calendar-event"
     ],
+
     "experiments": {
       "typedRoutes": true
     }

@@ -19,11 +19,11 @@ const NavBar = () => {
                 <Icon name="user-circle" size={24} color="#888" />
                 <Text style={styles.navTextInactive}>Profile</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.navButton} onPress={()=> router.push("/(tabs)/CoursesTestFetching")}>
+            <TouchableOpacity style={styles.navButton} onPress={()=> router.push("/(tabs)/Habits/HabitsScreen")}>
                 <Icon name="bar-chart" size={24} color="#888" />
                 <Text style={styles.navTextInactive}>Habits</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.navButton} onPress={()=> router.push("/(tabs)/delete")}>
+            <TouchableOpacity style={styles.navButton} onPress={()=> router.push("/(tabs)/calendar/delete")}>
                 <Icon name="calendar" size={24} color="#888" />
                 <Text style={styles.navTextInactive}>Calendar</Text>
             </TouchableOpacity>

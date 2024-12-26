@@ -44,13 +44,12 @@ model file {
 }
 
 model flashcard {
-  flashcardId       Int       @id @default(autoincrement())
-  flashcardName     String    @db.VarChar(255)
-  flashcardQ        String?   @db.VarChar(255)
-  flashcardA        String?   @db.VarChar(255)
-  flashcardDeadline DateTime? @db.Date
-  fileid            Int
-  file              file      @relation(fields: [fileid], references: [fileId], onDelete: Cascade, onUpdate: NoAction, map: "fk_flashcard_file")
+  flashcardId   Int     @id @default(autoincrement())
+  flashcardName String  @db.VarChar(255)
+  flashcardQ    String? @db.VarChar(255)
+  flashcardA    String? @db.VarChar(255)
+  fileid        Int
+  file          file    @relation(fields: [fileid], references: [fileId], onDelete: Cascade, onUpdate: NoAction, map: "fk_flashcard_file")
 
   @@index([fileid], map: "fileId")
 }

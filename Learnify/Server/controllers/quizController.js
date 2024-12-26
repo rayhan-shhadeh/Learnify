@@ -5,7 +5,8 @@ import {downloadPDF,deletePDF} from '../functions/pdfHandling.js';
 import {OpenAIPromptHandling}  from '../functions/openAIPromptHandling.js';
 import {createJSONQuiz,createJSONQuestion} from '../functions/createJsonObject.js'
 import {isArrayOfJSONObjects,isJSONObject,isArrayOfStrings} from '../functions/validateFormat.js'
-
+// Tala 2: I added my laptop path to the myPath variable
+const myPath ="C:\\Users\\rshha\\Documents\\VSCode\\projects\\Graduation-v7\\Learnify\\Server\\TempPDFs\\";
 export const quizController = {
     async generateQuiz(req, res) {
         try {
@@ -26,7 +27,7 @@ export const quizController = {
             +'"choices":["Answer A","Answer B","Answer C","Answer D"]},...]}'
             +' please make sure that the title,description,and questions is related to the attached file'
             +' without any additional text before or after the JSON object and without ```json```.';
-            const fullPath = process.env.SAVE_PATH+filename;
+            const fullPath = myPath+filename;
             //download pdf, send to openAI, delete pdf
             await downloadPDF(fileurl , process.env.SAVE_PATH ,filename);//url, savePath, filename
             const response = await OpenAIPromptHandling(fullPath,prompt); //filename,prompt

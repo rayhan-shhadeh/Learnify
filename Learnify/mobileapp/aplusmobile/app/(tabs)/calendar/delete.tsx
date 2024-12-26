@@ -4,9 +4,9 @@ import { Calendar as BigCalendar } from 'react-native-big-calendar';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Modal from 'react-native-modal';
 import dayjs from 'dayjs';
-import Back from './Back';
-import NavBar from './NavBar';
-import API from '../../api/axois';
+import Back from '../Back';
+import NavBar from '../NavBar';
+import API from '../../../api/axois';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {jwtDecode} from 'jwt-decode';
 // Mock Events Data

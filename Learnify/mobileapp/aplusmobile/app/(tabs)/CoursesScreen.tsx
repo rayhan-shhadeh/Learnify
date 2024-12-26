@@ -57,6 +57,7 @@ const CoursesScreen = () => {
         const token = await AsyncStorage.getItem('token');
         if (!token) {
           Alert.alert('Error', 'Token not found');
+          router.push('/(tabs)/auth/signin');
           return;
         }
         

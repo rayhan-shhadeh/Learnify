@@ -6,9 +6,9 @@ import {useRouter} from "expo-router";
 import NavBar from './NavBar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 const HomePage = () => {
   const router = useRouter();
+
   return (
 
       <LinearGradient
@@ -35,7 +35,7 @@ const HomePage = () => {
       <View style={styles.grid}>
         {/* Quizzes Card */}
         
-        <TouchableOpacity onPress={() => router.push("/+not-found")} style={styles.card} > 
+        <TouchableOpacity onPress={() => router.push("/(tabs)/quiz/QuizMainScreen")} style={styles.card} > 
         <Animatable.View animation="fadeInUp" delay={200} duration={800}>
           <MaterialCommunityIcons name="book-open-outline"  style={styles.icons} size={24} color="#fff" />
           <View style={styles.cardTextContainer}>

@@ -4,7 +4,8 @@ import {deletePDF,downloadPDF} from '../functions/pdfHandling.js';
 import {OpenAIPromptHandling } from '../functions/openAIPromptHandling.js';
 import {createJSONFlashcard} from '../functions/createJsonObject.js'
 import {isArrayOfJSONObjects} from '../functions/validateFormat.js'
-
+// Tala 1: I added my laptop path to the myPath variable
+const myPath = "C:\\Users\\rshha\\Documents\\VSCode\\projects\\Graduation-v7\\Learnify\\Server\\TempPDFs\\";
 export const flashcardController = {
     async generateSmartFlashcard(req, res) {
         try {
@@ -15,10 +16,10 @@ export const flashcardController = {
             const fileurl = file.fileURL;
             //prepare prompt and fullpath for openAI function
             const prompt = 'Create Flashcards for attached file In following format as array of json with QA pairs[{"Q": "What is today", "A": "Tuesday"},............] without any additional text before or after json object and without ```json```';
-            const fullPath = "C:\\Users\\rshha\\Documents\\VSCode\\projects\\Graduation-v7\\Learnify\\Server\\TempPDFs\\"+filename;
+            const fullPath = myPath+filename;
             console.log("this is my full path",fullPath);
             //download pdf, send to openAI, delete pdf
-            await downloadPDF(fileurl , process.env.SAVE_PATH ,filename);//url, savePath, filename
+            await downloadPDF(fileurl , myPath ,filename);//url, savePath, filename
             const response = await OpenAIPromptHandling(fullPath,prompt);//filename,prompt
             await deletePDF(fullPath);
             //parse the response to deal with it as json

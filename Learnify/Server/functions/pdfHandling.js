@@ -4,8 +4,9 @@ import axios from 'axios';
 
 export async function downloadPDF(url, savePath, filename) {
   try {
-    const fullPath= savePath+filename;
-    const directory = path.dirname(savePath);
+    const myPath = "C:\\Users\\rshha\\Documents\\VSCode\\projects\\Graduation-v7\\Learnify\\Server\\TempPDFs\\"
+    const fullPath= myPath+filename;
+    const directory = path.dirname(myPath);
     console.log("this is my directory",directory);
     // Ensure the directory
     if (!fs.existsSync(directory)) {
