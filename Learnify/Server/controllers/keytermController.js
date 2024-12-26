@@ -29,12 +29,16 @@ export const keytermController = {
                 throw new Error("Something went wrong in response from openai api!");
             }
             //store
-            jsonArray.forEach(keyterm => {
+            const keytermsPromises = jsonArray.map(async (keyterm) => {
                 const JSONkeyterm= createJSONkeyterm(keyterm.key,keyterm.def,fileid);
-                keytermService.createKeyterm(JSONkeyterm);
-                console.log("created!!")
-             });
-            res.status(201).json(response);
+                const createdKeyterm = await keytermService.createKeyterm(JSONkeyterm);
+                return createdKeyterm;
+            });
+            await Promise.all(keytermsPromises);
+            //get complete keyterms from db (with thier ids) 
+            const keytermsResponse = await fileService.getKeytermsByFileId(fileid);
+            //response
+            res.status(201).json(keytermsResponse);
         } catch (error) {
             console.log(error);
             res.status(500).json({ error: 'Error creating keyterm' });

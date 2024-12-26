@@ -1,0 +1,29 @@
+.loading-container-partial {
+    display: flex !important; /* Ensure flexbox is applied */
+    justify-content: left !important; /* Center horizontally */
+    align-items: left !important; /* Center vertically */
+    position: absolute !important; /* Position relative to parent */
+    top: 18% !important; /* Align to the top of the parent */
+    left: 9% !important; /* Align to the left of the parent */
+    width: 100% !important; /* Full width of the parent */
+    height: 100% !important; /* Full height of the parent */
+    background-color: rgba(255, 255, 255, 0) !important; /* Translucent overlay */
+    z-index: 999 !important; /* Ensure it's above other elements in the section */
+    margin: 0 !important; /* Reset any margins */
+    padding: 0 !important; /* Reset any paddings */
+    box-sizing: border-box !important; /* Include padding and border in dimensions */
+}
+
+.loading-image-partial {
+    width: 450px !important; /* Set spinner width */
+    height:450px !important; /* Set spinner height */
+    object-fit: contain !important; /* Maintain aspect ratio */
+}
+
+.loading-container-partial h2{
+    font-weight:bold ;
+    color: #1414bb;
+    font-size: 25px;
+}
+
+
