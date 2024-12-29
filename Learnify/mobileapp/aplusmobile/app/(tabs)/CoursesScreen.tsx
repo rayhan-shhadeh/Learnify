@@ -8,13 +8,12 @@ import NavBar from './NavBar';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
 import Back from './Back'
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Platform } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {jwtDecode} from 'jwt-decode';
 import API from '../../api/axois';
 import {useCourses} from './hooks/CoursesContext';
+import { useLocalSearchParams } from 'expo-router';
+
 const randomGradient = (): [string, string, ...string[]] => {
   const colors: [string, string, ...string[]][] = [
     ['#4c669f', '#3b5998', '#192f6a'],
@@ -50,6 +49,11 @@ const CoursesScreen = () => {
   const [newCourseName, setNewCourseName] = useState('');
   const [newCourseDescription, setNewCourseDescription] = useState('');
   const [newCourseTag, setNewCourseTag] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [fetchedCourses, setFetchedCourses] = useState([]);
+  const [selectedFilter,setSelectedFilter] = useState('');
+  const [showDropdown,setShowDropdown] = useState(false);
+
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -60,10 +64,8 @@ const CoursesScreen = () => {
           router.push('/(tabs)/auth/signin');
           return;
         }
-        
         const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
-        setUserId(decoded?.id ?? null); // Adjust this based on the token structure
-        
+        setUserId(decoded?.id ?? null); 
         const response = await API.get(`/api/user/courses/${decoded?.id}`);
         if ( response.status !== 200) {
           Alert.alert('Error', 'Failed to fetch courses');
@@ -71,38 +73,37 @@ const CoursesScreen = () => {
         }
         Alert.alert('Success', 'Courses fetched successfully');
         const data = await response.data;
-        setCourses(data); // Set courses to state
-        //Alert.alert('Courses', JSON.stringify(data));
-        setmyCourses(data);
-        mycourses.map((course) => {
-          console.log(course.courseName);
-        }
-        );
+      const mappedCourses = data.map((course: any) => ({
+        id: course.courseId,
+        name: course.courseName,
+        description: course.courseDescription,
+        tag: course.courseTag,
+      }));
+        setCourses(mappedCourses);
+        setFetchedCourses(mappedCourses);
+        setmyCourses(mappedCourses);
       } catch (error) {
         Alert.alert('Error', 'An error occurred while fetching courses');
       }
     };
     fetchCourses();
-    
-
   }, []) ;
-  const handleCourseSelect = (courseId: string) => {
-    setSelectedCourseId(courseId);  // Set the selected course ID in the context
-    router.push('/(tabs)/FilesScreen');  // Navigate to the files screen when a course is selected
-  };
+
   const addNewCourse = async () => {
     try {
+      if(!courseName) {
+        Alert.alert('Error', 'name is required');
+        return;
+      }
+    
       const token = await AsyncStorage.getItem('token');
       if (!token) {
         Alert.alert('Error', 'Token not found');
         return;
       }
-      // if (! newCourseName.trim() ||  ! newCourseDescription.trim() || !newCourseTag.trim()) {
-      //   Alert.alert('Error', 'Please fill in all fields');
-      //   return;
-      // }
       const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
       setUserId(decoded?.id ?? null); // Adjust this based on the token structure
+      console.log("user Id : "+userId);
       const response = await  API.post(`/api/course`, {
           courseName: courseName,
           courseDescription: courseDescription,
@@ -121,17 +122,18 @@ const CoursesScreen = () => {
       const data = await response.data;
       setCourses([...courses, data]); // Add new course to the list of courses
       setmyCourses([...mycourses, data]);
-      // setCourses([...courses, { id: Date.now().toString(), title: newCourseName, description: newCourseDescription, tag: newCourseTag }]);
-      // setNewCourseName('');
-      // setNewCourseDescription('');
-      // setNewCourseTag('');
-      setModalVisible(false);
     } catch (error) {
       Alert.alert('Error', 'An error occurred while adding new course');
     }
     };
-    //addNewCourse();
-  const deleteCourse = async (courseId: string) => {
+
+    const handleCancelAdd=() =>{
+      setCourseName('');
+      setCourseTag('');
+      setCourseDescription('');
+      setModalVisible(false);
+    }
+    const deleteCourse = async (courseId: string) => {
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token) { 
@@ -155,14 +157,27 @@ const CoursesScreen = () => {
  
   };
 
-const openEditModal = () => {
+const openEditModal = async (courseId:string) => {
   setIsEditModalVisible(true);
+  const courseData = await API.get(`/api/course/${courseId}`);
+  setCurrentCourse(courseData.data);
+  const mappedCourse = {
+    id: courseData.data.courseId,
+    title: courseData.data.courseName,
+    description: courseData.data.courseDescription,
+    tag: courseData.data.courseTag
+  };
+  setCurrentCourse(mappedCourse);
+  setNewCourseName(courseData.data.courseName);
+  setNewCourseDescription(courseData.data.courseDescription);
+  setNewCourseTag(courseData.data.courseTag);
 };
 
 const closeEditModal = () => {
   setIsEditModalVisible(false);
   setCurrentCourse(null);
 };
+
   const editCourse = async (courseId: string, newCourseName: string, newCourseDescription: string, newCourseTag: string) => {
     try {
       const token = await AsyncStorage.getItem('token');
@@ -172,6 +187,7 @@ const closeEditModal = () => {
       }
       const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
       setUserId(decoded?.id ?? null); // Adjust this based on the token structure
+
       const response = await API.put(`/api/course/${courseId}`, {
           courseName: newCourseName,
           courseDescription: newCourseDescription,
@@ -205,32 +221,91 @@ const closeEditModal = () => {
     }
     Alert.alert('Edited', 'Course edited successfully');
   }
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      const regex = new RegExp(searchQuery, "i");
+      const filteredCourses = courses.filter((course) => {
+      return (
+        regex.test(course.name) || regex.test(course.description)
+      );
+      });
+      setCourses(filteredCourses);
+    } else {
+      setCourses(fetchedCourses);
+    }
+  };
+
+  const handleInputChange = (value:string) => {
+    setSearchQuery(value);
+    if (!value) {
+      setCourses(fetchedCourses);
+    }
+  };
+  
+  const handleFilterSelect = (filter:string) => {
+    setSelectedFilter(filter);
+    setShowDropdown(false);
+    if (filter) {
+      const regex = new RegExp(filter, "i");
+      const filtered = courses.filter((course) =>
+        regex.test(course.tag)
+      );
+      setCourses(filtered);
+    } else {
+      setCourses(fetchedCourses);
+    }
+  };
+
+  const toggleDropdown = () => {
+    setShowDropdown((prev) => !prev);
+  };
+
+  const handleClearFilter = () => {
+    setSelectedFilter('');
+    setCourses(fetchedCourses);
+  };
+
+  const tags = [...new Set(courses.map((course) => course.tag))];
 
 
-  const FileCard = ({ title, description, tag , courseId}: { title: string, description: string , tag: string, courseId: string }) => {
+  const FileCard = ({ title, description, tag, courseId }: { 
+    title: string; 
+    description: string; 
+    tag: string; 
+    courseId: string; 
+  }) => {
+    console.log("Course ID in FileCard:", courseId);
+    const passedCourseId= courseId;
     return (
       <LinearGradient colors={['#1CA7EC', '#1CA7EC']} style={styles.card}>
-        <View style={styles.cardHeader} >
-          <Text style={styles.cardTitle}  onPress={() => router.push("/(tabs)/FlashcardsScreen")}>{title}</Text>
+        <View style={styles.cardHeader}>
+          <Text
+            style={styles.cardTitle}
+            onPress={() =>     
+              router.push({
+              pathname: '/(tabs)/CourseFilesScreen',
+              params: { title,passedCourseId },
+              })
+            }
+          >
+            {title}
+          </Text>
           <Text style={styles.cardDescription}>{description}</Text>
           <Text style={styles.cardTag}>{tag}</Text>
           <View style={styles.iconContainer}>
-          <TouchableOpacity onPress={openEditModal}>
-            <FontAwesome name="edit" size={20} color="url(#grad)" />
-            {/* <Button title="Edit Course" onPress={() =>{openEditModal}}/> */}
-            </TouchableOpacity>            
-            <TouchableOpacity onPress={() => deleteCourse(courseId)}>
-            <FontAwesome name="trash" size={20} color="url(#grad)"  />
+            <TouchableOpacity onPress={() => {console.log("llaaaaaaa"),openEditModal(courseId)}}>
+              <FontAwesome name="edit" size={20} color="#000" />
             </TouchableOpacity>
-
+            <TouchableOpacity onPress={() => deleteCourse(courseId)}>
+              <FontAwesome name="trash" size={20} color="#000" />
+            </TouchableOpacity>
           </View>
         </View>
       </LinearGradient>
     );
   };
-
+  
   const renderAddFileModal = () => {
-
     return (
       <Modal visible={modalVisible} transparent={true} animationType="slide">
         <View style={styles.modalContainer}>
@@ -245,7 +320,7 @@ const closeEditModal = () => {
               value={courseName}
               onChangeText={setCourseName}
             />
-                        <TextInput
+            <TextInput
               style={styles.input}
               placeholder="Course Description"
               value={courseDescription}
@@ -257,9 +332,14 @@ const closeEditModal = () => {
               value={courseTag}
               onChangeText={setCourseTag}
             />
-
-            <Button title="Add Course" onPress={addNewCourse}/>
-            <Button title="Cancel" color="red" onPress={() => setModalVisible(false)} />
+            <Button
+              title="Save"
+              onPress={() => {
+              addNewCourse();
+              handleCancelAdd();
+              }}
+            />
+            <Button title="Cancel" color="red" onPress={() => handleCancelAdd()} />
           </View>
         </View>
       </Modal>
@@ -293,15 +373,14 @@ const renderEditModal = () => {
             value={newCourseTag}
             onChangeText={setNewCourseTag}
           />
-
-          <Button title="edit Course" onPress={() => currentCourse?.id && editCourse(currentCourse.id, newCourseName, newCourseDescription, newCourseTag)} />
+          <Button title="Save" onPress={() => currentCourse?.id && 
+            editCourse(currentCourse.id, newCourseName, newCourseDescription, newCourseTag)} />
           <Button title="Cancel" color="red" onPress={() =>setIsEditModalVisible(false)} />
         </View>
       </View>
     </Modal>
   );
 };
-
 
   return (
     <>
@@ -316,33 +395,74 @@ const renderEditModal = () => {
                 <Icon name="list" size={27} color="#778899" />
                 <Text style={styles.header}>  My Courses</Text>
               </View>
+      <input
+        type="text"
+        value={searchQuery}
+        onChange={(e) => handleInputChange(e.target.value)}
+        placeholder="Search for courses"
+        onKeyDown={(e) => {
+          if (e.key === "Enter") handleSearch(); // Trigger search on Enter
+        }}
+      />
+          <View style={styles.container}>
+      {/* Dropdown Button */}
+      <TouchableOpacity style={styles.dropdownButton} onPress={toggleDropdown}>
+        <Text style={styles.dropdownButtonText}>
+          {selectedFilter || "Select a tag"}
+        </Text>
+      </TouchableOpacity>
+        {/* "X" Button to Clear Filter */}
+        {selectedFilter ? (
+          <TouchableOpacity
+            style={styles.clearFilterButton}
+            onPress={handleClearFilter}
+          >
+            <Text style={styles.clearFilterText}>X</Text>
+          </TouchableOpacity>
+        ) : null}
+
+      {/* Dropdown List */}
+      {showDropdown && (
+        <View style={styles.dropdownList}>
+          {tags.map((tag) => (
+            <TouchableOpacity
+              key={tag}
+              style={styles.dropdownItem}
+              onPress={() => handleFilterSelect(tag)}
+            >
+              <Text style={styles.dropdownItemText}>{tag}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
               <Animatable.View animation="fadeInUp" delay={200} duration={800} >
                 <FlatList style={styles.fileList} 
                   data={courses} // Adjust this based on the course structure
                   
                   renderItem={({ item }) => (
                     <FileCard
-                    title={item.courseName} 
-                    tag={item.courseTag} 
-                    description={item.courseDescription} 
-                    courseId={item.courseId}
+                    title={item.name} 
+                    tag={item.tag} 
+                    description={item.description} 
+                    courseId={item.id}
                      />
                   )}
                   keyExtractor={(item, index) => index.toString()}
                   contentContainerStyle={styles.fileList}
                 />
               </Animatable.View>
-
               <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
                 <Text style={styles.addButtonText}>Add a new Course</Text>
               </TouchableOpacity>
               {renderAddFileModal()}
               {renderEditModal()}
             </View>
+            </View>
             </ScrollView>
+            
           </LinearGradient>
         <NavBar />
-  
     </>
   );
 };
@@ -492,7 +612,81 @@ paddingBlock:20,
     shadowRadius: 4,
     elevation: 5,
     height: 150,
+  },  searchBar: {
+    backgroundColor: '#e0e0e0',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 20,
   },
+  searchText: {
+    color: '#888',
+  }, 
+  dropdownButton: {
+    backgroundColor: "#1CA7EC",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  dropdownButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    textAlign: "center",
+  },
+  dropdownList: {
+    backgroundColor: "#fff",
+    borderRadius: 5,
+    elevation: 5,
+    marginBottom: 10,
+  },
+  dropdownItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  dropdownItemText: {
+    fontSize: 16,
+    color: "#333",
+  },
+  clearButton: {
+    backgroundColor: "red",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  clearButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    textAlign: "center",
+  },
+  courseItem: {
+    padding: 10,
+    backgroundColor: "#fff",
+    borderRadius: 5,
+    marginBottom: 10,
+    elevation: 2,
+  },
+  courseName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  courseTag: {
+    fontSize: 14,
+    color: "#666",
+  },clearFilterButton: {
+    marginLeft: 10,
+    backgroundColor: "#ff6b6b",
+    padding: 8,
+    borderRadius: 5,
+  },
+  clearFilterText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+
+
+
 });
 
 export default CoursesScreen;

@@ -17,9 +17,10 @@ import { useCourses } from './hooks/CoursesContext';  // Import the useCourses h
 import API from '../../api/axois';
 import * as DocumentPicker from 'expo-document-picker';
 import { Picker } from '@react-native-picker/picker';
+import { useLocalSearchParams } from 'expo-router';
 import axios from 'axios';
 
-const FilesScreen = () => {
+const courseFilesScreen = () => {
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [modalVisible, setModalVisible] = useState(false);
@@ -42,8 +43,8 @@ const FilesScreen = () => {
   const [newFileName, setNewFileName]= useState('');
   const [currentFile,setCurrentFile] = useState<{ fileId: string } | null>(null)
   const [editedFileId,setEditedFileId]= useState('');
+  const { title,passedCourseId } = useLocalSearchParams();
   const [sortCriteria, setSortCriteria] = useState<string>("");
-
   const handleDateChange = (event: any, selectedDate: Date | undefined) => {
     const currentDate = selectedDate;
     const todaysDate = new Date();
@@ -59,10 +60,10 @@ const FilesScreen = () => {
     setFileDeadline(currentDate.toISOString());
     }
   };
+  
   useEffect(() => {
     const initialize = async () => {
       try {
-        // Fetch courses
         const token = await AsyncStorage.getItem('token');
         if (!token) {
           Alert.alert('Error', 'Token not found');
@@ -88,43 +89,33 @@ const FilesScreen = () => {
           Alert.alert('Error', 'Failed to fetch courses');
           return;
         }
+
         const fetchedCourses = coursesResponse.data;
-        setmyCourses(fetchedCourses); // Update courses state
-        // Map courses to array for Picker
+        setmyCourses(fetchedCourses);
         const coursesArrayRes = fetchedCourses.map((course: any) => ({
           id: course.courseId,
           name: course.courseName,
         }));
         setCoursesArray(coursesArrayRes);
         console.log('Fetched courses:', coursesArrayRes);
-        // Fetch files for each course
-        const filesData = await Promise.all(
-          fetchedCourses.map(async (course: any) => {
-            try {
-              const fileResponse = await API.get(`/api/user/course/files/${course.courseId}`);
-              if (fileResponse.status === 200) {
-                return fileResponse.data;
-              } else {
-                console.warn(`Failed to fetch files for course ${course.courseId}`);
-                return [];
-              }
-            } catch (fileError) {
-              console.error(`Error fetching files for course ${course.courseId}:`, fileError);
-              return [];
-            }
-          })
-        );
-        // Flatten the files array and update state
-        setFiles(filesData.flat());
-        setFetchedFiles(filesData.flat());
-        console.log('Fetched files:', filesData.flat());
+
+        console.log("hi from course files page : "+ passedCourseId);
+        const coursefilesResponse = await API.get(`api/user/course/files/${passedCourseId}`);
+        if (coursefilesResponse.status !== 200) {
+          Alert.alert('Error', 'Failed to fetch files');
+          return;
+        }
+        const fetchedCourseFiles = coursefilesResponse.data;
+        setFiles(fetchedCourseFiles.flat());
+        setFetchedFiles(fetchedCourseFiles.flat());
+        console.log('Fetched files:', fetchedCourseFiles.flat());
       } catch (error) {
         console.error('Initialization error:', error);
         Alert.alert('Error', 'An error occurred while initializing data');
       }
     };
     initialize();
-  }, []); // Runs on mount only
+  }, [courseId]);
     
   const handlefileDelete = async (fileId: string) => {
   try {
@@ -146,7 +137,7 @@ const FilesScreen = () => {
 const handleFileView = (uri: string) => {
   router.push({
     pathname: `/Files/PdfScreen`,
-    params: { uri }, // Pass the file URL to the PDF screen
+    params: { uri } 
   });
 };
 
@@ -203,7 +194,7 @@ const handleUploadFile = async (
       type: mimeType,
     } as any);
     formData.append('fileName', name);
-    formData.append('courseId', courseId); // Convert bigint to string
+    formData.append('courseId', passedCourseId.toString()); // Convert bigint to string
     formData.append('fileDeadline', fileDeadline);
     // Step 4: Upload the file to the server
     const response = await API.post(
@@ -288,28 +279,6 @@ const handleSearch = () => {
     setFiles(fetchedFiles);
   }
 };
-const renderEditFileModal = () => (
-  <Modal visible={isEditModalVisible} transparent={true} animationType="slide">
-    <View style={styles.modalContainer}>
-      <View style={styles.modalContent}>
-        <TextInput
-          style={styles.input}
-          placeholder="File Name"
-          value={newFileName}
-          onChangeText={setNewFileName}
-        />
-        <Button
-          title="Save Changes"
-          onPress={() =>
-            currentFile?.fileId && editFile(currentFile.fileId, newFileName)
-          }
-        />
-        <Button title="Cancel" color="red" onPress={() => setIsEditModalVisible(false)} />
-      </View>
-    </View>
-  </Modal>
-);
-  
     const openEditModal = async (fileId: string) => {
       try {
         console.log("Editing file with ID:", fileId);
@@ -318,7 +287,6 @@ const renderEditFileModal = () => (
         const mappedFile ={
           fileId: fileData.fileId,
           fileName : fileData.courseName,
-          
         };
         setCurrentFile(mappedFile);
         setNewFileName(fileData.fileName);
@@ -333,8 +301,8 @@ const renderEditFileModal = () => (
     const closeEditModal = () => {
   setIsEditModalVisible(false);
   setCurrentFile(null);
-};
-
+  };
+  
 const editFile = async (
   fileId: string,
   newFileName: string,
@@ -373,10 +341,11 @@ const editFile = async (
     Alert.alert("Error", "An error occurred while editing the file");
   }
 };
+
 const handleSort = (criteria:string) => {
   console.log("criteria is"+criteria);
   setSortCriteria(criteria);
-  console.log("Hi from sort");
+  console.log("gi from sort");
   const sortedFiles = [...files].sort((a, b) => {
     if (criteria === "deadline-asc") {
       return new Date(a.fileDeadline).getTime() - new Date(b.fileDeadline).getTime(); 
@@ -390,6 +359,7 @@ const handleSort = (criteria:string) => {
   console.log(sortedFiles);
   setFiles(sortedFiles);
   };
+
   const FileCard = ({ title, uri ,fileDeadline , fileId}: { title: string, uri: string , fileDeadline:string , fileId:string} ) => {
     console.log("file card"+fileId);
     return (
@@ -470,11 +440,33 @@ const handleSort = (criteria:string) => {
       </Modal>
     );
   };
-
+  const renderEditFileModal = () => (
+    <Modal visible={isEditModalVisible} transparent={true} animationType="slide">
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <TextInput
+            style={styles.input}
+            placeholder="File Name"
+            value={newFileName}
+            onChangeText={setNewFileName}
+          />
+          <Button
+            title="Save Changes"
+            onPress={() =>
+              currentFile?.fileId && editFile(currentFile.fileId, newFileName)
+            }
+          />
+          <Button title="Cancel" color="red" onPress={() => setIsEditModalVisible(false)} />
+        </View>
+      </View>
+    </Modal>
+  );
+  
   return (
     <>
       <SafeAreaView style={{ flex: 1 , backgroundColor: '#f5f5f5' }}>
           <LinearGradient colors={['#f7f7f7','#fbfbfb', '#9ad9ea']}  >
+            
             <TouchableOpacity style={styles.notificationButton}>
               <MaterialCommunityIcons name="bell-outline" size={24} color="#111517" />
             </TouchableOpacity>
@@ -482,7 +474,7 @@ const handleSort = (criteria:string) => {
               <View style={styles.headercontainer}>
                 <Back title={''} onBackPress={() => {}} />
                 <Icon name="folder" size={27} color="#778899" />
-                <Text style={styles.header}>  My files</Text>
+                <Text style={styles.header}>{title +" "}files</Text>
               </View>
               <input
         type="text"
@@ -493,29 +485,28 @@ const handleSort = (criteria:string) => {
           if (e.key === "Enter") handleSearch();
         }}
       />
-          <View style={styles.sortContainer}>
-            <Picker
-              selectedValue={sortCriteria}
-              onValueChange={(itemValue) => setSortCriteria(itemValue)}
-              style={styles.picker}
-            >
-              <Picker.Item label="Sort By" value="" />
-              <Picker.Item label="Name (A-Z)" value="name-asc" />
-              <Picker.Item label="Deadline (Soonest First)" value="deadline-asc" />
-              <Picker.Item label="Deadline (Latest First)" value="deadline-desc" />
-            </Picker>
-            <Button
-              title="Sort"
-              onPress={() => handleSort(sortCriteria)}
-              disabled={!sortCriteria} // Disable button if no criteria is selected
-            />
-          </View>
-
+                <View style={styles.sortContainer}>
+                  <Picker
+                    selectedValue={sortCriteria}
+                    onValueChange={(itemValue) => setSortCriteria(itemValue)}
+                    style={styles.picker}
+                  >
+                    <Picker.Item label="Sort By" value="" />
+                    <Picker.Item label="Name (A-Z)" value="name-asc" />
+                    <Picker.Item label="Deadline (Soonest First)" value="deadline-asc" />
+                    <Picker.Item label="Deadline (Latest First)" value="deadline-desc" />
+                  </Picker>
+                  <Button
+                    title="Sort"
+                    onPress={() => handleSort(sortCriteria)}
+                    disabled={!sortCriteria} // Disable button if no criteria is selected
+                  />
+                </View>
+      
               <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
                 <Text style={styles.addButtonText}>Add File</Text>
               </TouchableOpacity>
               {renderAddFileModal()}
-              
               <Animatable.View animation="fadeInUp" delay={200} duration={800}>
               <View>
                 <FlatList
@@ -676,7 +667,8 @@ const styles = StyleSheet.create({
     margin: 10,
     paddingHorizontal: 20,
   }
+  
 });
 
-export default FilesScreen;
+export default courseFilesScreen;
 
