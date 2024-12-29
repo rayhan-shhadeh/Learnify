@@ -1,8 +1,10 @@
 export  function createJSONFile( fileName,fileDeadline,fileURL,courseid) {
+    console.log(fileDeadline);
     const jsonObject = {
         "fileName": fileName,
         "fileDeadline": fileDeadline,
         "fileURL": fileURL ,
+        "practiceCount":0,
         "course":{
             "connect": {
               "courseId": courseid

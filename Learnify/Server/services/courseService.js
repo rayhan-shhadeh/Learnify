@@ -26,26 +26,21 @@ export const courseService = {
             where: { courseId: parseInt(id) }
         });
     },
-    
-    async getFilesByCourseId(courseId) {
-        return await prisma.file.findMany({
-            where: { courseId: parseInt(courseId) },
+
+    async getCoursesByUserId(userId) {
+        return await prisma.course.findMany({
+            where: { userid: parseInt(userId) },
         });
     },
-    
+
     async getCoursesByName(Name) {
         return await prisma.course.findMany({
             where: {courseName: { contains: Name } }            
         });
     },
-    async getCoursesByUserId(userId) {
-        return await prisma.course.findMany({
-            where: {
-                userid: parseInt(userId),
-            },
-        });
-    },
+    
     async getFilesByCourseId(courseId) {
+        
         return await prisma.file.findMany({
             where: {
                 courseid: parseInt(courseId),

@@ -39,7 +39,7 @@ export const courseController = {
 
     async getCourseById(req, res) {
         try {
-            const courseId = req.params.id;
+            const courseId = req.params.courseId;
             const course = await courseService.getCourseById(courseId);
             if (!course) {
                 return res.status(404).json({ error: 'Course not found' });
@@ -49,20 +49,6 @@ export const courseController = {
             console.log(error);
             res.status(500).json({ error: 'Error retrieving course' });
         }
-    },
-    
-    async getFilesByCourseId(req, res) {
-        try {
-            const courseId = req.params.id; 
-            const files = await courseService.getFilesByCourseId(courseId);
-            if (!files || files.length === 0) {
-                return res.status(404).json({ message: 'No files found for this course.' });
-            }
-                res.status(200).json(files);
-            } catch (error) {
-                console.error('Error fetching files:', error);
-                res.status(500).json({ error: 'Failed to retrieve files' });
-            }
     },
 
     async getCoursesByName(req,res){
@@ -78,6 +64,7 @@ export const courseController = {
             res.status(500).json({ error: 'Error' });
         }
     }, 
+
     async getCoursesByUserId(req, res) {
         try {
             const userId = req.params.userId; // Extract userId from the request parameters
@@ -91,9 +78,11 @@ export const courseController = {
             res.status(500).json({ error: 'Error retrieving courses' });
         }
     },
+    
     async getFilesByCourseId(req, res) {
         try {
             const courseId = req.params.courseId;
+            console.log("hi"+parseInt(courseId))
             const files = await courseService.getFilesByCourseId(courseId);
             if (!files) {
                 return res.status(200).json({ error: 'no files' });
