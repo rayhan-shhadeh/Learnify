@@ -17,6 +17,7 @@ import { useCourses } from './hooks/CoursesContext';  // Import the useCourses h
 import API from '../../api/axois';
 import * as DocumentPicker from 'expo-document-picker';
 import { Picker } from '@react-native-picker/picker';
+import { useLocalSearchParams } from 'expo-router';
 import axios from 'axios';
 
 const FilesScreen = () => {
@@ -35,7 +36,7 @@ const FilesScreen = () => {
   const [initialDeadline,setInitialDeadline] = useState(new Date(new Date().setDate(new Date().getDate() + 14)));
   const [uploadStatus,setUploadStatus]=useState(false);
   const [coursesArray,setCoursesArray]=useState([{id:1,name:'tala'}]);
-  const [selectedFileId,setSelectedFileId]=useState<bigint>(BigInt(0));
+  const [selectedFileId,setSelectedFileId]=useState<string>();
   const [searchQuery, setSearchQuery] = useState("");
   const [fetchedFiles,setFetchedFiles]= useState<any[]>([]);
   const [isEditModalVisible,setIsEditModalVisible]= useState(false);
@@ -43,6 +44,14 @@ const FilesScreen = () => {
   const [currentFile,setCurrentFile] = useState<{ fileId: string } | null>(null)
   const [editedFileId,setEditedFileId]= useState('');
   const [sortCriteria, setSortCriteria] = useState<string>("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [fileChoicesVisible, setFileChoicesVisible] = useState(false);
+  const sortOptions = [
+    { label: 'Sort By', value: '' },
+    { label: 'Name (A-Z)', value: 'name-asc' },
+    { label: 'Deadline (Soonest First)', value: 'deadline-asc' },
+    { label: 'Deadline (Latest First)', value: 'deadline-desc' },
+  ];
 
   const handleDateChange = (event: any, selectedDate: Date | undefined) => {
     const currentDate = selectedDate;
@@ -143,10 +152,11 @@ const FilesScreen = () => {
     Alert.alert('Error', 'An error occurred while deleting file');
   }
 }
-const handleFileView = (uri: string) => {
+const handleFileView = (fileId:string) => {
+  const passedFileId = fileId ;
   router.push({
-    pathname: `/Files/PdfScreen`,
-    params: { uri }, // Pass the file URL to the PDF screen
+    pathname:`/Files/PdfScreen`,
+    params: { passedFileId },
   });
 };
 
@@ -288,6 +298,36 @@ const handleSearch = () => {
     setFiles(fetchedFiles);
   }
 };
+
+const handleOpenFileChoices = (fileId:string) => {
+  setSelectedFileId(fileId);
+  setFileChoicesVisible(true);
+};
+
+const handleChoiceSelection = (choice:string) => {
+  setFileChoicesVisible(false);
+  if (choice === 'Study') {
+    /*
+    router.push({
+      pathname: '/Study',
+      params: { fileId: selectedFile?.id, title: selectedFile.name },
+    });
+    */
+  } else if (choice === 'Practice') {
+    /*
+    router.push({
+      pathname: '/Practice',
+      params: { fileId: selectedFile.id, title: selectedFile.name },
+    });
+    */
+  } else if (choice === 'Quiz') {
+    router.push({
+      pathname: '/(tabs)/quiz/Quiz',
+      params: { passedFileId: selectedFileId,passedIsFromAllFilesPage:'all',passedCourseId:""},
+    });
+  }
+};
+
 const renderEditFileModal = () => (
   <Modal visible={isEditModalVisible} transparent={true} animationType="slide">
     <View style={styles.modalContainer}>
@@ -390,20 +430,23 @@ const handleSort = (criteria:string) => {
   console.log(sortedFiles);
   setFiles(sortedFiles);
   };
-  const FileCard = ({ title, uri ,fileDeadline , fileId}: { title: string, uri: string , fileDeadline:string , fileId:string} ) => {
+  const FileCard = ({ title, fileDeadline , fileId}: { title: string, uri: string , fileDeadline:string , fileId:string} ) => {
     console.log("file card"+fileId);
     return (
-    
       <LinearGradient colors={['#1CA7EC', '#1CA7EC']} style={styles.card}>
        
         <View style={styles.cardHeader} >
-          <Text style={styles.cardTitle}  onPress={() => router.push("/(tabs)/FlashcardsScreen")}>{title}</Text>
+          <Text style={styles.cardTitle}  onPress={() =>handleFileView(fileId)}>{title}</Text>
           <Text style={styles.cardTitle} >{new Date(fileDeadline).toISOString().split("T")[0]}</Text>
-          
           <View style={styles.iconContainer}>
-            <TouchableOpacity onPress={() => handleFileView(uri)}>
+          <TouchableOpacity onPress={() => handleOpenFileChoices(fileId)}>
+            <FontAwesome name="book" size={20} color="url(#grad)"  />
+            </TouchableOpacity>
+            {/*             
+            <TouchableOpacity onPress={() => handleFileView(fileId)}>
             <FontAwesome name="eye" size={20} color="url(#grad)"  />
             </TouchableOpacity>
+            */}
             <TouchableOpacity onPress={() => handlefileDelete(fileId)}>
             <FontAwesome name="trash" size={20} color="url(#grad)" />
             </TouchableOpacity>
@@ -457,7 +500,7 @@ const handleSort = (criteria:string) => {
             ))
             }
           </Picker>
-            <Button title="Upload File" onPress={() => handleUploadFile(courseId,new Date(displayDate).toISOString(),setFiles, setNewFile )} />
+            <Button title="Upload File" onPress={() => handleUploadFile(courseId.toLocaleString(),new Date(displayDate).toISOString(),setFiles, setNewFile )} />
           {/* Save Button (Conditional) */}
           <Button
             title="Save"
@@ -470,7 +513,44 @@ const handleSort = (criteria:string) => {
       </Modal>
     );
   };
-
+  const renderChoicesModal = () => (
+    <Modal
+      visible={fileChoicesVisible}
+      animationType="fade"
+      transparent={true}
+      onRequestClose={() => setFileChoicesVisible(false)}
+    >
+      <View style={styles.choiceModalContainer}>
+        <View style={styles.choiceModal}>
+          <TouchableOpacity
+            style={styles.choiceButton}
+            onPress={() => handleChoiceSelection('Study')}
+          >
+            <Text style={styles.choiceButtonText}>Study</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.choiceButton}
+            onPress={() => handleChoiceSelection('Practice')}
+          >
+            <Text style={styles.choiceButtonText}>Practice</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.choiceButton}
+            onPress={() => handleChoiceSelection('Quiz')}
+          >
+            <Text style={styles.choiceButtonText}>Quiz</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setFileChoicesVisible(false)}
+          >
+            <Text style={styles.closeButtonText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+  
   return (
     <>
       <SafeAreaView style={{ flex: 1 , backgroundColor: '#f5f5f5' }}>
@@ -484,33 +564,58 @@ const handleSort = (criteria:string) => {
                 <Icon name="folder" size={27} color="#778899" />
                 <Text style={styles.header}>  My files</Text>
               </View>
-              <input
-        type="text"
-        value={searchQuery}
-        onChange={(e) => handleInputChange(e.target.value)}
-        placeholder="Search for files"
-        onKeyDown={(e) => {
-          if (e.key === "Enter") handleSearch();
-        }}
-      />
-          <View style={styles.sortContainer}>
-            <Picker
-              selectedValue={sortCriteria}
-              onValueChange={(itemValue) => setSortCriteria(itemValue)}
-              style={styles.picker}
-            >
-              <Picker.Item label="Sort By" value="" />
-              <Picker.Item label="Name (A-Z)" value="name-asc" />
-              <Picker.Item label="Deadline (Soonest First)" value="deadline-asc" />
-              <Picker.Item label="Deadline (Latest First)" value="deadline-desc" />
-            </Picker>
-            <Button
-              title="Sort"
-              onPress={() => handleSort(sortCriteria)}
-              disabled={!sortCriteria} // Disable button if no criteria is selected
-            />
-          </View>
+              <TextInput
+  style={styles.input}
+  value={searchQuery}
+  onChangeText={(value) => {
+    setSearchQuery(value);
+    handleInputChange(value);
+  }}
+  placeholder="Search for files"
+  returnKeyType="search"
+  onSubmitEditing={() => {
+    handleSearch();
+  }}
+/>
+<View style={styles.container}>
+      <View style={styles.sortContainer}>
+        {/* Dropdown Trigger */}
+        <TouchableOpacity
+          style={styles.dropdownList}
+          onPress={() => setShowDropdown(!showDropdown)}
+        >
+          <Text style={styles.dropdownTriggerText}>
+            {sortCriteria
+              ? sortOptions.find((option) => option.value === sortCriteria)?.label
+              : 'Sort By'}
+          </Text>
+        </TouchableOpacity>
 
+        {showDropdown && (
+          <View style={styles.dropdownList}>
+            {sortOptions.map((option) => (
+              <TouchableOpacity
+                key={option.value}
+                style={styles.dropdownItem}
+                onPress={() => {
+                  setSortCriteria(option.value);
+                  setShowDropdown(false); // Close dropdown after selection
+                }}
+              >
+                <Text style={styles.dropdownItemText}>{option.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
+        {/* Sort Button */}
+        <Button
+          title="Sort"
+          onPress={() => handleSort(sortCriteria)}
+          disabled={!sortCriteria} // Disable button if no criteria is selected
+        />
+      </View>
+    </View>
               <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
                 <Text style={styles.addButtonText}>Add File</Text>
               </TouchableOpacity>
@@ -534,6 +639,7 @@ const handleSort = (criteria:string) => {
         <NavBar />
       </SafeAreaView>
       {isEditModalVisible && renderEditFileModal()}
+      {fileChoicesVisible && renderChoicesModal()}
     </>
   );
 };
@@ -675,7 +781,99 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     margin: 10,
     paddingHorizontal: 20,
-  }
+  },
+  dropdownTrigger: {
+    width: '100%',
+    height: 50,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+    marginBottom: 10,
+  },
+  dropdownTriggerText: {
+    fontSize: 16,
+    color: 'black',
+  },
+  dropdownList: {
+    width: '100%',
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: 'gray',
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  dropdownItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'gray',
+  },
+  dropdownItemText: {
+    fontSize: 16,
+    color: 'black',
+  },
+  modalHeader: { fontSize: 20, fontWeight: 'bold', marginBottom: 16 },
+  searchInput: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 5,
+    paddingHorizontal: 8,
+    marginBottom: 16,
+  },
+  searchButton: {
+    backgroundColor: '#1CA7EC',
+    padding: 12,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  searchButtonText: { color: 'white', fontWeight: 'bold' },
+  fileItem: {
+    padding: 12,
+    backgroundColor: '#1CA7EC',
+    borderRadius: 5,
+    marginVertical: 8,
+  },
+  fileName: { color: 'white', fontSize: 16, fontWeight: 'bold' },
+  closeButton: {
+    backgroundColor: '#DC3545',
+    padding: 12,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  closeButtonText: { color: 'white', fontWeight: 'bold' },
+  choiceModalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  choiceModal: {
+    width: '80%',
+    padding: 16,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  choiceModalHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  choiceButton: {
+    width: '100%',
+    padding: 12,
+    backgroundColor: '#1CA7EC',
+    borderRadius: 5,
+    marginVertical: 8,
+    alignItems: 'center',
+  },
+  choiceButtonText: { color: 'white', fontWeight: 'bold' },
+
 });
 
 export default FilesScreen;

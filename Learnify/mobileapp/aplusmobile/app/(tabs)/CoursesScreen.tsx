@@ -53,7 +53,7 @@ const CoursesScreen = () => {
   const [fetchedCourses, setFetchedCourses] = useState([]);
   const [selectedFilter,setSelectedFilter] = useState('');
   const [showDropdown,setShowDropdown] = useState(false);
-
+  //const [passedCourseTitle,setPassedCourseTitle]  =useState<string | null>(null);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -265,8 +265,8 @@ const closeEditModal = () => {
     setCourses(fetchedCourses);
   };
 
-  const tags = [...new Set(courses.map((course) => course.tag))];
 
+  const tags = [...new Set(courses.map((course) => course.tag))];
 
   const FileCard = ({ title, description, tag, courseId }: { 
     title: string; 
@@ -284,7 +284,7 @@ const closeEditModal = () => {
             onPress={() =>     
               router.push({
               pathname: '/(tabs)/CourseFilesScreen',
-              params: { title,passedCourseId },
+              params: { title,passedCourseId},
               })
             }
           >
@@ -395,15 +395,19 @@ const renderEditModal = () => {
                 <Icon name="list" size={27} color="#778899" />
                 <Text style={styles.header}>  My Courses</Text>
               </View>
-      <input
-        type="text"
-        value={searchQuery}
-        onChange={(e) => handleInputChange(e.target.value)}
-        placeholder="Search for courses"
-        onKeyDown={(e) => {
-          if (e.key === "Enter") handleSearch(); // Trigger search on Enter
-        }}
-      />
+  <TextInput
+  style={styles.input}
+  value={searchQuery}
+  onChangeText={(value) => {
+    setSearchQuery(value);
+    handleInputChange(value);
+  }}
+  placeholder="Search for files"
+  returnKeyType="search"
+  onSubmitEditing={() => {
+    handleSearch();
+  }}
+/>
           <View style={styles.container}>
       {/* Dropdown Button */}
       <TouchableOpacity style={styles.dropdownButton} onPress={toggleDropdown}>
@@ -420,7 +424,6 @@ const renderEditModal = () => {
             <Text style={styles.clearFilterText}>X</Text>
           </TouchableOpacity>
         ) : null}
-
       {/* Dropdown List */}
       {showDropdown && (
         <View style={styles.dropdownList}>
@@ -435,7 +438,6 @@ const renderEditModal = () => {
           ))}
         </View>
       )}
-
               <Animatable.View animation="fadeInUp" delay={200} duration={800} >
                 <FlatList style={styles.fileList} 
                   data={courses} // Adjust this based on the course structure
