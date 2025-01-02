@@ -156,15 +156,16 @@ const Quiz=()=> {
     if (passedIsFromAllFilesPage =='all'){
       router.push('/(tabs)/FilesScreen');
     }
-    //passedFileId, PassedTitle, passedIsFromAllFilesPage,passedCourseTitle
-     
     else if (passedIsFromAllFilesPage =='course'){
-       const data = await API.get(`/api/course/${passedCourseId}`)
+      const data = await API.get(`/api/course/${passedCourseId}`)
       const title = data.data.courseName;
       router.push({
         pathname: '/(tabs)/CourseFilesScreen',
         params: { title,passedCourseId},
       })
+    }
+    else if (passedIsFromAllFilesPage =='home'){
+      router.push('/(tabs)/HomeScreen');
     }
   }
 
