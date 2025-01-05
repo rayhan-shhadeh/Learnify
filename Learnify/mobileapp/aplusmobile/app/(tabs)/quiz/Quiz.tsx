@@ -1,277 +1,633 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList,Alert } from 'react-native';
-import { ProgressBar, RadioButton } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import Back from '../Back';
-import {useRouter} from "expo-router";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LinearGradient } from 'expo-linear-gradient';
-//import { useCourses } from '../../(tabs)/hooks/CoursesContext';
-import {jwtDecode} from 'jwt-decode';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  TextInput,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
+import { ProgressBar } from 'react-native-paper';
+import axios from 'axios';
+import { useRouter } from 'expo-router';
 import API from '../../../api/axois';
-import { Platform } from 'react-native';
-
-const router = useRouter();
-const [dateofbirth, setDateOfBirth] = useState<Date | undefined>(undefined);
-const [modalVisible, setModalVisible] = useState(false);
-const [fileName, setFileName] = useState('');
-const [fileDeadline, setFileDeadline] = useState('');
-const [fileToUpload, setFileToUpload] = useState(null);
-const [showDatePicker, setShowDatePicker] = useState(false);
-const [userId, setUserId] = useState<string | null>(null);
-const [fileURL, setFileURL] = useState('');
-//const { mycourses } = useCourses();  // Get the courses from context
-const [files, setFiles] = useState<any[]>([]);
-const [courses, setmyCourses] = useState<any[]>([]);
-const [courseTag, setCourseTag] = useState('');
+import { useLocalSearchParams } from 'expo-router';
 
 
-// const handleDateChange = (event: any, selectedDate: Date | undefined) => {
-//   const currentDate = selectedDate;
-//   const todaysDate = new Date();
-//   if (currentDate && currentDate > todaysDate) {
-//     setFileDeadline(currentDate.toISOString());
-//   } else {
-//     alert('Please select a future date');
-//   }
-//   setShowDatePicker(Platform.OS === 'ios');
-//   setDateOfBirth(currentDate);
-// };
-// useEffect(() => {
-//   const fetchFiles = async () => {
-//     try {
-//       const filesData: any[] = [];
-//       // Loop through each course ID and fetch the associated files
-//       for (const course of mycourses) {
-//         const courseId = course.courseId; // Use the course ID from context
-//         const response = await API.get(`/api/user/course/files/${courseId}`);
-//         if (response.status === 200) {
-//           const filesForCourse = await response.data;
-//           filesData.push(...filesForCourse); // Append the files to the array
-//         } else {
-//           Alert.alert('Error', `Failed to fetch files for course ${courseId}`);
-//         }
-//       }
-//       setFiles(filesData); // Set all files in state
-//     } catch (error) {
-//       Alert.alert('Error', 'An error occurred while fetching files');
-//     }
-//   };
-
-//   if (mycourses.length > 0) {
-//     fetchFiles();  // Only fetch files if courses are available in context
-//   }
-// }, [mycourses]);
-
-// const fetchCourses = async () => {
-//   try {
-//     const token = await AsyncStorage.getItem('token');
-//     if (!token) {
-//       Alert.alert('Error', 'Token not found');
-//       return;
-//     }
-    
-//     const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
-//     setUserId(decoded?.id ?? null); // Adjust this based on the token structure
-    
-//     const response = await API.get(`/api/user/courses/${decoded?.id}`);
-//     if ( response.status !== 200) {
-//       Alert.alert('Error', 'Failed to fetch courses');
-//       return;
-//     }
-//     Alert.alert('Success', 'Courses fetched successfully');
-//     const data = await response.data;
-
-//     setmyCourses(data);
-//     mycourses.map((course) => {
-//       console.log(course.courseName);
-//     }
-//     );
-//   } catch (error) {
-//     Alert.alert('Error', 'An error occurred while fetching courses');
-//   }
-// };
-// const handlegeneratequiz = async (fileId: string) => {
-// try {
-//   const token = await AsyncStorage.getItem('token');
-//   if (!token) {
-//     Alert.alert('Error', 'Token not found');
-//     return;
-//   }
-//   const response = await API.post(`/api/file/generateQuiz/${fileId}`,{
-//     numOfQuestions: 5,
-//     level: "Inermediate"
-//   });
-
-//   if (response.status !== 200) {
-//     Alert.alert('Error', 'Failed to generate quiz');
-//     return;
-//   }
-//   Alert.alert('Success', 'Quiz generated successfully');
-// } catch (error) {
-//   Alert.alert('Error', 'An error occurred while deleting file');
-// }
-// }
-
-
-export default function QuizScreen() {
-  const [selectedOption, setSelectedOption] = useState('A');
-  const [checked, setChecked] = useState('A');
-  const router = useRouter();
-
-  const options = [
-    { id: 'A', label: 'Uruguay' },
-    { id: 'B', label: 'Brazil' },
-    { id: 'C', label: 'Italy' },
-    { id: 'D', label: 'Germany' },
-  ];
-
-  const renderOption = ({ item }: { item: { id: string; label: string } }) => (
-    <TouchableOpacity
-      style={[
-        styles.optionContainer,
-        checked === item.id && styles.rightoption,
-      ]}
-      onPress={() => setChecked(item.id)}
-    >
-      <RadioButton
-        value={item.id}
-        status={checked === item.id ? 'checked' : 'unchecked'}
-        onPress={() => setChecked(item.id)}
-      />
-      <Text style={styles.optionText}>{item.label}</Text>
-    </TouchableOpacity>
-  );
-
-  return (
-    <LinearGradient colors={['#ddf3f5', '#f7f7f7', '#fbfbfb', '#9ad9ea']} style={styles.linearcontainer}> 
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity  onPress={() => router.back}>
-            <Icon name="arrow-left" size={24} color="white" style={styles.back} />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>Question 3/10</Text>
-        <Icon name="bookmark" size={24} color="white" />
-      </View>
-      <View style={styles.maincard}>
-      <View style={styles.card}>
-        <Text style={styles.questionText}>
-          This is a question from the generated quiz{`
-          `}what's the right answer?
-        </Text>
-      </View>
-      <ProgressBar progress={0.3} color={'#62D9A2'} style={styles.progressBar} />
-      <Text style={styles.timer}>00:12</Text>
-
-      <FlatList
-        data={options}
-        renderItem={renderOption}
-        keyExtractor={(item) => item.id}
-        style={styles.optionList}
-      />
-    </View>
-    </View>
-    </LinearGradient>
-  );
+// Define types for quiz, question, and choices
+interface Choice {
+  text: string;
+  isCorrect: boolean;
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'transparent',
-    width: '100%',
-    height: '100%',
-  },
-  header: {
-    backgroundColor: '#1CA7EC',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-  },
-  headerText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  maincard:{
-    marginTop: 10,
-    marginBottom: 10,
-    alignContent: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'center',
-    backgroundColor: '#48bbfa',
-    width: 300,
-    height:550,
-    borderRadius: 40,
-  },
-  card: {
-    backgroundColor: '#fff',
-    margin: 20,
-    padding: 20,
-    borderRadius: 20,
-    elevation: 3,
-    height: 150,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-  },
-  questionText: {
-    fontSize: 16,
-    color: '#333',
-  },
-  progressBar: {
-    marginHorizontal: 20,
-    marginTop: 10,
-    width: 290,
-    height: 6,
-    borderRadius: 20,
-  },
-  timer: {
-    alignSelf: 'flex-end',
-    paddingRight: 30,
-    marginVertical: 5,
-    fontSize: 14,
-    color: '#fff',
-  },
-  optionList: {
-    marginHorizontal: 20,
-    marginTop: 10,
-    width: '90%',
-  },
-  optionContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    padding: 15,
-    marginBottom: 10,
-    borderRadius: 20,
-    elevation: 2,
-  },
-  optionText: {
-    fontSize: 16,
-    marginLeft: 10,
-  },
-  rightoption: {
-    backgroundColor: '#DFF6E3',
-    borderColor: '#62D9A2',
-    borderWidth: 1,
-  },  
-  wrongoption: {
-    backgroundColor: '#f09393',
-    borderColor: '#c10a0a',
-    borderWidth: 1,
-  },
-  linearcontainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+interface Question {
+  question: string;
+  questionId: number;
+  choices: Choice[];
+  selectedAnswer?: string;
+}
 
-  },
-  back: {
-    color: 'white',
+interface Quiz {
+  title: string;
+  description: string;
+  questions: Question[];
+}
+
+const Quiz=()=> {
+  const [quiz, setQuiz] = useState<Quiz | null>(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+  const [selectedChoice, setSelectedChoice] = useState<Choice | null>(null);
+  const [popupVisible, setPopupVisible] = useState<boolean>(true);
+  const [numQuestions, setNumQuestions] = useState<number>(5);
+  const [difficulty, setDifficulty] = useState<string>('easy');
+  const [quizId, setQuizId] = useState<number | null>(null);
+  const [review, setReview] = useState<boolean>(false);
+  const [score, setScore] = useState<number | null>(null);
+  const [error, setError] = useState<boolean>(false);
+  const router = useRouter();
+  const { passedFileId,passedIsFromAllFilesPage,passedCourseId} = useLocalSearchParams();
+  const [expandedQuestionIndex, setExpandedQuestionIndex] = useState<number | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  
+  const difficultyOptions = [
+    { label: 'Easy', value: 'Easy' },
+    { label: 'Medium', value: 'Medium' },
+    { label: 'Difficult', value: 'Difficult' },
+  ];
+
+  
+  useEffect(() => {
+    console.log(passedCourseId);
+    if (!popupVisible) {
+      generateQuiz();
+    }
+  }, [popupVisible]);
+
+  const getId = async (): Promise<void> => {
+    try {
+      const response = await API.get('/api/maxQuizId');
+      const id = response.data.maxQuizId + 1;
+      setQuizId(id);
+    } catch (err) {
+      console.error('Error fetching quiz ID:', err);
+    }
+  };
+
+  const generateQuiz = async (): Promise<void> => {
+    try {
+      console.log("Trying to genrate quiz from file "+passedFileId);
+      await getId();
+      const response = await API.post(
+        `/api/file/generateQuiz/${passedFileId}`,
+        {
+          numQuestions,
+          difficulty,
+        }
+      );
+      const Quiz: Quiz = {
+        title: response.data.title,
+        description: response.data.description,
+        questions: response.data.questions.map((q: any) => ({
+          question: q.questionText,
+          questionId: q.questionId,
+          choices: q.choices.map((choice: string, index: number) => ({
+            text: choice,
+            isCorrect: String.fromCharCode(65 + index) === q.correctAnswer,
+          })),
+        })),
+      };
+      setQuiz(Quiz);
+    } catch (err) {
+      setError(true);
+      console.error('Error generating quiz:', err);
+    }
+  };
+
+  const handleChoiceClick = async (choice: Choice, id: number): Promise<void> => {
+    try {
+      await API.post('/api/answer', {
+        chosenAnswer: choice.text,
+        isCorrect: choice.isCorrect,
+        question: { connect: { questionId: id } },
+      });
+
+      if (quiz) {
+        const updatedQuiz = { ...quiz };
+        updatedQuiz.questions[currentQuestionIndex].selectedAnswer = choice.text;
+        setQuiz(updatedQuiz);
+      }
+    } catch (err) {
+      console.error('Error storing answer:', err);
+      Alert.alert('Error', 'Unable to save your answer. Please try again.');
+    }
+    setSelectedChoice(choice);
+  };
+
+  const handleContinue = (): void => {
+    setTimeout(() => {
+      if (selectedChoice) {
+        setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
+      }
+      setSelectedChoice(null);
+    }, 1000);
+  };
+
+  const handleScore = (): void => {
+    if (quiz) {
+      const calculatedScore = quiz.questions.reduce((acc, question) => {
+        const userAnswer = question.selectedAnswer;
+        const correctChoice = question.choices.find((choice) => choice.isCorrect);
+        if (userAnswer === correctChoice?.text) {
+          return acc + 1;
+        }
+        return acc;
+      }, 0);
+      setScore(calculatedScore);
+    }
+  };
+  
+  const toggleQuestion = (index: number) => {
+    setExpandedQuestionIndex(index === expandedQuestionIndex ? null : index);
+  };
+
+  const handleFinishReview =async()=>{
+    if (passedIsFromAllFilesPage =='all'){
+      router.push('/(tabs)/FilesScreen');
+    }
+    else if (passedIsFromAllFilesPage =='course'){
+      const data = await API.get(`/api/course/${passedCourseId}`)
+      const title = data.data.courseName;
+      router.push({
+        pathname: '/(tabs)/CourseFilesScreen',
+        params: { title,passedCourseId},
+      })
+    }
+    else if (passedIsFromAllFilesPage =='home'){
+      router.push('/(tabs)/HomeScreen');
+    }
   }
-});
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Error generating the quiz!</Text>
+      </View>
+    );
+  }
+
+  if (popupVisible) {
+    return (
+      <View style={styles.popupContainer}>
+        <Text style={styles.bannerText}>
+          Unleash your potential and challenge your mind!
+        </Text>
+        <View style={styles.popup}>
+          <Text style={styles.popupLabel}>Number of Questions:</Text>
+          <TextInput
+          style={styles.input}
+          keyboardType="numeric"
+          value={numQuestions.toString()}
+          onChangeText={(text) => {
+            const filteredText = text.replace(/[^0-9]/g, ''); // Filter non-numeric input
+            setNumQuestions(filteredText ? parseInt(filteredText, 10) : 1); // Default to 1 if empty
+          }}
+        />
+        {/* Dropdown Trigger */}
+        <TouchableOpacity
+          style={styles.dropdownList}
+          onPress={() => setShowDropdown(!showDropdown)}
+        >
+          <Text style={styles.dropdownTriggerText}>
+            {difficulty
+              ? difficultyOptions.find((option) => option.value === difficulty)?.label
+              : 'Difficulty'}
+          </Text>
+        </TouchableOpacity>
+        {showDropdown && (
+          <View style={styles.dropdownList}>
+            {difficultyOptions.map((option) => (
+              <TouchableOpacity
+                key={option.value}
+                style={styles.dropdownItem}
+                onPress={() => {
+                  setDifficulty(option.value);
+                  setShowDropdown(false); // Close dropdown after selection
+                }}
+              >
+                <Text style={styles.dropdownItemText}>{option.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+          <TouchableOpacity
+            style={styles.startButton}
+            onPress={() => setPopupVisible(false)}
+          >
+            <Text style={styles.buttonText}>Start Quiz</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
+  if (!quiz) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#1CA7EC" />
+        <Text style={styles.loadingText}>Loading Quiz...</Text>
+      </View>
+    );
+  }
+
+  const currentQuestion = quiz.questions[currentQuestionIndex];
+  if (review) {
+    return (
+      <View style={styles.reviewContainer}>
+        {/* Display the Score */}
+        <Text style={styles.scoreText}>
+          Your Score: {score}/{numQuestions}
+        </Text>
+  
+        {/* List of Questions */}
+        <FlatList
+          data={quiz.questions}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item, index }) => {
+            const userAnswer = item.selectedAnswer;
+            const correctChoice = item.choices.find((choice) => choice.isCorrect);
+            const isExpanded = expandedQuestionIndex === index;
+  
+            return (
+              <View style={styles.reviewItem}>
+                {/* Question with Correctness Color */}
+                <TouchableOpacity
+                  style={[
+                    styles.questionContainer,
+                    userAnswer === correctChoice?.text
+                      ? styles.correctChoice
+                      : styles.incorrectChoice,
+                  ]}
+                  onPress={() => toggleQuestion(index)}
+                >
+                  <Text style={styles.reviewQuestionText}>
+                    {index + 1}. {item.question}
+                  </Text>
+                </TouchableOpacity>
+  
+                {/* Show Choices and Answers if Expanded */}
+                {isExpanded && (
+                  <View style={styles.choicesContainer}>
+                    {item.choices.map((choice, choiceIndex) => (
+                      <View
+                        key={choiceIndex}
+                        style={[
+                          styles.choiceContainer,
+                          choice.text === userAnswer
+                            ? choice.isCorrect
+                              ? styles.correctChoice
+                              : styles.incorrectChoice
+                            : choice.isCorrect
+                            ? styles.correctChoice
+                            : null,
+                        ]}
+                      >
+                        <Text style={styles.choiceText}>
+                          {choice.text}
+                          {choice.text === userAnswer && !choice.isCorrect && " (Your Answer)"}
+                          {choice.isCorrect && " (Correct)"}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
+              </View>
+            );
+          }}
+        />
+  
+        {/* Finish Review Button */}
+        <TouchableOpacity
+          style={styles.finishButton}
+          onPress={() => handleFinishReview()}
+        >
+          <Text style={styles.buttonText}>Finish Review</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+  
+  return (
+    <View style={styles.quizContainer}>
+          <View style={styles.questionCountContainer}>
+      <Text style={styles.questionCountText}>
+        Question {currentQuestionIndex + 1} of {quiz.questions.length}
+      </Text>
+    </View>
+    <ProgressBar
+      progress={(currentQuestionIndex + 1) / quiz.questions.length}
+      color="#62D9A2"
+      style={styles.progressContainer}
+    />
+    <Text style={styles.questionText}>{currentQuestion.question}</Text>
+    {currentQuestion.choices.map((choice, index) => (
+    <TouchableOpacity
+      key={index}
+      style={[
+        styles.choice,
+        selectedChoice === choice && {
+        backgroundColor: choice.isCorrect
+          ? '#D4EDDA' // Light green for correct
+          : '#F8D7DA', // Light red for incorrect
+        borderColor: choice.isCorrect ? '#28A745' : '#DC3545', // Darker green/red for border
+      },
+    ]}
+    onPress={() => handleChoiceClick(choice, currentQuestion.questionId)}
+    disabled={!!selectedChoice} // Disable choices after one is selected
+  >
+    <Text
+      style={[
+        styles.choiceText,
+        selectedChoice === choice && {
+          color: choice.isCorrect ? '#155724' : '#721C24', // Adjust text color based on correctness
+        },
+      ]}
+    >
+      {choice.text}
+    </Text>
+  </TouchableOpacity>
+))}
+      <TouchableOpacity
+        style={styles.continueButton}
+        onPress={
+          currentQuestionIndex + 1 === quiz.questions.length
+            ? () => {
+                setReview(true);
+                handleScore();
+              }
+            : handleContinue
+        }
+      >
+        <Text style={styles.buttonText}>
+          {currentQuestionIndex + 1 === quiz.questions.length
+            ? 'Submit'
+            : 'Continue'}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+    // Main Container
+    quizContainer: {
+      flex: 1,
+      padding: 16,
+      backgroundColor: '#F9F9F9',
+      justifyContent: 'center',
+    },
+  
+    // Popup Styles
+    popupContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#F5FCFF',
+    },
+    bannerText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: '#3785DE',
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    popup: {
+      width: '90%',
+      backgroundColor: 'white',
+      borderRadius: 10,
+      padding: 20,
+      shadowColor: '#000',
+      shadowOpacity: 0.1,
+      shadowRadius: 5,
+      elevation: 5,
+    },
+    popupLabel: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: '#333',
+      marginVertical: 10,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: '#ddd',
+      borderRadius: 5,
+      padding: 8,
+      fontSize: 16,
+      marginBottom: 10,
+    },
+    startButton: {
+      backgroundColor: '#1CA7EC',
+      padding: 12,
+      borderRadius: 5,
+      alignItems: 'center',
+      marginTop: 10,
+    },
+  
+    // Question Section
+    questionText: {
+      fontSize: 18,
+      fontWeight: '600',
+      marginBottom: 20,
+      textAlign: 'center',
+      color: '#333',
+    },
+  
+    // Choices Section
+    choice: {
+      backgroundColor: '#FFFFFF',
+      borderWidth: 1,
+      borderColor: '#ddd',
+      padding: 12,
+      borderRadius: 8,
+      marginVertical: 8,
+    },
+    selected: {
+      backgroundColor: '#E6F7FF',
+      borderWidth: 1,
+      borderColor: '#1CA7EC',
+      padding: 12,
+      borderRadius: 8,
+      marginVertical: 8,
+    },
+    choiceText: {
+      fontSize: 16,
+      color: '#333',
+    },
+  
+    // Progress Bar
+    progressContainer: {
+      marginBottom: 24,
+    },
+  
+    // Continue/Submit Button
+    continueButton: {
+      backgroundColor: '#62D9A2',
+      padding: 12,
+      borderRadius: 5,
+      alignItems: 'center',
+      marginTop: 20,
+    },
+    buttonText: {
+      color: 'white',
+      fontWeight: 'bold',
+      fontSize: 16,
+    },
+  
+    // Review Section
+    reviewContainer: {
+      flex: 1,
+      padding: 16,
+      backgroundColor: '#F9F9F9',
+    },
+    scoreText: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      textAlign: 'center',
+      marginBottom: 20,
+      color: '#3785DE',
+    },
+    reviewItem: {
+      backgroundColor: '#FFFFFF',
+      borderWidth: 1,
+      borderColor: '#ddd',
+      padding: 12,
+      borderRadius: 8,
+      marginVertical: 8,
+    },
+    reviewText: {
+      fontSize: 16,
+      color: '#333',
+    },
+    finishButton: {
+      backgroundColor: '#1CA7EC',
+      padding: 12,
+      borderRadius: 5,
+      alignItems: 'center',
+      marginTop: 20,
+    },
+  
+    // Error Styles
+    error: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      color: 'red',
+      fontSize: 16,
+    },loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#F9F9F9', // Light background to keep it clean and readable
+      },
+      loadingText: {
+        marginTop: 10,
+        fontSize: 16,
+        color: '#1CA7EC', // Matches the primary theme color
+        fontWeight: '500',
+      },  errorContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#FFF5F5', // Light red background to indicate an error
+      },
+      errorText: {
+        fontSize: 18,
+        color: '#D9534F', // Strong red color for error text
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginHorizontal: 20, // Ensure the text is not too close to the edges
+      },questionCountContainer: {
+        marginBottom: 16,
+        alignItems: 'center',
+      },
+      questionCountText: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#333',
+      },reviewQuestionText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        color: '#333',
+      },
+      reviewChoice: {
+        padding: 8,
+        borderWidth: 1,
+        borderRadius: 5,
+        marginVertical: 4,
+      },
+      correctChoice: {
+        backgroundColor: '#D4EDDA', // Light green for correct
+        borderColor: '#28A745', // Dark green for border
+      },
+      incorrectChoice: {
+        backgroundColor: '#F8D7DA', // Light red for incorrect
+        borderColor: '#DC3545', // Dark red for border
+      },
+      questionContainer: {
+        padding: 12,
+        borderRadius: 5,
+        marginVertical: 8,
+      },
+      choicesContainer: {
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        backgroundColor: '#F9F9F9',
+        borderRadius: 5,
+        marginTop: 8,
+      },
+      choiceContainer: {
+        padding: 8,
+        borderWidth: 1,
+        borderRadius: 5,
+        marginVertical: 4,
+      },  dropdownTrigger: {
+        width: '100%',
+        height: 50,
+        borderColor: 'gray',
+        borderWidth: 1,
+        borderRadius: 5,
+        justifyContent: 'center',
+        paddingHorizontal: 10,
+        marginBottom: 10,
+      },
+      dropdownTriggerText: {
+        fontSize: 16,
+        color: 'black',
+      },
+      dropdownList: {
+        width: '100%',
+        backgroundColor: 'white',
+        borderWidth: 1,
+        borderColor: 'gray',
+        borderRadius: 5,
+        marginBottom: 10,
+      },
+      dropdownItem: {
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: 'gray',
+      },
+      dropdownItemText: {
+        fontSize: 16,
+        color: 'black',
+      },
+    
+      
+    
+      
+   
+  });
+  
+export default Quiz;

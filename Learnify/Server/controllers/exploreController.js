@@ -4,6 +4,8 @@ import {generateExploreFlashcard} from '../functions/GoogleGenerativeAI.js';
 import {createJSONTopic,createJSONExploreFlashcard} from '../functions/createJsonObject.js';
 import {isArrayOfJSONObjects,isArrayOfStrings} from '../functions/validateFormat.js'
 import {OpenAI} from '../functions/openAIPromptHandling.js'
+import { userService } from '../services/userService.js';
+import { courseService } from '../services/courseService.js';
 
 let currentTopic = "";
 export const exploreController={
@@ -47,28 +49,70 @@ export const exploreController={
     async suggestedTopics(req, res) {
     try{
         const majorName = req.params.majorName;//based on user
-        const prompt="give me 15 important intermediate level topics to explore for a user study major of"
-        +majorName
-        +"return it in format of array of string be carefull without additional text befor and after like :"
-        +"topic1,toic2,topic3,......"
-        +"without ```json``` or any additional text";
+        const prompt="give me 15 important intermediate level topics that suggested for a user study major of"
+        +majorName+"to explore."
+        +" Please return it in format of array of string be carefull without additional text befor and after like :"
+        +"topic1,toic2,topic3,......"+"without [] or"+ '""'
+        +" Without ```json``` or any additional text";
         const suggestedTopics = await OpenAI(prompt);
         const topicsArray = suggestedTopics.split(",");
         if(!isArrayOfStrings(topicsArray)){
             throw new Error("Something went wrong in response from openai api!");
         }
-        res.status(200).json(suggestedTopics);
+        res.status(200).json(topicsArray);
     }catch (error) {
         console.error(error);
         res.status(500).json({ error: "An error occurred while processing topics." });
     }
     },   
-     
+
+    async relatedTopics(req, res) {
+        try{
+            const userId = req.params.userId;
+            const userData = await userService.getUserData(userId);
+            const majorName = userData.major;
+            const coursesResponse = await courseService.getCoursesByUserId(userId);
+            const courseNames = coursesResponse.map(course => course.courseName);
+            const prompt="give me 10 important related and specific topics to explore new information for a user study major of "
+            +majorName+" and taking these courses "+courseNames+" be carefull that the topices are logicly not covered in these courses. "
+            +"Please return it in format of array of string be carefull without additional text befor and after like :"
+            +"topic1,toic2,topic3,......"+"without [] or"+ '""'
+            +"without ```json``` or any additional text";
+            const relatedTopices = await OpenAI(prompt);
+            const topicsArray = relatedTopices.split(",");
+            if(!isArrayOfStrings(topicsArray)){
+                throw new Error("Something went wrong in response from openai api!");
+            }
+            res.status(200).json(topicsArray);
+        }catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "An error occurred while processing topics." });
+        }
+    },   
+    
+    async popularTopics(req, res) {
+        try{
+            const prompt="give me 10 popular and trendy topics but not known very much"
+            +". Please return it in format of array of string be carefull without additional text befor and after like :"
+            +"topic1,toic2,topic3,......"+"without [] or"+ '""'
+            +"without ```json``` or any additional text";
+            const relatedTopices = await OpenAI(prompt);
+            const topicsArray = relatedTopices.split(",");
+            if(!isArrayOfStrings(topicsArray)){
+                throw new Error("Something went wrong in response from openai api!");
+            }
+            res.status(200).json(topicsArray);
+        }catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "An error occurred while processing topics." });
+        }
+    },   
+
     async exploreMore(req, res) {
         try{
             const prompt="please give 10 top trusted resources for learning this topic:" + req.params.topicName 
             //req.params.topicName will be fixed to be currentTopic
-            +"return it in format of array of string be carefull without additional text befor and after like :"
+            +"return it in format of array of strings be carefull without additional text befor and after like :"
             +"www.resource1.com,www.resource2.edu,www.resource3.org,......";
             const resources = await OpenAI(prompt);
             const resourcesArray = resources.split(",");
@@ -82,3 +126,4 @@ export const exploreController={
         }
     }     
 }
+

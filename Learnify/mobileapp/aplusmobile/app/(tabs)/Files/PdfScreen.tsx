@@ -1,34 +1,91 @@
-import React from 'react';
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, ActivityIndicator, StyleSheet, Text } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { useRoute, RouteProp } from '@react-navigation/native';
+import axios from 'axios'; // Assuming you're using Axios for API calls
+import { useLocalSearchParams } from 'expo-router';
+import API from '../../../api/axois';
 
-type RouteParams = {
-  someParam?: string;
-};
+interface PdfViewerProps {
+  fileId: string;
+}
 
-const PdfScreen = () => {
-    const route = useRoute<RouteProp<{ params: RouteParams }>>();
-    const { someParam } = route.params || {};  // Default to an empty object
+const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
+  const {passedFileId} = useLocalSearchParams();
   
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    const fetchPdfUrl = async () => {
+      fileId=passedFileId.toString();
+      console.log(fileId);
+      try {
+        console.log();
+        setLoading(true);
+        const response = await API.get(`/api/file/${fileId}`);
+        setPdfUrl(response.data.fileURL);
+        
+      } catch (err) {
+        console.error('Error fetching PDF URL:', err);
+        setError('Failed to load the PDF. Please try again.'+ pdfUrl);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPdfUrl();
+  }, [fileId]);
+
+  if (loading) {
     return (
-      <View>
-        <Text>{someParam ? someParam : 'No param provided'}</Text>
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+        <Text>Loading PDF...</Text>
       </View>
     );
-  };
-  
-
+  }
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
+  if (!pdfUrl) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>No URL available to display.</Text>
+      </View>
+    );
+  }
+  return (
+    <View style={styles.container}>
+      <WebView source={{ uri: pdfUrl }} style={styles.webview} />
+    </View>
+  );
+};
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
-  headerText: {
-    fontSize: 20,
+  webview: {
+    flex: 1,
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  errorText: {
+    color: 'red',
     textAlign: 'center',
-    margin: 10,
+    fontSize: 16,
   },
 });
 
-export default PdfScreen;
+export default PdfViewer;

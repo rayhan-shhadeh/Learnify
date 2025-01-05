@@ -11,12 +11,12 @@
     "ios": {
       "supportsTablet": true
     },
-
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.anonymous.aplusmobile"
     },
     "web": {
       "bundler": "metro",
@@ -36,7 +36,6 @@
       ],
       "react-native-add-calendar-event"
     ],
-
     "experiments": {
       "typedRoutes": true
     }

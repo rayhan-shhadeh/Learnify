@@ -20,7 +20,7 @@ import { Picker } from '@react-native-picker/picker';
 import { useLocalSearchParams } from 'expo-router';
 import axios from 'axios';
 
-const FilesScreen = () => {
+const CourseFilesScreen = () => {
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [modalVisible, setModalVisible] = useState(false);
@@ -36,23 +36,25 @@ const FilesScreen = () => {
   const [initialDeadline,setInitialDeadline] = useState(new Date(new Date().setDate(new Date().getDate() + 14)));
   const [uploadStatus,setUploadStatus]=useState(false);
   const [coursesArray,setCoursesArray]=useState([{id:1,name:'tala'}]);
-  const [selectedFileId,setSelectedFileId]=useState<string>();
+  const [selectedFileId,setSelectedFileId]=useState<string>('');
   const [searchQuery, setSearchQuery] = useState("");
   const [fetchedFiles,setFetchedFiles]= useState<any[]>([]);
   const [isEditModalVisible,setIsEditModalVisible]= useState(false);
   const [newFileName, setNewFileName]= useState('');
   const [currentFile,setCurrentFile] = useState<{ fileId: string } | null>(null)
   const [editedFileId,setEditedFileId]= useState('');
+  const { title,passedCourseId } = useLocalSearchParams();
   const [sortCriteria, setSortCriteria] = useState<string>("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [fileChoicesVisible, setFileChoicesVisible] = useState(false);
-  const sortOptions = [
-    { label: 'Sort By', value: '' },
-    { label: 'Name (A-Z)', value: 'name-asc' },
-    { label: 'Deadline (Soonest First)', value: 'deadline-asc' },
-    { label: 'Deadline (Latest First)', value: 'deadline-desc' },
-  ];
-
+    
+    const sortOptions = [
+      { label: 'Sort By', value: '' },
+      { label: 'Name (A-Z)', value: 'name-asc' },
+      { label: 'Deadline (Soonest First)', value: 'deadline-asc' },
+      { label: 'Deadline (Latest First)', value: 'deadline-desc' },
+    ];
+  
   const handleDateChange = (event: any, selectedDate: Date | undefined) => {
     const currentDate = selectedDate;
     const todaysDate = new Date();
@@ -68,10 +70,10 @@ const FilesScreen = () => {
     setFileDeadline(currentDate.toISOString());
     }
   };
+  
   useEffect(() => {
     const initialize = async () => {
       try {
-        // Fetch courses
         const token = await AsyncStorage.getItem('token');
         if (!token) {
           Alert.alert('Error', 'Token not found');
@@ -97,43 +99,33 @@ const FilesScreen = () => {
           Alert.alert('Error', 'Failed to fetch courses');
           return;
         }
+
         const fetchedCourses = coursesResponse.data;
-        setmyCourses(fetchedCourses); // Update courses state
-        // Map courses to array for Picker
+        setmyCourses(fetchedCourses);
         const coursesArrayRes = fetchedCourses.map((course: any) => ({
           id: course.courseId,
           name: course.courseName,
         }));
         setCoursesArray(coursesArrayRes);
         console.log('Fetched courses:', coursesArrayRes);
-        // Fetch files for each course
-        const filesData = await Promise.all(
-          fetchedCourses.map(async (course: any) => {
-            try {
-              const fileResponse = await API.get(`/api/user/course/files/${course.courseId}`);
-              if (fileResponse.status === 200) {
-                return fileResponse.data;
-              } else {
-                console.warn(`Failed to fetch files for course ${course.courseId}`);
-                return [];
-              }
-            } catch (fileError) {
-              console.error(`Error fetching files for course ${course.courseId}:`, fileError);
-              return [];
-            }
-          })
-        );
-        // Flatten the files array and update state
-        setFiles(filesData.flat());
-        setFetchedFiles(filesData.flat());
-        console.log('Fetched files:', filesData.flat());
+
+        console.log("hi from course files page : "+ passedCourseId);
+        const coursefilesResponse = await API.get(`api/user/course/files/${passedCourseId}`);
+        if (coursefilesResponse.status !== 200) {
+          Alert.alert('Error', 'Failed to fetch files');
+          return;
+        }
+        const fetchedCourseFiles = coursefilesResponse.data;
+        setFiles(fetchedCourseFiles.flat());
+        setFetchedFiles(fetchedCourseFiles.flat());
+        console.log('Fetched files:', fetchedCourseFiles.flat());
       } catch (error) {
         console.error('Initialization error:', error);
         Alert.alert('Error', 'An error occurred while initializing data');
       }
     };
     initialize();
-  }, []); // Runs on mount only
+  }, [courseId]);
     
   const handlefileDelete = async (fileId: string) => {
   try {
@@ -152,11 +144,10 @@ const FilesScreen = () => {
     Alert.alert('Error', 'An error occurred while deleting file');
   }
 }
-const handleFileView = (fileId:string) => {
-  const passedFileId = fileId ;
+const handleFileView = (uri: string) => {
   router.push({
-    pathname:`/Files/PdfScreen`,
-    params: { passedFileId },
+    pathname: `/Files/PdfScreen`,
+    params: { uri } 
   });
 };
 
@@ -213,7 +204,7 @@ const handleUploadFile = async (
       type: mimeType,
     } as any);
     formData.append('fileName', name);
-    formData.append('courseId', courseId); // Convert bigint to string
+    formData.append('courseId', passedCourseId.toString()); // Convert bigint to string
     formData.append('fileDeadline', fileDeadline);
     // Step 4: Upload the file to the server
     const response = await API.post(
@@ -299,57 +290,6 @@ const handleSearch = () => {
   }
 };
 
-const handleOpenFileChoices = (fileId:string) => {
-  setSelectedFileId(fileId);
-  setFileChoicesVisible(true);
-};
-
-const handleChoiceSelection = (choice:string) => {
-  setFileChoicesVisible(false);
-  if (choice === 'Study') {
-    /*
-    router.push({
-      pathname: '/Study',
-      params: { fileId: selectedFile?.id, title: selectedFile.name },
-    });
-    */
-  } else if (choice === 'Practice') {
-    /*
-    router.push({
-      pathname: '/Practice',
-      params: { fileId: selectedFile.id, title: selectedFile.name },
-    });
-    */
-  } else if (choice === 'Quiz') {
-    router.push({
-      pathname: '/(tabs)/quiz/Quiz',
-      params: { passedFileId: selectedFileId,passedIsFromAllFilesPage:'all',passedCourseId:""},
-    });
-  }
-};
-
-const renderEditFileModal = () => (
-  <Modal visible={isEditModalVisible} transparent={true} animationType="slide">
-    <View style={styles.modalContainer}>
-      <View style={styles.modalContent}>
-        <TextInput
-          style={styles.input}
-          placeholder="File Name"
-          value={newFileName}
-          onChangeText={setNewFileName}
-        />
-        <Button
-          title="Save Changes"
-          onPress={() =>
-            currentFile?.fileId && editFile(currentFile.fileId, newFileName)
-          }
-        />
-        <Button title="Cancel" color="red" onPress={() => setIsEditModalVisible(false)} />
-      </View>
-    </View>
-  </Modal>
-);
-  
     const openEditModal = async (fileId: string) => {
       try {
         console.log("Editing file with ID:", fileId);
@@ -358,7 +298,6 @@ const renderEditFileModal = () => (
         const mappedFile ={
           fileId: fileData.fileId,
           fileName : fileData.courseName,
-          
         };
         setCurrentFile(mappedFile);
         setNewFileName(fileData.fileName);
@@ -373,8 +312,8 @@ const renderEditFileModal = () => (
     const closeEditModal = () => {
   setIsEditModalVisible(false);
   setCurrentFile(null);
-};
-
+  };
+  
 const editFile = async (
   fileId: string,
   newFileName: string,
@@ -413,10 +352,11 @@ const editFile = async (
     Alert.alert("Error", "An error occurred while editing the file");
   }
 };
+
 const handleSort = (criteria:string) => {
   console.log("criteria is"+criteria);
   setSortCriteria(criteria);
-  console.log("Hi from sort");
+  console.log("gi from sort");
   const sortedFiles = [...files].sort((a, b) => {
     if (criteria === "deadline-asc") {
       return new Date(a.fileDeadline).getTime() - new Date(b.fileDeadline).getTime(); 
@@ -430,11 +370,40 @@ const handleSort = (criteria:string) => {
   console.log(sortedFiles);
   setFiles(sortedFiles);
   };
-  const FileCard = ({ title, fileDeadline , fileId}: { title: string, uri: string , fileDeadline:string , fileId:string} ) => {
+  const handleOpenFileChoices = (fileId:string) => {
+    setSelectedFileId(fileId);
+    setFileChoicesVisible(true);
+  };
+  
+  const handleChoiceSelection = (choice:string) => {
+    setFileChoicesVisible(false);
+    if (choice === 'Study') {
+      /*
+      router.push({
+        pathname: '/Study',
+        params: { fileId: selectedFile?.id, title: selectedFile.name },
+      });
+      */
+    } else if (choice === 'Practice') {
+      /*
+      router.push({
+        pathname: '/Practice',
+        params: { fileId: selectedFile.id, title: selectedFile.name },
+      });
+      */
+    } else if (choice === 'Quiz') {
+      router.push({
+        pathname: '/(tabs)/quiz/Quiz',
+        params: { passedFileId: selectedFileId,passedIsFromAllFilesPage:'course',passedCourseId:passedCourseId,title:title},
+      });
+    }
+  };
+  
+  const FileCard = ({ title, uri ,fileDeadline , fileId}: { title: string, uri: string , fileDeadline:string , fileId:string} ) => {
     console.log("file card"+fileId);
     return (
+    
       <LinearGradient colors={['#1CA7EC', '#1CA7EC']} style={styles.card}>
-       
         <View style={styles.cardHeader} >
           <Text style={styles.cardTitle}  onPress={() =>handleFileView(fileId)}>{title}</Text>
           <Text style={styles.cardTitle} >{new Date(fileDeadline).toISOString().split("T")[0]}</Text>
@@ -500,7 +469,7 @@ const handleSort = (criteria:string) => {
             ))
             }
           </Picker>
-            <Button title="Upload File" onPress={() => handleUploadFile(courseId.toLocaleString(),new Date(displayDate).toISOString(),setFiles, setNewFile )} />
+            <Button title="Upload File" onPress={() => handleUploadFile(courseId,new Date(displayDate).toISOString(),setFiles, setNewFile )} />
           {/* Save Button (Conditional) */}
           <Button
             title="Save"
@@ -513,6 +482,29 @@ const handleSort = (criteria:string) => {
       </Modal>
     );
   };
+  const renderEditFileModal = () => (
+    <Modal visible={isEditModalVisible} transparent={true} animationType="slide">
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <TextInput
+            style={styles.input}
+            placeholder="File Name"
+            value={newFileName}
+            onChangeText={setNewFileName}
+          />
+          <Button
+            title="Save Changes"
+            onPress={() =>
+              currentFile?.fileId && editFile(currentFile.fileId, newFileName)
+            }
+          />
+          <Button title="Cancel" color="red" onPress={() => setIsEditModalVisible(false)} />
+        </View>
+      </View>
+    </Modal>
+  );
+  
+
   const renderChoicesModal = () => (
     <Modal
       visible={fileChoicesVisible}
@@ -551,10 +543,12 @@ const handleSort = (criteria:string) => {
     </Modal>
   );
   
+  
   return (
     <>
       <SafeAreaView style={{ flex: 1 , backgroundColor: '#f5f5f5' }}>
           <LinearGradient colors={['#f7f7f7','#fbfbfb', '#9ad9ea']}  >
+            
             <TouchableOpacity style={styles.notificationButton}>
               <MaterialCommunityIcons name="bell-outline" size={24} color="#111517" />
             </TouchableOpacity>
@@ -562,21 +556,16 @@ const handleSort = (criteria:string) => {
               <View style={styles.headercontainer}>
                 <Back title={''} onBackPress={() => {}} />
                 <Icon name="folder" size={27} color="#778899" />
-                <Text style={styles.header}>  My files</Text>
+                <Text style={styles.header}>{title +" "}files</Text>
               </View>
               <TextInput
-  style={styles.input}
-  value={searchQuery}
-  onChangeText={(value) => {
-    setSearchQuery(value);
-    handleInputChange(value);
-  }}
-  placeholder="Search for files"
-  returnKeyType="search"
-  onSubmitEditing={() => {
-    handleSearch();
-  }}
-/>
+        style={styles.input}
+        value={searchQuery}
+        onChangeText={handleInputChange}
+        placeholder="Search for files"
+        returnKeyType="search" // Shows "Search" button on the keyboard
+        onSubmitEditing={handleSearch} // Trigger search on "Enter" or "Search" key
+      />
 <View style={styles.container}>
       <View style={styles.sortContainer}>
         {/* Dropdown Trigger */}
@@ -616,11 +605,13 @@ const handleSort = (criteria:string) => {
         />
       </View>
     </View>
+
+
+
               <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
                 <Text style={styles.addButtonText}>Add File</Text>
               </TouchableOpacity>
               {renderAddFileModal()}
-              
               <Animatable.View animation="fadeInUp" delay={200} duration={800}>
               <View>
                 <FlatList
@@ -640,9 +631,11 @@ const handleSort = (criteria:string) => {
       </SafeAreaView>
       {isEditModalVisible && renderEditFileModal()}
       {fileChoicesVisible && renderChoicesModal()}
+
     </>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -876,5 +869,5 @@ const styles = StyleSheet.create({
 
 });
 
-export default FilesScreen;
+export default CourseFilesScreen;
 
