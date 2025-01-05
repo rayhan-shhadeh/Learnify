@@ -31,3 +31,8 @@ export const useCourses = (): CoursesContextType => {
   }
   return context;
 };
+// Export the provider as default
+export default CoursesProvider;
+
+// Optionally export the context if needed elsewhere
+export { CoursesContext };

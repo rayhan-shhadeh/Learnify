@@ -11,7 +11,7 @@ const NavBar = () => {
                 <Icon name="home" size={24} color="#125488" />
                 <Text style={styles.navText}>Home</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.navButton} onPress={()=> router.push("/(tabs)/GroupsScreen")}>
+            <TouchableOpacity style={styles.navButton} onPress={()=> router.push("/(tabs)/chatting/GroupsScreen")}>
                 <Icon name="comment-o" size={24} color="#888" />
                 <Text style={styles.navTextInactive}>Groups</Text>
             </TouchableOpacity>

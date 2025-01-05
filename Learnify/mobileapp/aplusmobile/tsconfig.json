@@ -13,6 +13,8 @@
     "expo-env.d.ts",
     "app/(tabs)/Tests/LoginScreen.js",
     "components/Auth/AuthContent.js",
-    "app/(tabs)/hooks/CoursesContext.js"
+    "app/(tabs)/hooks/CoursesContext.js",
+    "app/(tabs)/chatting/Chat.js",
+    "app/(tabs)/chatting/Chat.js"
   ]
 }

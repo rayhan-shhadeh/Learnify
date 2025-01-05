@@ -1,0 +1,120 @@
+.room-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  body{ 
+    background-color: #130055;
+  }
+  .room-options {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  h1,p{
+    color: white;
+  }
+  
+  .room-button {
+    background-color: #4caf50;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  
+  .room-input {
+    width: 200px;
+    height: 30px;
+    margin: 4px 2px;
+    padding: 4px;
+    font-size: 16px;
+  }
+  
+  .message-list-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .message-list {
+    max-width: 100%;
+    width: 400px;
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .message-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    background-color: #4caf50;
+  }
+  
+  .message-author {
+    font-weight: bold;
+  }
+  
+  .message-content {
+    padding-left: 10px;
+  }
+  
+  .message-input-container {
+    display: flex;
+    margin-top: auto;
+  }
+  
+  .message-input {
+    width: 300px;
+    height: 30px;
+    margin: 4px 2px;
+    padding: 4px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .send-button {
+    background-color: #4caf50;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  
+  .App{
+    display: flex;
+    justify-content: center;
+    height: 300px;
+  }
+  
+  body {
+    height: 100%;
+    width: 100%;
+  }
+  
+  .message-area {
+    display: flex;
+    flex-direction: column;
+    /* align-items: center; */
+    margin-top: 20px;
+    height: 400px;
+  }
+  

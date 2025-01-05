@@ -1,13 +1,19 @@
 import util ,{promisify} from 'util';
 import bcrypt from 'bcrypt';
-import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken'
 import AppError from '../utils/appError.js';
 import sendEmail from '../utils/email.js';
 import crypto from 'crypto';
 import Cookies from 'js-cookie';
+import { PrismaClient } from '@prisma/client';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
-const prisma = new PrismaClient(); 
+import dotenv from 'dotenv';
+dotenv.config();
+
+const prisma = new PrismaClient();
+
+export { prisma };
 
 const createPasswordResetToken =function()  {
   const resetToken = crypto.randomBytes(32).toString('hex');
@@ -25,9 +31,9 @@ export const authController = {
   
     async signUp (req, res) {
         try {
-          const { email, username, password, dateOfBirth,flag, subscription, Major } = req.body;
+          const { email, username, password, dateOfBirth,flag, subscription, major } = req.body;
       
-          if (!email || !username || !password || !dateOfBirth|| !flag || !subscription || !Major) {
+          if (!email || !username || !password || !dateOfBirth|| !flag || !subscription || !major) {
             return res.status(400).json({ error: 'All fields are required' });
           }
           // Check if email is already in use
@@ -40,20 +46,24 @@ export const authController = {
       }
           // Hash the password
           const hashedPassword = await bcrypt.hash(password, 10);
-      
+     
+          // Upload profile photo if provided
+          let profilePhotoUrl = './assets/profile.png';  // Default photo
+          if (req.file) {
+            profilePhotoUrl = await uploadProfilePhoto(req.file);  // Call upload function
+          }
           // Save the user to the database
-
-          
           const newUser = await prisma.user_.create({
             data: {
               email: req.body.email,
               username: req.body.username,
               password: hashedPassword,
               dateOfBirth: new Date(req.body.dateOfBirth), // Convert to Date object
-              flag : req.body.flag,
-              subscription: req.body.subscription,
-              Major: req.body.Major,
+              flag : parseInt(req.body.flag),
+              subscription: parseInt(req.body.subscription),
+              major: req.body.major,
               active: true,
+              photo: profilePhotoUrl || './assets/profile.png',
             },
           });
           
@@ -78,7 +88,7 @@ export const authController = {
       });
       return token;
     }
-      },
+  },
   async login(req, res, next) {
     try {
       const { email, password } = req.body;
@@ -343,7 +353,7 @@ export const authController = {
       return next(new AppError('Error logging in with Google.', 500));
     }
   },
-  
+
 
 };
 
@@ -368,4 +378,30 @@ export const restrictTo = (...allowedFlags) => {
     }
   };
   
+}
+export async function uploadProfilePhoto(file) {
+  const s3 = new S3Client({
+      region: process.env.AWS_REGION,
+      credentials: {
+          accessKeyId: process.env.AWS_ACCESS_KEY,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      },
+  });
+
+  if (!file) {
+      throw new Error('No profile photo uploaded');
+  }
+
+  const key = `profilephotos/${Date.now()}-${file.originalname}`;
+  const params = {
+      Bucket: process.env.AWS_S3_BUCKET,
+      Key: key,
+      Body: file.buffer,
+      ContentType: file.mimetype || 'image/jpeg',
+  };
+
+  const command = new PutObjectCommand(params);
+  await s3.send(command);
+
+  return `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
 }

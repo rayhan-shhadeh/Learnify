@@ -1,15 +1,21 @@
 import React, { useContext, useState } from "react";
-import { Image, View, Text, TextInput, TouchableOpacity, StyleSheet , Alert} from "react-native";
-import {useRootNavigationState, useRouter} from "expo-router";
+import {
+  Image,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from "react-native";
+import { useRootNavigationState, useRouter } from "expo-router";
 import API from "../../../api/axois";
-import jwtDecode from 'jwt-decode';
-import axios from "axios";
-
-import LoadingOverlay from '../../../components/ui/LoadingOverlay';
-import { AuthContext } from '../../../components/store/auth-context';
-import { createUser } from '../../../utils/auth';
+import { jwtDecode } from "jwt-decode";
+import LoadingOverlay from "../../../components/ui/LoadingOverlay";
+import { AuthContext } from "../../../components/store/auth-context";
+import { createUser } from "../../../utils/auth";
 import AuthContent from "@/components/Auth/AuthContent";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SignIn = () => {
   const router = useRouter();
@@ -19,13 +25,19 @@ const SignIn = () => {
 
   const authCtx = useContext(AuthContext);
 
-  async function signupHandler({ email, password }: { email: string; password: string }) {
+  async function signupHandler({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) {
     setIsAuthenticating(true);
     try {
     } catch (error) {
       Alert.alert(
-        'Authentication failed',
-        'Could not create user, please check your input and try again later.'
+        "Authentication failed",
+        "Could not create user, please check your input and try again later."
       );
       setIsAuthenticating(false);
     }
@@ -36,36 +48,41 @@ const SignIn = () => {
       return;
     }
     try {
-      const response = await API.post(`/api/login`, 
-        {
-          email: email,
-          password: password,
+      const response = await API.post(`http://192.168.68.59:8080/api/login`, {
+        email: "mobile@gmail.com",
+        password: "mypassword",
       });
-      if ( response.status === 200) {
-        //Alert.alert('Success', `Server response: ${JSON.stringify(data)}`);
-        const token = response.data.token;        // Check if navigation is ready
+      if (response.status === 200) {
+        const token = response.data.token;
         authCtx.authenticate(token);
-        Alert.alert('Success, token:',token);
-        AsyncStorage.setItem('token', token);
+        Alert.alert("Success", `Token: ${token}`);
+        await AsyncStorage.setItem("token", token);
+        const decoded: any = jwtDecode(token);
+        const currentUserId = decoded.id.toString();
+        await AsyncStorage.setItem("currentUserId", currentUserId);
+        console.log("Current User ID: ", currentUserId);
         router.push("/(tabs)/HomeScreen");
-
       } else {
-        Alert.alert('Error', `Please enter valid credentials: ${response?.data.message }`);
+        Alert.alert(
+          "Error",
+          `Please enter valid credentials: ${response?.data?.message}`
+        );
       }
-     
-
     } catch (error: any) {
       console.log("Login Error: ", error);
-      const errorMessage = error?.response?.data?.message ??
-       (error instanceof Error ? error.message : 'Unknown error') ;
-      Alert.alert('Error', `Connection failed: ${errorMessage}`);
+      const errorMessage =
+        error?.response?.data?.message ??
+        (error instanceof Error ? error.message : "Unknown error");
+      Alert.alert("Error", `Connection failed: ${errorMessage}`);
     }
   };
-  
 
   return (
-    <View style={styles.container} >
-      <Image source={require('../../../assets/images/a-plus-4.gif')} style={styles.logo} />
+    <View style={styles.container}>
+      <Image
+        source={require("../../../assets/images/a-plus-4.gif")}
+        style={styles.logo}
+      />
       <Text style={styles.title}>Login to your account</Text>
 
       <View style={styles.inputContainer}>
@@ -90,21 +107,22 @@ const SignIn = () => {
         />
       </View>
 
-      <TouchableOpacity onPress={() => router.push("/(tabs)/auth/ForgotPassword")}>
+      <TouchableOpacity onPress={() => router.push("/(tabs)/chatting/Chat")}>
         <Text style={styles.forgotPassword}>Forgot password?</Text>
       </TouchableOpacity>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.loginButton} onPress= {handleLogin}>
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.loginButtonText}>Log in</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.signUpButton} onPress={() => router.push("/(tabs)/auth/signup")}>
+        <TouchableOpacity
+          style={styles.signUpButton}
+          onPress={() => router.push("/(tabs)/auth/signup")}
+        >
           <Text style={styles.signUpButtonText}>New user? Sign Up</Text>
         </TouchableOpacity>
-        
       </View>
     </View>
-    
   );
 };
 

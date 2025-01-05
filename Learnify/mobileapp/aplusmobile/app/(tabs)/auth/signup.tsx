@@ -18,6 +18,7 @@ import { useRootNavigationState, useRouter } from "expo-router";
 import requestPhotoLibraryPermission from "../../../utils/permissions";
 import { AuthContext } from '../../../components/store/auth-context';
 import AuthContent from '../../../components/Auth/AuthContent';
+import API from '../../../api/axois';
 
 const Signup = () => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -28,7 +29,7 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
-  const [Major, setMajor] = useState('');
+  const [major, setMajor] = useState('');
   const [photo, setPhoto] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const flag = 1;
@@ -75,23 +76,17 @@ const Signup = () => {
     setIsAuthenticating(true);
 
     try {
-      const response = await fetch('http://192.168.68.53:8080/api/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const response = await API.post('/api/signup',{
           email,
           username: fullName,
           password,
           dateOfBirth: dateOfBirth?.toISOString().split('T')[0], // Format date as 'YYYY-MM-DD'
           flag,
           subscription,
-          Major,
+          major,
           photo,
-        }),
-      });
-      const data = await response.json();
+        });
+      const data = response.data;
       if (data.success) {
         Alert.alert('Success', 'Account created successfully');
         authCtx.authenticate(data.token);
@@ -182,7 +177,7 @@ const Signup = () => {
             placeholder="Major"
             placeholderTextColor="#647987"
             style={styles.input}
-            value={Major}
+            value={major}
             onChangeText={setMajor}
           />
         </Animatable.View>

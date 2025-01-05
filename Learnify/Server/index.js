@@ -2,6 +2,10 @@ import express from 'express';
 import dotenv from 'dotenv';
 import session from 'express-session';
 import passport from 'passport';
+import http from 'http';
+import { Server } from 'socket.io';
+import fetch from 'node-fetch';
+
 dotenv.config();
 import cors from "cors";
 import bodyParser from 'body-parser';
@@ -21,15 +25,27 @@ import {exploreflashcardsRouter} from "./routers/exploreflashcardsRouter.js";
 import {exploreRouter} from "./routers/exploreRouter.js"
 import {trackHabitRouter} from "./routers/trackhabitRouter.js";
 import {streakRouter} from "./routers/streakRouter.js";
+import { groupRouter } from './routers/groupRouter.js';
+import { messageRouter } from './routers/messageRouter.js';
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server,{
+  cors: {
+    origin: ["*"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    credentials: true
+}
+});
+
 const corsOption = {
   origin: [
     "http://localhost:5173",
    "http://localhost:8081",
     "http://0.0.0.0:8081",
-   "http://192.168.68.58:8081",
-   "http://192.168.68.58.19000"
+    "http://192.168.68.53:8081",
+    "http://0.0.0.0:8082",
+    "http://192.168.68.53.19000",
     ],
   credentials: true,            //access-control-allow-credentials:true
   header:[ "Access-Control-Allow-Origin", "Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization"],
@@ -44,6 +60,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());  // This is important
 
+app.get("/api/test", (req, res) => {
+  res.send("API is working"); 
+});
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -67,8 +86,10 @@ app.use("/api", calendarEventRouter);
 app.use("/api", topicRouter);
 app.use("/api",exploreflashcardsRouter);
 app.use("/api",exploreRouter);
-app.use("/api",trackHabitRouter)
-app.use("/api",streakRouter)
+app.use("/api",trackHabitRouter);
+app.use("/api",streakRouter);
+app.use("/api", groupRouter);
+app.use("/api", messageRouter)
 app.use('/uploads', express.static('uploads'));
 
 app.use(express.json());  // Make sure this is included
@@ -76,8 +97,69 @@ app.use(express.json());  // Make sure this is included
 app.get("/api", (req, res) => {
   res.json({ fruits: ["apple", "orange", "banana"] });
 });
+// io.on('connection', (socket) => {
+//   console.log('a user connected');
+//   socket.on("messageRoom", ({room, message}) => {
+//     io.to(room).emit("message", message);
+//   }
+//   );
+// socket.on("join", ({room, name}) => {
+//   socket.join(room);
+//   io.to(room).emit("message", `${name} has joined the room`);
+// });
+// socket.on("disconnect", () => {
+//   console.log("user disconnected");
+// });
 
+// });
+// socketServer.js (Node.js with Socket.IO)
+io.on("connection", (socket) => {
+  console.log("a user connected");
 
-app.listen(8080,'0.0.0.0', () => {
-  console.log("Server is running on port 8080");
+  socket.on("join", ({ groupId }) => {
+    socket.join(groupId);
+    console.log(`User joined group ${groupId}`);
+  });
+
+  socket.on("sendMessage",  async (messageData) => {
+    const { text, senderId, groupId } = messageData;
+    try {
+      const response = await fetch('http://192.168.68.59:8080/api/messages/savemessage',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            text,
+            senderId: parseInt(senderId),
+            groupId: parseInt(groupId),
+          }),
+          });
+      if (!response.ok) {
+        throw new Error('Failed to save message');
+      }
+      const newMessage = await response.json();
+    // now we need to send the message to the group
+    io.to(groupId).emit("receiveMessage", newMessage);
+    }
+    catch (error) {
+      console.error("Error sending message", error);
+    }
+    });
+
+  socket.on("leave", ({ groupId }) => {
+    socket.leave(groupId);
+  });
 });
+
+server.listen(8080,"0.0.0.0", () => {
+  console.log('listening on *:8080');
+},
+{
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
+

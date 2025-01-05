@@ -102,10 +102,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
     alignItems: 'center',
-    shadowColor: '#052659', // Dark blue for the shadow
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.6,
-    shadowRadius: 8,
+boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
     elevation: 10,
     alignContent: 'center',
     justifyContent: 'center',

@@ -49,7 +49,6 @@ export default function HabitsScreen() {
     <LinearGradient colors={['#ddf3f5', '#f7f7f7', '#fbfbfb', '#9ad9ea']} style={styles.linearcontainer}>
       <View style={styles.container}>
         <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center',   borderRadius: 10, elevation: 2,}}>
-        <Image source={require('../../../assets/habit.gif')} style={{width:60, height:60}} />
         <Text style={styles.header}>My Habits</Text>
         </View>
         <View style={{ marginVertical: 20, flex: 1 }}>

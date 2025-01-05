@@ -33,10 +33,9 @@ const IndexScreen = () => {
           resizeMode="contain"
         />
       </View>
-      <TouchableOpacity style={styles.button} onPress={handleStartPress}>
+      <TouchableOpacity style={styles.button} onPress={()=>{router.push("/(tabs)/auth/signin")}}>
         <Text style={styles.buttonText}>Start</Text>
       </TouchableOpacity>
-
     </LinearGradient>
     </CoursesProvider>
   );
@@ -65,10 +64,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "white",
     marginBottom: 50, // To add space at the bottom
-    shadowColor: "black",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
     elevation: 5,
 
   },

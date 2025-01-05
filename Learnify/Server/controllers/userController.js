@@ -92,7 +92,7 @@ export const userController = {
   
       // Update user data
       const updatedUser = await prisma.user_.update({
-        where: { userId: req.user.userId },
+        where: { userId: parseInt(req.params.id)},
         data: updatedData,
       });
   
