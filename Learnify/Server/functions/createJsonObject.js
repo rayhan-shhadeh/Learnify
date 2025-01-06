@@ -69,9 +69,10 @@ export  function createJSONQuestion(question,correctAnswer,choices,quizid) {
     return jsonObject;
 }
 
-export  function createJSONTopic(topicName) {
+export  function createJSONTopic(topicName,level) {
     const jsonObject = {
         "topicName": topicName,
+        "level":level
     };
     return jsonObject;
 }
@@ -82,7 +83,7 @@ export  function createJSONExploreFlashcard(Q,A,topicId) {
         "ExploreFlashcardA" : A,
         "topic": {
             "connect": {
-              "topicId": topicId
+              "topiclevelId": topicId
             }
         }       
     };
@@ -158,3 +159,20 @@ export function createJSONAnswer(chosenAnswer, isCorrect,questionId ){
     };
     return jsonObject;
 }
+
+export function createJSONExploreHistory(userId,topiclevelId){
+    const jsonObject = {
+        "user_": {
+            "connect": {
+              "userId": userId
+            }
+        },
+        "topiclevel": {
+            "connect": {
+              "topiclevelId": topiclevelId
+            }
+        }                    
+    };
+    return jsonObject;
+}
+

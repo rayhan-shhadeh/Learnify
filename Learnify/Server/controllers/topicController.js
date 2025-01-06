@@ -10,10 +10,12 @@ export const topicController={
             res.status(500).json({ error: 'Error creating topic' });
         }
     },
-    async getTopicByName(req, res) {
+
+    async getTopicByNameAndLevel(req, res) {
         try {
             const topicName = req.params.topicName;
-            const topic = await topicService.getTopicByName(topicName);
+            const level = req.body.level;
+            const topic = await topicService.getTopicByNameAndLevel(topicName,level);
             if (!topic) {
                 return res.status(404).json({ error: 'topic not found' });
             }
