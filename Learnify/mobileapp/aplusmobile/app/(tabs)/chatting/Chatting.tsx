@@ -18,7 +18,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { KeyboardAvoidingView } from "react-native";
 import API from "../../../api/axois";
 import Icon from "react-native-vector-icons/FontAwesome";
-
+import Icon2 from "react-native-vector-icons/FontAwesome5";
+import { useRouter } from "expo-router";
 const SOCKET_URL = "http://192.168.68.59:8080";
 const socket = io(SOCKET_URL, {
   transports: ["websocket"],
@@ -39,6 +40,15 @@ export default function Chatting() {
   const [userId, setUserId] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const router = useRouter();
+  const [renderMessage, setRenderedMessage] = useState<
+    {
+      id: string;
+      text: string;
+      senderId: any;
+      groupId: any;
+    }[]
+  >([]);
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -60,13 +70,7 @@ export default function Chatting() {
     };
   }, [passGroupId]);
 
-  const handleSendMessage = () => {
-    // if (message.trim()) {
-    //   const newMessage = {
-    //     id: Date.now().toString(),
-    //     groupId: passGroupId,
-    //     text: message,
-    //   };
+  const handleSendMessage = async () => {
     const newMessage = message;
     if (newMessage.trim()) {
       const messageData = {
@@ -79,32 +83,24 @@ export default function Chatting() {
 
       socket.emit("sendMessage", messageData);
 
-      const handleSendMessage = async () => {
-        const response = await API.post(
-          "http://192.168.68.59:8080/api/messages/savemessage",
-          {
-            text: messageData.text,
-            senderId: parseInt(messageData.senderId),
-            groupId: parseInt(messageData.groupId.toString()),
-          }
-        );
-        setMessages((prev) => [...prev, messageData]);
-        console.log("message saved, response", response);
-
-        handleSendMessage();
-        setMessage("");
-      };
-      const handleRenderMessage = async () => {
-        const response = await API.get(
-          `http://192.168.68.59:8080/api/messages/${passGroupId}`
-        );
-        console.log("response", response);
-        setMessages(response.data);
-      };
-      //handleRenderMessage();
-      //handleSendMessage();
-
-      // setMessages((prev) => [...prev, newMessage]);
+      const response = await API.post(
+        "http://192.168.68.59:8080/api/messages/savemessage",
+        {
+          text: messageData.text,
+          senderId: parseInt(messageData.senderId),
+          groupId: parseInt(messageData.groupId.toString()),
+        }
+      );
+      setMessages((prev) => [...prev, messageData]);
+      setRenderedMessage((prev) => [...prev, messageData]);
+      console.log("message saved, response", response);
+      // const handleRenderMessage = async () => {
+      //   const response = await API.get(
+      //     `http://192.168.68.59:8080/api/messages/${passGroupId}`
+      //   );
+      //   console.log("response", response);
+      //   setMessages(response.data);
+      // };
       setMessage("");
     }
   };
@@ -149,27 +145,11 @@ export default function Chatting() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <View style={styles.headercontainer}>
-        <Icon name="arrow-left" size={24} color="#4A90E2" />
+        <TouchableOpacity onPress={() => router.back()}>
+          <Icon name="arrow-left" size={24} color="#4A90E2" />
+        </TouchableOpacity>
         <TouchableOpacity onPress={openModal}>
           <Icon name="th-list" size={24} color="#4A90E2" />
-        </TouchableOpacity>
-      </View>
-
-      <FlatList
-        data={messages}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={renderItem}
-        contentContainerStyle={styles.messageList}
-      />
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Type a message..."
-          value={message}
-          onChangeText={setMessage}
-        />
-        <TouchableOpacity onPress={handleSendMessage} style={styles.sendButton}>
-          <Text style={styles.sendButtonText}>Send</Text>
         </TouchableOpacity>
       </View>
       <Animated.View style={[styles.modalBackground, { opacity: fadeAnim }]} />
@@ -189,6 +169,10 @@ export default function Chatting() {
             <TouchableOpacity style={styles.modalButton}>
               <Icon name="user-plus" size={20} color="#4A90E2" />
               <Text style={styles.modalButtonText}>Add Members</Text>
+            </TouchableOpacity>{" "}
+            <TouchableOpacity style={styles.modalButton}>
+              <Icon2 name="users" size={20} color="#4A90E2" />
+              <Text style={styles.modalButtonText}> Members</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.modalButton}>
               <Icon name="sign-out" size={20} color="#4A90E2" />
@@ -203,6 +187,41 @@ export default function Chatting() {
           </View>
         </Animated.View>
       </Modal>
+
+      <FlatList
+        data={messages}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={renderItem}
+        contentContainerStyle={styles.messageList}
+      />
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Type a message..."
+          value={message}
+          onChangeText={(text) => {
+            setMessage(text);
+            setRenderedMessage((prev) => [
+              ...prev,
+              {
+                id: Date.now().toString(),
+                text,
+                senderId: userId,
+                groupId: passGroupId,
+              },
+            ]);
+          }}
+        />
+        <TouchableOpacity
+          style={styles.sendButton}
+          onPress={() => {
+            handleSendMessage();
+            // renderItem({item: message});
+          }}
+        >
+          <Text style={styles.sendButtonText}>Send</Text>
+        </TouchableOpacity>
+      </View>
     </KeyboardAvoidingView>
   );
 }

@@ -78,6 +78,7 @@ const ExploreScreen = () => {
             return;
           }
           id = decoded.id;
+
           setUserId(id); // Update userId state
         } catch (decodeError) {
           Alert.alert("Error", "Failed to decode token");
@@ -203,16 +204,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   gradient: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  cardText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
