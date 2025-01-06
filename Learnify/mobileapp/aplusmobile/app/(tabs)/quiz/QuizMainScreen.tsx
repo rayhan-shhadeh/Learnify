@@ -10,8 +10,6 @@ import {
   Modal,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
 import NavBar from "../../(tabs)/NavBar";
 import { ProgressBar } from "react-native-paper";
 import axios from "axios";
@@ -21,29 +19,6 @@ import { useLocalSearchParams } from "expo-router";
 import Icon from "react-native-vector-icons/FontAwesome";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
-const quizData = [
-  {
-    id: "1",
-    title: "Algebra",
-    description: "Challenge yourself with complex algebraic expressions.",
-    successRate: 70,
-    color: ["#DCE35B", "#45B649"],
-  },
-  {
-    id: "2",
-    title: "Geometry",
-    description: "Solve challenging problems involving angles and triangles.",
-    successRate: 65,
-    color: ["#EF3B36", "#FECB2E"],
-  },
-  {
-    id: "3",
-    title: "Science",
-    description: "Explore scientific concepts and principles.",
-    successRate: 90,
-    color: ["#56CCF2", "#2F80ED"],
-  },
-];
 
 export default function QuizScreen() {
   const router = useRouter();
@@ -54,8 +29,11 @@ export default function QuizScreen() {
   const [userId, setUserId] = useState<string | null>(null);
   const [courses, setCourses] = useState<any[]>([]);
   const [files, setFiles] = useState<{ id: string; name: string }[]>([]);
+  const [quizData, setQuizData] = useState<any[]>([]);
+  const [lastQuiz,setLastQuiz] =useState(null);
+
   useEffect(() => {
-    const fetchCourses = async () => {
+    const initialize = async () => {
       try {
         const token = await AsyncStorage.getItem("token");
         if (!token) {
@@ -64,10 +42,12 @@ export default function QuizScreen() {
           return;
         }
         const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
-        setUserId(decoded?.id ?? null);
+        const id=decoded.id;
+        setUserId(id);
+
         const response = await API.get(`/api/user/courses/${decoded?.id}`);
         if (response.status !== 200) {
-          Alert.alert("Error", "Failed to fetch courses");
+          //Alert.alert("Error", "Failed to fetch courses");
           return;
         }
         const data = response.data;
@@ -78,11 +58,27 @@ export default function QuizScreen() {
           tag: course.courseTag,
         }));
         setCourses(mappedCourses);
+        const quizzes = await API.get(`/api/quiz/history/${id}`);
+        if (response.status === 200) {
+          const data = quizzes.data;
+          if (data.quizzes && Array.isArray(data.quizzes)) {
+            const mappedQuizzes = data.quizzes.map((quiz: any) => ({
+              id: quiz.quizId,
+              title: quiz.quizTitle,
+              description: quiz.quizDescription,
+              color: ["#DCE35B", "#45B649"],
+              successRate: quiz.score,
+            }));
+            setQuizData(mappedQuizzes);
+            setLastQuiz(mappedQuizzes[0]);
+            console.log(mappedQuizzes[0]);
+          } 
+        }
       } catch (error) {
-        Alert.alert("Error", "An error occurred while fetching courses");
+        //Alert.alert("Error", "An error occurred while fetching courses");
       }
     };
-    fetchCourses();
+    initialize();
   }, []);
 
   const toggleFileSelection = (fileId: string) => {
@@ -102,6 +98,19 @@ export default function QuizScreen() {
     </TouchableOpacity>
   );
 
+  const handleDeleteQuiz = async (quizId: string) => {
+    try {
+      const response = await API.delete(`/api/quiz/${quizId}`);
+      if (response.status === 200) {
+        setQuizData((prevQuizzes) => prevQuizzes.filter((quiz) => quiz.id !== quizId));
+      } else {
+        Alert.alert("Error", "Failed to delete quiz.");
+      }
+    } catch (error: any) {
+      Alert.alert("Error", "An error occurred while deleting the quiz.");
+    }
+  };
+  
   const handleCourseSelection = async (course: {
     id: string;
     name: string;
@@ -216,6 +225,7 @@ export default function QuizScreen() {
       </View>
     </Modal>
   );
+
   const renderQuizItem = ({
     item,
   }: {
@@ -235,7 +245,11 @@ export default function QuizScreen() {
         <Text style={styles.cardTitle}>{item.title}</Text>
         <Text style={styles.cardDesc}>{item.description}</Text>
         <Text style={styles.successRate}>Success: {item.successRate}%</Text>
+        <TouchableOpacity style={styles.trashIconContainer}
+          onPress={() => handleDeleteQuiz(item.id)}
+        >
         <Icon name="trash" size={20} color="white" style={styles.trashIcon} />
+        </TouchableOpacity>
       </LinearGradient>
     </TouchableOpacity>
   );
@@ -249,14 +263,18 @@ export default function QuizScreen() {
             style={styles.profileImage}
           />
           <View>
-            <Text style={styles.greeting}>Hello Anne!</Text>
+            <Text style={styles.greeting}>Hello Tala</Text>
             <Text style={styles.subtitle}>Let's start your quiz now</Text>
           </View>
         </View>
         <View style={styles.recentQuiz}>
           <Text style={styles.recentQuizText}>Recent Quiz</Text>
-          <Text style={styles.quizTitle}>Algebra Practice Test</Text>
-          <Text style={styles.quizScore}>Score: 90%</Text>
+          <Text style={styles.quizTitle}>
+          {lastQuiz?.title || "No Quizzes Available"}
+          </Text>
+          <Text style={styles.quizScore}>
+          {lastQuiz?.successRate != null ? `${lastQuiz.successRate}%` : ""}
+          </Text>
         </View>
       </LinearGradient>
       <View style={styles.newQuizContainer}>
@@ -269,7 +287,6 @@ export default function QuizScreen() {
           style={styles.button}
           onPress={() => setCourseModalVisible(true)}
         >
-          {" "}
           <Icon name="plus" size={20} color="white" />
           <Text style={styles.buttonText}>Start New Quiz?</Text>
         </TouchableOpacity>
@@ -280,7 +297,6 @@ export default function QuizScreen() {
       </View>
       {renderCourseModal()}
       {renderFileModal()}
-
       <FlatList
         data={quizData}
         keyExtractor={(item) => item.id}
@@ -529,4 +545,11 @@ const styles = StyleSheet.create({
     height: 200,
     top: 10,
   },
+  trashIconContainer: {
+    position: "absolute",
+    top: 2,
+    right: 3,
+    padding: 5,
+  },
+
 });
