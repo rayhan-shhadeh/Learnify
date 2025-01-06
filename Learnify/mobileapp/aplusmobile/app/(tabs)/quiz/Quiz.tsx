@@ -10,7 +10,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { ProgressBar } from 'react-native-paper';
-import axios from 'axios';
 import { useRouter } from 'expo-router';
 import API from '../../../api/axois';
 import { useLocalSearchParams } from 'expo-router';
@@ -75,7 +74,7 @@ const Quiz=()=> {
     }
   };
 
-  const generateQuiz = async (): Promise<void> => {
+  const generateQuiz = async () => {
     try {
       console.log("Trying to genrate quiz from file "+passedFileId);
       await getId();
@@ -134,7 +133,7 @@ const Quiz=()=> {
     }, 1000);
   };
 
-  const handleScore = (): void => {
+  const handleScore = async () => {
     if (quiz) {
       const calculatedScore = quiz.questions.reduce((acc, question) => {
         const userAnswer = question.selectedAnswer;
@@ -144,7 +143,29 @@ const Quiz=()=> {
         }
         return acc;
       }, 0);
-      setScore(calculatedScore);
+      let successRate: number = Math.round((calculatedScore / numQuestions) * 100);
+      console.log("Score:", calculatedScore);
+      console.log("Number of Questions:", numQuestions);
+      console.log("Calculated Success Rate:%", successRate);
+      try {
+        if (!quizId) {
+          console.error("Quiz ID is not set.");
+          return;
+        }
+        console.log("quizId:"+quizId)
+        const response = await API.patch(`/api/quiz/${quizId}`, { 
+          numOfQuestions: numQuestions, 
+          score: successRate
+        });
+        if (response.status === 200) {
+          console.log("Score successfully updated in the database:", successRate);
+        } else {
+          console.error("Failed to update score in the database:", response.status);
+        }
+        setScore(calculatedScore);
+      } catch (err) {
+        console.error("Error updating score in the database:", err);
+      }
     }
   };
   
