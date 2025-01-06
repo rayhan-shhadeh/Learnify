@@ -76,5 +76,10 @@ export const groupService = {
         });
     }
     ,
+    async getGroupsByAdminId(userId) {
+        return await prisma.group_.findMany({
+            where: { adminId: parseInt(userId) }
+        });
+    }
     
 };

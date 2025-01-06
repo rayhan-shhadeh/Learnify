@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Image,
   SafeAreaView,
+  Modal,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import NavBar from "../NavBar";
@@ -34,6 +35,7 @@ export default function GroupsScreen() {
     avatar: any;
   }
 
+  const [isGroupModalVisible, setGroupModalVisible] = useState(false);
   const [groups, setGroups] = useState<Group[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState<User[]>([]);
@@ -42,6 +44,10 @@ export default function GroupsScreen() {
     groupId: string;
   } | null>(null);
   const [groupName, setGroupName] = useState("");
+  const [isPublic, setIsPublic] = useState(true);
+  const [userIds, setUserIds] = useState<string[]>([]);
+  const [groupDescription, setGroupDescription] = useState("");
+  const [currentUserId, setCurrentUserId] = useState("");
   interface User {
     id: string;
     username: string;
@@ -63,6 +69,9 @@ export default function GroupsScreen() {
       try {
         const userId = await AsyncStorage.getItem("currentUserId");
         const response = await API.get(`/api/group/getgroupforuser/${userId}`);
+        if (userId) {
+          setCurrentUserId(userId);
+        }
         console.log("Full response:", response); // Log the full response for debugging
 
         // Access the array inside response.data.data
@@ -123,7 +132,9 @@ export default function GroupsScreen() {
       const filtered = users.filter((user) =>
         user.username.toLowerCase().includes(term.toLowerCase())
       );
+      const userIds = users.map((user) => user.id);
       setFilteredUsers(filtered);
+      setUserIds(userIds);
     } else {
       console.error("Users data is not an array");
     }
@@ -143,6 +154,24 @@ export default function GroupsScreen() {
       setGroupName(currentGroupId.groupId);
     }
   };
+  const handleCreateGroup = async () => {
+    try {
+      const response = await API.post("/api/group/newgroup", {
+        name: groupName,
+        description: groupDescription,
+        adminId: parseInt(currentUserId),
+        isPrivate: isPublic,
+        // userIds: userIds.map((id) => parseInt(id, 10)),
+      });
+      console.log("Group created successfully:", response);
+      setGroupName(response.data.name);
+      setGroupModalVisible(false);
+    } catch (error) {
+      console.error("Error creating group:", error);
+      Alert.alert("Failed to create group");
+    }
+  };
+
   const renderGroupItem = ({
     item,
   }: {
@@ -170,7 +199,115 @@ export default function GroupsScreen() {
       </View>
     </TouchableOpacity>
   );
+  const renderGroupeModal = () => (
+    <Modal
+      animationType="slide"
+      transparent
+      visible={isGroupModalVisible}
+      onRequestClose={() => setGroupModalVisible(false)}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <Icon
+            name="close"
+            size={24}
+            color="#333"
+            onPress={() => setGroupModalVisible(false)}
+          />
+          <Text style={styles.modalTitle}>Create new Group</Text>
+          <Text style={styles.name}> Group Name:</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter group name"
+            value={groupName}
+            onChangeText={setGroupName}
+          />
+          <Text style={styles.name}> Select Group Members:</Text>
+          <View style={{ padding: 10 }}>
+            <TextInput
+              style={styles.searchBar}
+              placeholder="Search for a user by username"
+              value={searchTerm}
+              onChangeText={handleSearch}
+              placeholderTextColor="#A7A7A7"
+            />
+            {searchTerm.length > 0 &&
+              (filteredUsers.length > 0 ? (
+                <FlatList
+                  data={filteredUsers}
+                  keyExtractor={(item) => item.id}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={{
+                        padding: 5,
+                        borderBottomWidth: 1,
+                        borderBottomColor: "#ccc",
+                        borderRadius: 5,
+                      }}
+                      onPress={() => {
+                        handleSelectUser(item);
+                        setUserIds((prevUserIds) => [...prevUserIds, item.id]);
+                        setSearchTerm("");
+                      }}
+                    >
+                      <Text>{item.username}</Text>
+                    </TouchableOpacity>
+                  )}
+                />
+              ) : (
+                <Text>No users found</Text>
+              ))}
+          </View>
+          <Text style={styles.name}> Group Description: </Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter group description"
+            value={groupDescription}
+            onChangeText={setGroupDescription}
+          />
+          <Text style={styles.name}> Group Type:</Text>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginVertical: 10,
+            }}
+          >
+            <TouchableOpacity
+              style={styles.radioButton}
+              onPress={() => setIsPublic(true)}
+            >
+              <View
+                style={
+                  isPublic
+                    ? styles.radioButtonSelected
+                    : styles.radioButtonUnselected
+                }
+              />
+              <Text style={styles.radioButtonText}>Public</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.radioButton}
+              onPress={() => setIsPublic(false)}
+            >
+              <View
+                style={
+                  !isPublic
+                    ? styles.radioButtonSelected
+                    : styles.radioButtonUnselected
+                }
+              />
+              <Text style={styles.radioButtonText}>Private</Text>
+            </TouchableOpacity>
+          </View>
 
+          <TouchableOpacity onPress={handleCreateGroup} style={styles.button}>
+            <Text>Create Group</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
@@ -178,7 +315,16 @@ export default function GroupsScreen() {
         <View style={styles.header}>
           <Icon name="message" size={28} color="#6B6B6B" />
           <Text style={styles.headerTitle}>Message</Text>
+          <TouchableOpacity onPress={() => setGroupModalVisible(true)}>
+            <Icon
+              name="add"
+              size={28}
+              color="#6B6B6B"
+              style={styles.newGroup}
+            />
+          </TouchableOpacity>
         </View>
+        {renderGroupeModal()}
 
         {/* Search Bar */}
         <View style={{ padding: 20 }}>
@@ -243,6 +389,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between", // Add this line
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 10,
@@ -252,16 +399,17 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    marginLeft: 20,
     color: "#4A4A4A",
+    paddingLeft: 10,
   },
   searchBar: {
     height: 40,
+    width: "100%",
     backgroundColor: "#F1F1F1",
-    borderRadius: 10,
-    marginHorizontal: 20,
+    borderRadius: 20,
+    // marginHorizontal: 20,
     paddingHorizontal: 15,
-    marginVertical: 10,
+    // marginVertical: 10,
     fontSize: 14,
     color: "#333",
   },
@@ -344,5 +492,70 @@ const styles = StyleSheet.create({
     color: "#6B6B6B",
     textAlign: "center",
     marginTop: 20,
+  },
+  newGroup: {
+    marginLeft: "auto", // Add this line
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  input: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+  },
+  radioButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 20,
+  },
+  radioLabel: {
+    fontSize: 16,
+    color: "#333",
+  },
+  radioButtonSelected: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "#4A90E2",
+  },
+  radioButtonUnselected: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  radioButtonText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: "#333",
+  },
+  button: {
+    backgroundColor: "#4A90E2",
+    padding: 10,
+    borderRadius: 20,
+    alignItems: "center",
+    marginTop: 10,
+    color: "#fff",
   },
 });

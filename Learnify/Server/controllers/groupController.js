@@ -171,6 +171,20 @@ export const groupController = {
             res.status(500).json({ error: error.message || 'Internal server error' });
         }
     },
+    async getGroupsByAdminId(req, res) {
+        try {
+            const groups = await groupService.getGroupsByAdminId(req.params.id);
+            res.status(200).json({
+                status: 'success',
+                data: groups,
+            });
+        }
+        catch (error) {
+            console.error('Error in getGroupsByAdminId:', error);
+            res.status(500).json({ error: error.message || 'Internal server error' });
+        }
+    }
+    
 
 };
 

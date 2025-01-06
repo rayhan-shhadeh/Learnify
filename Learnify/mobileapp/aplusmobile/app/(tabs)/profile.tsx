@@ -1,64 +1,66 @@
-import React , {useState,useEffect} from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import Back from './Back';
-import NavBar from './NavBar';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
+import Icon from "react-native-vector-icons/FontAwesome";
+import Back from "./Back";
+import NavBar from "./NavBar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import API from "../../api/axois";
-import {jwtDecode} from  'jwt-decode';
-
+import { jwtDecode } from "jwt-decode";
 
 export default function Profile() {
   const [userId, setUserId] = React.useState<string | null>(null);
   const [userData, setUserData] = React.useState([]);
 
-  
-useEffect(() => {
-  const fetchUserData = async () => {
-    try {
-      const token = await AsyncStorage.getItem('token');
-      if (!token) {
-        Alert.alert('Error', 'Token not found');
-        return;
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = await AsyncStorage.getItem("token");
+        if (!token) {
+          Alert.alert("Error", "Token not found");
+          return;
+        }
+
+        const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
+        setUserId(decoded?.id ?? null); // Adjust this based on the token structure
+
+        const response = await API.get(`/api/users/getme/${decoded?.id}`);
+        if (response.status !== 200) {
+          Alert.alert("Error", "Failed to fetch courses");
+          return;
+        }
+        Alert.alert("Success", "fetched data successfully");
+        const data = await response.data;
+        setUserData(data);
+        //Alert.alert('Success',data);
+      } catch (error) {
+        Alert.alert("Error", "An error occurred while fetching courses");
       }
-      
-      const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
-      setUserId(decoded?.id ?? null); // Adjust this based on the token structure
-      
-      const response = await API.get(`/api/users/getme/${decoded?.id}`);
-      if ( response.status !== 200) {
-        Alert.alert('Error', 'Failed to fetch courses');
-        return;
-      }
-      Alert.alert('Success', 'fetched data successfully');
-      const data = await response.data;
-      setUserData(data);
-      //Alert.alert('Success',data);
-    } catch (error) {
-      Alert.alert('Error', 'An error occurred while fetching courses');
-    }
-  };
-  fetchUserData();
-}, []);
+    };
+    fetchUserData();
+  }, []);
   return (
     <ScrollView contentContainerStyle={styles.container}>
-
       <View style={styles.header}>
-      <Back title={'/homepage'} onBackPress={function (): void {
-        throw new Error('Function not implemented.');
-      } } />
-            {/* <Image source={require('../../assets/images/a-plus-4.gif')} style={styles.logoImage} /> */}
+        <Back
+          title={"/homepage"}
+          onBackPress={function (): void {
+            throw new Error("Function not implemented.");
+          }}
+        />
+        {/* <Image source={require('../../assets/images/a-plus-4.gif')} style={styles.logoImage} /> */}
         <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.notificationButton}>
             <Icon name="bell" size={24} color="#647987" />
             <View style={styles.notificationDot} />
           </TouchableOpacity>
-          {/* <View style={styles.profileImageContainer}>
-            <Image
-              source={{ uri: 'https://creatie.ai/ai/api/search-image?query=professional headshot of a young person with a friendly smile, wearing business casual attire, natural lighting, clean background&width=100&height=100&orientation=squarish&flag=219149b1-5e7b-4a8c-a08c-43c638057645' }}
-              style={styles.profileImage}
-            />
-          </View> */}
         </View>
       </View>
 
@@ -74,7 +76,7 @@ useEffect(() => {
             </View>
           </View> */}
         </View>
-            {/* <View>
+        {/* <View>
               <Text> Your info:</Text>
               <Text> {userData}</Text>
             </View> */}
@@ -84,14 +86,14 @@ useEffect(() => {
             <Text style={styles.streakText}>15 Day Streak!</Text>
           </View>
           <View style={styles.streakDetails}>
-            {/* <View style={styles.streakDetail}>
+            <View style={styles.streakDetail}>
               <Text style={styles.subText}>Tasks Today</Text>
               <Text style={styles.detailText}>4/6</Text>
             </View>
             <View style={styles.streakDetail}>
               <Text style={styles.subText}>Weekly Goal</Text>
               <Text style={styles.detailText}>85%</Text>
-            </View> */}
+            </View>
           </View>
         </View>
 
@@ -114,60 +116,19 @@ useEffect(() => {
           <Text style={styles.sectionTitle}>Continue Learning</Text>
           <ScrollView horizontal style={styles.coursesSection}>
             <View style={styles.courseCard}>
-              {/* <Image
-                source={{ uri: 'https://creatie.ai/ai/api/search-image?query=modern classroom with digital learning setup, interactive whiteboard, clean and minimalist design, soft natural lighting&width=200&height=100&orientation=landscape&flag=40259e5f-04a5-4f52-9ef4-629fd138cca5' }}
-                style={styles.courseImage}
-              /> */}
               <View style={styles.courseContent}>
                 <Text style={styles.courseTitle}>Advanced Mathematics</Text>
                 <View style={styles.progressBar}>
-                  <View style={[styles.progress, { width: '45%' }]} />
+                  <View style={[styles.progress, { width: "45%" }]} />
                 </View>
                 <Text style={styles.subText}>45% Complete</Text>
               </View>
             </View>
-            <View style={styles.courseCard}>
-              {/* <Image
-                source={{ uri: 'https://creatie.ai/ai/api/search-image?query=modern physics laboratory with advanced equipment, clean and organized workspace, bright lighting&width=200&height=100&orientation=landscape&flag=6656773a-8484-438b-97db-eb4de9ce25f3' }}
-                style={styles.courseImage}
-              />
-              <View style={styles.courseContent}>
-                <Text style={styles.courseTitle}>Physics 101</Text>
-                <View style={styles.progressBar}>
-                  <View style={[styles.progress, { width: '75%' }]} />
-                </View>
-                <Text style={styles.subText}>75% Complete</Text>
-              </View> */}
-            </View>
+            <View style={styles.courseCard}></View>
           </ScrollView>
         </View>
-
-        {/* <View style={styles.activitySection}>
-          <Text style={styles.sectionTitle}>Recent Activity</Text>
-          <View style={styles.activityCard}>
-            <Icon name="file-pdf" size={24} color="#FF0000" />
-            <View>
-              <Text style={styles.activityTitle}>Chapter 5 Notes.pdf</Text>
-              <Text style={styles.subText}>Accessed 2 hours ago</Text>
-            </View>
-          </View>
-          <View style={styles.activityCard}>
-            <Icon name="chart-bar" size={24} color="#00FF00" />
-            <View>
-              <Text style={styles.activityTitle}>Quiz Result: 92%</Text>
-              <Text style={styles.subText}>Mathematics - Yesterday</Text>
-            </View>
-          </View>
-          <View style={styles.activityCard}>
-            <Icon name="comments" size={24} color="#2a93d5" />
-            <View>
-              <Text style={styles.activityTitle}>Physics Study Group</Text>
-              <Text style={styles.subText}>3 new messages</Text>
-            </View>
-          </View>
-        </View> */}
       </View>
-<NavBar />
+      <NavBar />
     </ScrollView>
   );
 }
@@ -175,18 +136,18 @@ useEffect(() => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: "#f8f8f8",
     paddingBottom: 70,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 10,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: "#ddd",
   },
   // logo: {
   //   fontFamily: 'Pacifico',
@@ -196,139 +157,139 @@ const styles = StyleSheet.create({
   logoImage: {
     width: 70,
     height: 70,
-    alignContent: 'center',
-    justifyContent: 'center',
+    alignContent: "center",
+    justifyContent: "center",
   },
   headerIcons: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   notificationButton: {
-    position: 'relative',
+    position: "relative",
     marginRight: 16,
   },
   notificationDot: {
-    position: 'absolute',
+    position: "absolute",
     top: -2,
     right: -2,
     width: 8,
     height: 8,
-    backgroundColor: '#FF0000',
+    backgroundColor: "#FF0000",
     borderRadius: 4,
   },
   profileImageContainer: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   profileImage: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   main: {
     paddingHorizontal: 16,
     marginTop: 16,
   },
   welcomeSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 16,
   },
   welcomeText: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   subText: {
     fontSize: 14,
-    color: '#888',
+    color: "#888",
   },
   progressChartContainer: {
     width: 64,
     height: 64,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   progressChart: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
     borderRadius: 32,
     borderWidth: 4,
-    borderColor: '#2a93d5',
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderColor: "#2a93d5",
+    justifyContent: "center",
+    alignItems: "center",
   },
   progressText: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   streakSection: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
   },
   streakHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 16,
   },
   streakText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginLeft: 8,
   },
   streakDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   streakDetail: {
-    backgroundColor: '#f8f8f8',
+    backgroundColor: "#f8f8f8",
     borderRadius: 8,
     padding: 16,
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
   },
   detailText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   actionsSection: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 16,
   },
   actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#2a93d5',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#2a93d5",
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 8,
     marginRight: 8,
   },
   actionText: {
-    color: '#fff',
+    color: "#fff",
     marginLeft: 8,
   },
   actionButtonOutline: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 8,
     marginRight: 8,
   },
   actionTextOutline: {
-    color: '#2a93d5',
+    color: "#2a93d5",
     marginLeft: 8,
   },
   learningSection: {
@@ -336,18 +297,18 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 8,
   },
   coursesSection: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   courseCard: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginRight: 16,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -362,31 +323,31 @@ const styles = StyleSheet.create({
   },
   courseTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 8,
   },
   progressBar: {
     height: 6,
-    backgroundColor: '#ddd',
+    backgroundColor: "#ddd",
     borderRadius: 3,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginBottom: 8,
   },
   progress: {
-    height: '100%',
-    backgroundColor: '#2a93d5',
+    height: "100%",
+    backgroundColor: "#2a93d5",
   },
   activitySection: {
     marginBottom: 16,
   },
   activityCard: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 8,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -394,30 +355,30 @@ const styles = StyleSheet.create({
   },
   activityTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginLeft: 8,
   },
   navbar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     paddingVertical: 10,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderTopWidth: 1,
-    borderTopColor: '#ddd',
+    borderTopColor: "#ddd",
   },
   navButton: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   navText: {
     fontSize: 12,
-    color: '#2a93d5',
+    color: "#2a93d5",
   },
   navTextInactive: {
     fontSize: 12,
-    color: '#888',
+    color: "#888",
   },
 });
 
 function fetchCourses() {
-  throw new Error('Function not implemented.');
+  throw new Error("Function not implemented.");
 }

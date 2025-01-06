@@ -48,12 +48,20 @@ const SignIn = () => {
       return;
     }
     try {
-      const response = await API.post(`http://192.168.68.59:8080/api/login`, {
-        email: "mobile@gmail.com",
-        password: "mypassword",
+      const response = await fetch(`http://192.168.68.59:8080/api/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
       });
+      const data = await response.json();
+
       if (response.status === 200) {
-        const token = response.data.token;
+        const token = JSON.stringify(data.token);
         authCtx.authenticate(token);
         Alert.alert("Success", `Token: ${token}`);
         await AsyncStorage.setItem("token", token);
@@ -63,10 +71,7 @@ const SignIn = () => {
         console.log("Current User ID: ", currentUserId);
         router.push("/(tabs)/HomeScreen");
       } else {
-        Alert.alert(
-          "Error",
-          `Please enter valid credentials: ${response?.data?.message}`
-        );
+        Alert.alert("Error", `Please enter valid credentials: ${data.message}`);
       }
     } catch (error: any) {
       console.log("Login Error: ", error);
@@ -107,7 +112,7 @@ const SignIn = () => {
         />
       </View>
 
-      <TouchableOpacity onPress={() => router.push("/(tabs)/chatting/Chat")}>
+      <TouchableOpacity onPress={() => router.push("/TestAPI")}>
         <Text style={styles.forgotPassword}>Forgot password?</Text>
       </TouchableOpacity>
 

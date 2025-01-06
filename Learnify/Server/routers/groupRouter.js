@@ -12,4 +12,5 @@ groupRouter.get('/group/:id/users', groupController.getUsersInGroup);
 groupRouter.post('/group/:id/add-user', groupController.addUsersToGroup);
 groupRouter.delete('/group/:id/remove-user/:userId', groupController.removeUsersFromGroup);  
 groupRouter.get('/group/getgroupforuser/:id', groupController.getGroupsForUser);
+groupRouter.get('/group/getgroupforadmin/:id', groupController.getGroupsByAdminId);
 

@@ -71,10 +71,9 @@ export default function Chatting() {
   }, [passGroupId]);
 
   const handleSendMessage = async () => {
-    const newMessage = message;
-    if (newMessage.trim()) {
+    if (message.trim()) {
       const messageData = {
-        text: newMessage,
+        text: message,
         senderId: userId,
         groupId: passGroupId,
         id: Date.now().toString(),
@@ -152,41 +151,6 @@ export default function Chatting() {
           <Icon name="th-list" size={24} color="#4A90E2" />
         </TouchableOpacity>
       </View>
-      <Animated.View style={[styles.modalBackground, { opacity: fadeAnim }]} />
-      <Modal
-        transparent={true}
-        visible={modalVisible}
-        animationType="fade"
-        onRequestClose={closeModal}
-      >
-        <Animated.View style={[styles.modalBackground, { opacity: fadeAnim }]}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Group Settings</Text>
-            <TouchableOpacity style={styles.modalButton}>
-              <Icon name="group" size={20} color="#4A90E2" />
-              <Text style={styles.modalButtonText}>Group Name</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.modalButton}>
-              <Icon name="user-plus" size={20} color="#4A90E2" />
-              <Text style={styles.modalButtonText}>Add Members</Text>
-            </TouchableOpacity>{" "}
-            <TouchableOpacity style={styles.modalButton}>
-              <Icon2 name="users" size={20} color="#4A90E2" />
-              <Text style={styles.modalButtonText}> Members</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.modalButton}>
-              <Icon name="sign-out" size={20} color="#4A90E2" />
-              <Text style={styles.modalButtonText}>Leave Chat</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={closeModal}
-              style={styles.modalCloseButton}
-            >
-              <Text style={styles.modalCloseButtonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </Animated.View>
-      </Modal>
 
       <FlatList
         data={messages}
