@@ -50,7 +50,8 @@ export  function createJSONQuiz( num,title ,description,fileid){
             "connect": {
               "fileId": fileid
             }
-        }
+        },
+        "score" : 0
     };
     return jsonObject;
 }

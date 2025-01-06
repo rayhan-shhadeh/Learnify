@@ -26,7 +26,7 @@ export const questionService = {
             // Use Prisma to fetch questions where the `quizId` matches
             return await prisma.question.findMany({
                 where: {
-                    quizId: quizId, // Filter questions by quizId
+                    quizid: quizId, // Filter questions by quizId
                 },
             });
         } catch (error) {

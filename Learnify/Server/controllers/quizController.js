@@ -5,8 +5,7 @@ import {downloadPDF,deletePDF} from '../functions/pdfHandling.js';
 import {OpenAIPromptHandling}  from '../functions/openAIPromptHandling.js';
 import {createJSONQuiz,createJSONQuestion} from '../functions/createJsonObject.js'
 import {isArrayOfJSONObjects,isJSONObject,isArrayOfStrings} from '../functions/validateFormat.js'
-//Tala I edited the path here 
-const myPath = "C:\\Users\\rshha\\Documents\\VSCode\\projects\\Graduation-v7\\Learnify\\Server\\TempPDFs\\";
+import { courseService } from '../services/courseService.js';
 export const quizController = {
     async generateQuiz(req, res) {
         try {
@@ -27,10 +26,9 @@ export const quizController = {
                 '"choices":["Answer A","Answer B","Answer C","Answer D"]},...]}' +
                 ' please make sure that the title, description, and questions are related to the attached file' +
                 ' without any additional text before or after the JSON object and without ```json```.';
-            //const fullPath = process.env.SAVE_PATH + filename;
-            const fullPath = myPath +filename;
+            const fullPath = process.env.SAVE_PATH + filename;
             // download pdf, send to OpenAI, delete pdf
-            await downloadPDF(fileurl, myPath, filename); // url, savePath, filename
+            await downloadPDF(fileurl, process.env.SAVE_PATH, filename); // url, savePath, filename
             const response = await OpenAIPromptHandling(fullPath, prompt); // filename, prompt
             await deletePDF(fullPath);
             // parse response
@@ -112,5 +110,70 @@ export const quizController = {
         console.error('Error fetching max quiz ID:', error.message);
         res.status(500).json({ error: 'Internal Server Error' });
     }
+    },
+    async getQuizHistory(req, res) {
+        try {
+            const userId = req.params.userId;
+            const userCourses = await courseService.getCoursesByUserId(userId);
+            if (!userCourses || userCourses.length === 0) {
+                return res.status(404).json({ message: 'No courses found for the user' });
+            }
+    
+            let userFiles = [];
+            for (const course of userCourses) {
+                const files = await courseService.getFilesByCourseId(course.courseId);
+                if (files && files.length > 0) {
+                    userFiles.push(...files);
+                }
+            }
+            if (userFiles.length === 0) {
+                return res.status(404).json({ message: 'No files found for the user\'s courses' });
+            }
+    
+            let quizzes = [];
+            for (const file of userFiles) {
+                const fileQuizzes = await quizService.getQuizzesByFileId(file.fileId);
+                if (fileQuizzes && fileQuizzes.length > 0) {
+                    for (const quiz of fileQuizzes) {
+                        const questions = await questionService.getQuestionsByQuizId(quiz.quizId);
+                        if (!questions || questions.length === 0) {
+                            await quizService.deleteQuiz(quiz.quizId);
+                        } else {
+                            quizzes.push(quiz);
+                        }
+                    }
+                }
+            }
+            if (quizzes.length === 0) {
+                return res.status(404).json({ message: 'No valid quizzes found' });
+            }
+    
+            const sortedQuizzes = quizzes.sort((a, b) => b.quizId - a.quizId);
+            const topQuizzes = sortedQuizzes.slice(0, 5);
+    
+            const quizzesToDelete = sortedQuizzes.slice(5);
+            for (const quiz of quizzesToDelete) {
+                await quizService.deleteQuiz(quiz.quizId);
+            }
+    
+            res.status(200).json({ quizzes: topQuizzes });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Error fetching quiz history' });
+        }
+    },
+            async updateQuizScore(req, res) {
+        try {
+            const updatedQuiz= await quizService.updateQuizScore(req.params.quizId, req.body);
+            if (!updatedQuiz) {
+                return;
+            }
+            res.json(updatedQuiz);
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error: 'Error updating course' });
+        }
     }
 };
+
+

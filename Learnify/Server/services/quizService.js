@@ -19,5 +19,28 @@ export const quizService = {
             where : { quizId: parseInt(id) }
         }
         )
-    }
+    },
+    async getMaxQuizId (){
+        const quiz = await prisma.quiz.findFirst({
+            orderBy: {
+                quizId: 'desc'
+            },
+            select: {
+                quizId: true
+            },
+        });
+        return quiz.quizId;
+    },
+    async getQuizzesByFileId(fileId) {
+        return await prisma.quiz.findMany({
+            where : { fileid: parseInt(fileId) }
+
+        })
+    },
+    async updateQuizScore(id, data) {
+        return await prisma.quiz.update({
+          where: { quizId: parseInt(id) },
+          data,
+        });
+      }
 };
