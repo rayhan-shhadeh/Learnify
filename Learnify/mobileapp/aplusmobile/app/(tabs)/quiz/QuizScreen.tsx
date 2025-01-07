@@ -210,7 +210,9 @@ export default function QuizScreen() {
               setFileModalVisible(false);
             }}
           >
-            <Text style={styles.modalButtonText}>Confirm Selection</Text>
+            <TouchableOpacity style={styles.modalButton}>
+              <Text style={styles.modalButtonText}>Confirm Selection</Text>
+            </TouchableOpacity>
           </TouchableOpacity>
         </View>
       </View>
@@ -493,7 +495,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#2196F3",
   },
   modalButtonText: {
-    color: "#fff",
+    color: "#000",
     fontSize: 30,
     fontWeight: "bold",
   },

@@ -30,7 +30,10 @@ export default function QuizScreen() {
   const [courses, setCourses] = useState<any[]>([]);
   const [files, setFiles] = useState<{ id: string; name: string }[]>([]);
   const [quizData, setQuizData] = useState<any[]>([]);
-  const [lastQuiz,setLastQuiz] =useState(null);
+  const [lastQuiz, setLastQuiz] = useState<{
+    title: string;
+    successRate: number;
+  } | null>(null);
 
   useEffect(() => {
     const initialize = async () => {
@@ -42,7 +45,7 @@ export default function QuizScreen() {
           return;
         }
         const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
-        const id=decoded.id;
+        const id = decoded.id;
         setUserId(id);
 
         const response = await API.get(`/api/user/courses/${decoded?.id}`);
@@ -72,7 +75,7 @@ export default function QuizScreen() {
             setQuizData(mappedQuizzes);
             setLastQuiz(mappedQuizzes[0]);
             console.log(mappedQuizzes[0]);
-          } 
+          }
         }
       } catch (error) {
         //Alert.alert("Error", "An error occurred while fetching courses");
@@ -102,7 +105,9 @@ export default function QuizScreen() {
     try {
       const response = await API.delete(`/api/quiz/${quizId}`);
       if (response.status === 200) {
-        setQuizData((prevQuizzes) => prevQuizzes.filter((quiz) => quiz.id !== quizId));
+        setQuizData((prevQuizzes) =>
+          prevQuizzes.filter((quiz) => quiz.id !== quizId)
+        );
       } else {
         Alert.alert("Error", "Failed to delete quiz.");
       }
@@ -110,7 +115,7 @@ export default function QuizScreen() {
       Alert.alert("Error", "An error occurred while deleting the quiz.");
     }
   };
-  
+
   const handleCourseSelection = async (course: {
     id: string;
     name: string;
@@ -245,10 +250,11 @@ export default function QuizScreen() {
         <Text style={styles.cardTitle}>{item.title}</Text>
         <Text style={styles.cardDesc}>{item.description}</Text>
         <Text style={styles.successRate}>Success: {item.successRate}%</Text>
-        <TouchableOpacity style={styles.trashIconContainer}
+        <TouchableOpacity
+          style={styles.trashIconContainer}
           onPress={() => handleDeleteQuiz(item.id)}
         >
-        <Icon name="trash" size={20} color="white" style={styles.trashIcon} />
+          <Icon name="trash" size={20} color="white" style={styles.trashIcon} />
         </TouchableOpacity>
       </LinearGradient>
     </TouchableOpacity>
@@ -270,10 +276,10 @@ export default function QuizScreen() {
         <View style={styles.recentQuiz}>
           <Text style={styles.recentQuizText}>Recent Quiz</Text>
           <Text style={styles.quizTitle}>
-          {lastQuiz?.title || "No Quizzes Available"}
+            {lastQuiz?.title || "No Quizzes Available"}
           </Text>
           <Text style={styles.quizScore}>
-          {lastQuiz?.successRate != null ? `${lastQuiz.successRate}%` : ""}
+            {lastQuiz?.successRate != null ? `${lastQuiz.successRate}%` : ""}
           </Text>
         </View>
       </LinearGradient>
@@ -551,5 +557,4 @@ const styles = StyleSheet.create({
     right: 3,
     padding: 5,
   },
-
 });

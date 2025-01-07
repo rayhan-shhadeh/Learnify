@@ -13,11 +13,13 @@ userRouter.post('/forgot', authController.forgotpassword);//return an email to r
 userRouter.patch('/users/resetPassword/:token', authController.resetPassword);//return a token to retrive the new password
 userRouter.get('/getallusers', userController.getAllUsers);
 
+
 userRouter.patch('/users/updatepassword', authController.updatePassword);//return an email to return password
 userRouter.patch('/users/updateme', authController.protect, userController.updateMe);//return an email to return password
 userRouter.delete('/users/deleteme', authController.protect,userController.deleteMe);//return an email to return password
 userRouter.patch('/users/updateprofile/:id', userController.updateUserData);//return an email to return password
 userRouter.get('/users/getme/:id',userController.getUserData);
+userRouter.patch('/users/updateprofile', userController.updateUserData);
 
 
 // Google Login Route

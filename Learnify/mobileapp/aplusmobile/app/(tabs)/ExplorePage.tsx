@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  TextInput,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import NavBar from "../(tabs)/NavBar";
@@ -14,7 +15,8 @@ import Back from "./Back";
 import API from "../../api/axois";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
-
+import Icon from "react-native-vector-icons/FontAwesome";
+import { useRouter } from "expo-router";
 const randomGradient = (): [string, string, ...string[]] => {
   const colors: [string, string, ...string[]][] = [
     ["#4c669f", "#3b5998", "#192f6a"],
@@ -36,6 +38,22 @@ const randomGradient = (): [string, string, ...string[]] => {
   return colors[Math.floor(Math.random() * colors.length)];
 };
 
+const historyRandomGradient = (): [string, string, ...string[]] => {
+  const colors: [string, string, ...string[]][] = [
+    ["#2C3E50", "#1CA7EC"], // Dark blue and blue gradient (reliable and educational)
+    ["#34495E", "#16A085"], // Dark teal and green gradient (calm and focused)
+    ["#1F3A69", "#3498DB"], // Navy blue and light blue gradient (professional and calming)
+    ["#8E44AD", "#9B59B6"], // Purple gradient (creative and engaging)
+    ["#27AE60", "#2ECC71"], // Green gradient (fresh, calm, and encouraging)
+    ["#D35400", "#F39C12"], // Orange gradient (energetic and motivating)
+    ["#2980B9", "#6BB9F0"], // Blue gradient (serene and productive)
+    ["#C0392B", "#E74C3C"], // Red gradient (urgent and impactful)
+    ["#34495E", "#5D6D7E"], // Cool grey gradient (focused and professional)
+  ];
+
+  return colors[Math.floor(Math.random() * colors.length)];
+};
+
 interface CardProps {
   title: string;
 }
@@ -51,12 +69,47 @@ const Card: React.FC<CardProps> = ({ title }) => {
   );
 };
 
+const HistoryCard: React.FC<CardProps> = ({ title }) => {
+  const router = useRouter();
+  const gradientColors = historyRandomGradient();
+  return (
+    <>
+      <TouchableOpacity style={styles.trashIcon}>
+        <Icon name="trash-o" size={20} color="#fff" />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => router.push("/TopicScreen")}
+      >
+        <LinearGradient colors={gradientColors} style={styles.gradienthistory}>
+          <Text style={styles.cardText}>{title}</Text>
+          <Text style={styles.ratingContainer}>
+            <Icon name="star" size={20} color="#ffd335" />
+            <Text> </Text>
+            <Text style={styles.ratingText}>4.5</Text>
+            <Text> </Text>
+            <Icon name="bars" size={20} color="#ddd7e1" />
+            <Text> </Text>
+            <Text style={styles.ratingText}>20</Text>
+          </Text>
+        </LinearGradient>
+      </TouchableOpacity>
+    </>
+  );
+};
+
 const ExploreScreen = () => {
   const [popularTopics, setPopularTopics] = useState<string[]>([]);
   const [relatedTopics, setRelatedTopics] = useState<string[]>([]);
   const [suggestedTopics, setSuggestedTopics] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const handleFilterSelect = (filter: string) => {
+    console.log(`Selected filter: ${filter}`);
+    setShowDropdown(false);
+  };
 
   useEffect(() => {
     const fetchTopics = async () => {
@@ -127,10 +180,55 @@ const ExploreScreen = () => {
         <Back title={""} onBackPress={() => console.log("Back pressed")} />{" "}
         Explore
       </Text>
-      <View style={styles.searchBar}>
-        <Text style={styles.searchText}>Search</Text>
+      <View style={styles.searchBarContainer}>
+        <View style={styles.searchBar}>
+          <TextInput
+            placeholder="Search for a new topic"
+            style={styles.searchText}
+          >
+            {" "}
+            Search for new Topic
+          </TextInput>
+        </View>
+        <TouchableOpacity
+          style={styles.filterIcon}
+          onPress={() => setShowDropdown(!showDropdown)}
+        >
+          <Icon name="filter" size={20} color="#888" />
+        </TouchableOpacity>
+        {showDropdown && (
+          <View style={styles.dropdown}>
+            <TouchableOpacity
+              style={styles.dropdownItem}
+              onPress={() => handleFilterSelect("Beginner")}
+            >
+              <Text style={styles.dropdownText}>Beginner</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.dropdownItem}
+              onPress={() => handleFilterSelect("Medium")}
+            >
+              <Text style={styles.dropdownText}>Medium</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.dropdownItem}
+              onPress={() => handleFilterSelect("Advanced")}
+            >
+              <Text style={styles.dropdownText}>Advanced</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
-
+      {/* History */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>History</Text>
+        <FlatList
+          horizontal
+          data={["History Topic 1", "History Topic 2", "History Topic 3"]}
+          renderItem={({ item }) => <HistoryCard title={item} />}
+          keyExtractor={(item, index) => `history-${index}`}
+        />
+      </View>
       {/* Suggested Topics */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Suggested</Text>
@@ -174,6 +272,28 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
     padding: 20,
   },
+  dropdown: {
+    position: "absolute",
+    top: 40,
+    left: 0,
+    right: 0,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    elevation: 5,
+    zIndex: 1,
+  },
+  dropdownItem: {
+    padding: 10,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    borderRadius: 17,
+    paddingTop: 10,
+  },
   header: {
     fontSize: 24,
     fontWeight: "bold",
@@ -183,7 +303,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#e0e0e0",
     borderRadius: 10,
     padding: 10,
-    marginBottom: 20,
+    width: "90%",
   },
   searchText: {
     color: "#888",
@@ -208,10 +328,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  gradienthistory: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   cardText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "bold",
+    position: "absolute",
+    top: 15,
+    left: 10,
   },
   loadingContainer: {
     flex: 1,
@@ -224,6 +352,51 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#1CA7EC", // Matches the primary theme color
     fontWeight: "500",
+  },
+  trashIcon: {
+    position: "absolute",
+    bottom: 8,
+    right: 15,
+    zIndex: 1,
+  },
+  rating: {
+    flex: 1,
+    marginRight: 20,
+    paddingRight: 30,
+    position: "absolute",
+    top: 40,
+    left: 30,
+  },
+  ratingContainer: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+  },
+  ratingText: {
+    color: "#ddd7e1",
+    fontSize: 14,
+    fontWeight: "bold",
+    position: "absolute",
+    flexDirection: "row",
+    flex: 1,
+    top: 40,
+    left: 20,
+    marginLeft: 30,
+    marginRight: 20,
+    paddingLeft: 30,
+    paddingRight: 30,
+  },
+  searchBarContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  filterIcon: {
+    marginLeft: 10,
+  },
+  dropdownText: {
+    color: "#000",
+    fontSize: 16,
   },
 });
 
