@@ -2,7 +2,7 @@ import {topicService} from '../services/topicService.js'
 import {exploreflashcardsService} from '../services/exploreflashcardsService.js';
 import {exploreHistoryService} from '../services/exploreHistoryService.js';
 import {generateExploreFlashcard} from '../functions/GoogleGenerativeAI.js';
-import {createJSONTopic,createJSONExploreFlashcard, createJSONHabitStatus, createJSONExploreHistory} from '../functions/createJsonObject.js';
+import {createJSONTopic,createJSONExploreFlashcard,createJSONExploreHistory} from '../functions/createJsonObject.js';
 import {isArrayOfJSONObjects,isArrayOfStrings} from '../functions/validateFormat.js'
 import {OpenAI} from '../functions/openAIPromptHandling.js'
 import { userService } from '../services/userService.js';
@@ -15,6 +15,7 @@ export const exploreController={
             let searchedTopicId;
             const topicName = req.params.topicName;
             const level = req.body.level;
+            console.log("level from server:"+level);
             const userId = req.body.userId;
             const topic = await topicService.getTopicByNameAndLevel(topicName,level);
             if(!topic || Object.keys(topic).length === 0 ){
@@ -26,12 +27,18 @@ export const exploreController={
                 if(!isArrayOfJSONObjects(jsonArrayResponse)){
                     throw new Error("Somthing went wrong in response from gemini flash model!");
                 }
-                jsonArrayResponse.forEach(exploreflashcard => {
-                    const JSONExploreFlashcard = createJSONExploreFlashcard(exploreflashcard.Q, exploreflashcard.A,createdTopic.topiclevelId);
-                    exploreflashcardsService.createExploreFlashcard(JSONExploreFlashcard);
-                 });
-                searchedTopicId= createdTopic.topicId;
-                exploreflashcards = response ;
+                await Promise.all(
+                    jsonArrayResponse.map(async (exploreflashcard) => {
+                        const JSONExploreFlashcard = createJSONExploreFlashcard(
+                            exploreflashcard.Q,
+                            exploreflashcard.A,
+                            createdTopic.topiclevelId
+                        );
+                        const createdExploreFlashcard = await exploreflashcardsService.createExploreFlashcard(JSONExploreFlashcard);
+                        exploreflashcards.push(createdExploreFlashcard);
+                    })
+                );
+                searchedTopicId= createdTopic.topiclevelId;
             }
             else if (topic){
                 exploreflashcards = await exploreflashcardsService.getExploreFlashcardsByTopicId(topic.topiclevelId);
@@ -42,9 +49,8 @@ export const exploreController={
                 }
                 searchedTopicId= topic.topiclevelId;
             }
-            //const userId = 12;
             const JSONExploreHistory = createJSONExploreHistory(userId,searchedTopicId)
-            await exploreHistoryService.createExploreHistory(JSONExploreHistory); 
+            await exploreHistoryService.createExploreHistory(userId,searchedTopicId,JSONExploreHistory); 
             res.status(200).json(exploreflashcards);
             return;
         }catch(error){

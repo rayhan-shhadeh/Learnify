@@ -25,4 +25,18 @@ export const topicController={
             res.status(500).json({ error: 'Error retrieving topic' });
         }
     },
+    async deleteTopic(req,res){
+        try {
+            const topicId = req.params.topicId;
+            const deletedTopic = await topicService.deleteTopic(topicId);
+            if(!deletedTopic){
+                return res.status(404).json({ error: 'Resource not found' });
+            }
+            res.json({ message: 'Resource deleted successfully' });
+            
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error: 'Error retrieving topic' });
+        }
+    }
 }
