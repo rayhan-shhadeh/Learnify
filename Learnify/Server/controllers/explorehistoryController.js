@@ -1,22 +1,32 @@
 
-import {exploreHistoryService} from '../services/exploreHistoryService.js';
+import { exploreHistoryService } from "../services/exploreHistoryService.js";
+import { topicService } from "../services/topicService.js"; 
 
-
-export const exploreHistoryController={
-    async getExploreHistory(req,res){
-        const userId = req.params.userId;
+export const exploreHistoryController = {
+  async getExploreHistory(req, res) {
+    const userId = req.params.userId;
     if (!userId) {
-        return res.status(400).json({ error: "userId parameter is required." });
+      return res.status(400).json({ error: "userId parameter is required." });
     }
     try {
-        const explorehistory = await exploreHistoryService.getExploreHistory(parseInt(userId));
-        if (userHistory.length === 0) {
-            return res.status(404).json({ message: "No history records found for this user." });
-        }
-        res.status(200).json({ explorehistory });
+      const exploreHistory = await exploreHistoryService.getExploreHistory(parseInt(userId));
+      if (exploreHistory.length === 0) {
+        return;
+      }
+      const detailedHistory = await Promise.all(
+        exploreHistory.map(async (historyRecord) => {
+          const topicLevel = await topicService.getTopicLevelById(historyRecord.topiclevelid);
+          return {
+            topiclevelId: historyRecord.topiclevelid,
+            topic: topicLevel?.topicName || "Unknown",
+            level: topicLevel?.level || "Unknown",
+          };
+        })
+      );
+      res.status(200).json(detailedHistory );
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "An error occurred while fetching history records." });
+      console.error(error);
+      res.status(500).json({ error: "An error occurred while fetching history records." });
     }
-    }
-}
+  },
+};

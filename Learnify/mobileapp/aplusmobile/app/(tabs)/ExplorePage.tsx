@@ -55,34 +55,103 @@ const historyRandomGradient = (): [string, string, ...string[]] => {
 };
 
 interface CardProps {
-  title: string;
+  searchTopic: string;
+  userId: string
+  setLoadingFlashcards: React.Dispatch<React.SetStateAction<boolean>>;
+
 }
 
-const Card: React.FC<CardProps> = ({ title }) => {
+const Card: React.FC<CardProps> = ({ searchTopic,userId,setLoadingFlashcards }) => {
   const gradientColors = randomGradient();
+  const router = useRouter();
+  const handleCardPress = async () => {
+    try {
+      setLoadingFlashcards(true);
+      const requestBody = {
+        level:"Medium",
+        userId: userId ,
+      };
+      const response = await API.post(
+        `/api/exploreflashcards/searchTopic/${searchTopic}`,
+        requestBody
+      );
+      if (response.data && Array.isArray(response.data)) {
+      const topicData = response.data;
+      setLoadingFlashcards(false);
+      router.push({
+        pathname: "/(tabs)/TopicScreen",
+        params: {
+          userId,
+          searchTopic,
+          exploreFlashcards: JSON.stringify(topicData),
+        }
+       });
+      }
+      setLoadingFlashcards(false);
+    } catch (error) {
+      console.error("Error fetching topic details:", error);
+    }
+  };
   return (
-    <TouchableOpacity style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={handleCardPress}>
       <LinearGradient colors={gradientColors} style={styles.gradient}>
-        <Text style={styles.cardText}>{title}</Text>
+        <Text style={styles.cardText}>{searchTopic}</Text>
       </LinearGradient>
     </TouchableOpacity>
   );
 };
 
-const HistoryCard: React.FC<CardProps> = ({ title }) => {
+interface HistoryCardProps {
+  searchTopic: string;
+  id : string;
+  userId :string;
+  setHistoryTopics: React.Dispatch<React.SetStateAction<string[]>>;
+}
+
+const HistoryCard: React.FC<HistoryCardProps> = ({ searchTopic,id, setHistoryTopics, userId }) => {
   const router = useRouter();
   const gradientColors = historyRandomGradient();
+  const handleCardPress = async () => {
+    try {
+      const response = await API.get(`/api/expoloreflashcards/${id}`);
+      if (response.data && Array.isArray(response.data)) {
+      const topicData = response.data;
+      router.push({
+        pathname: "/(tabs)/TopicScreen",
+        params: {
+          userId,
+          searchTopic,
+          exploreFlashcards: JSON.stringify(topicData),
+        }
+       });
+      }
+    } catch (error) {
+      console.error("Error fetching topic details:", error);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await API.delete(`/api/topic/${id}`);
+      setHistoryTopics((prevTopics) =>
+        prevTopics.filter((topic) => topic.topiclevelId !== id)
+      );
+    } catch (error) {
+      Alert.alert("Error", "Failed to delete history card.");
+    }
+  };
+
   return (
     <>
-      <TouchableOpacity style={styles.trashIcon}>
+      <TouchableOpacity style={styles.trashIcon} onPress={handleDelete} >
         <Icon name="trash-o" size={20} color="#fff" />
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.card}
-        onPress={() => router.push("/TopicScreen")}
+        onPress={handleCardPress}
       >
         <LinearGradient colors={gradientColors} style={styles.gradienthistory}>
-          <Text style={styles.cardText}>{title}</Text>
+          <Text style={styles.cardText}>{searchTopic}</Text>
           <Text style={styles.ratingContainer}>
             <Icon name="star" size={20} color="#ffd335" />
             <Text> </Text>
@@ -90,12 +159,12 @@ const HistoryCard: React.FC<CardProps> = ({ title }) => {
             <Text> </Text>
             <Icon name="bars" size={20} color="#ddd7e1" />
             <Text> </Text>
-            <Text style={styles.ratingText}>20</Text>
+            <Text style={styles.ratingText}>5</Text>
           </Text>
         </LinearGradient>
       </TouchableOpacity>
     </>
-  );
+   );
 };
 
 const ExploreScreen = () => {
@@ -103,24 +172,24 @@ const ExploreScreen = () => {
   const [relatedTopics, setRelatedTopics] = useState<string[]>([]);
   const [suggestedTopics, setSuggestedTopics] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<any>();
   const [showDropdown, setShowDropdown] = useState(false);
-
-  const handleFilterSelect = (filter: string) => {
-    console.log(`Selected filter: ${filter}`);
-    setShowDropdown(false);
-  };
+  const [level, setLevel]=useState<any>();
+  const [searchTopic, setSearchTopic]=useState<string>();
+  const router = useRouter();
+  const [isPremium,setIsPremium]=useState<boolean>();
+  const [historyTopics, setHistoryTopics] = useState<string[]>([]);
+  const [loadingFlashcards, setLoadingFlashcards] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchTopics = async () => {
-      setLoading(true);
+      //setLoading(true);
       try {
         const token = await AsyncStorage.getItem("token");
         if (!token) {
           Alert.alert("Error", "Token not found");
           return;
         }
-
         let id = null;
         try {
           const decoded: { id: string } | null = jwtDecode<{ id: string }>(
@@ -131,18 +200,23 @@ const ExploreScreen = () => {
             return;
           }
           id = decoded.id;
-
-          setUserId(id); // Update userId state
+          setUserId(id);
         } catch (decodeError) {
           Alert.alert("Error", "Failed to decode token");
           return;
         }
-
         const userData = await API.get(`/api/users/getme/${id}`);
         const majorName = userData.data.major;
-
+        const userFlag = userData.data.flag;
+        userFlag ===2 ? setIsPremium(true) :setIsPremium(false);      
+        
+        const exploreHistory = await API.get(`/api/exploreflashcards/exploreHistory/${id}`);
+        const exploreHistoryData = exploreHistory.data;
+        if (exploreHistoryData.length>0 && Array.isArray(exploreHistoryData) ){
+          setHistoryTopics(exploreHistoryData);
+        }
         const popularRes = await API.get(
-          "/api/exploreflashcards/popularTopices"
+          "/api/exploreflashcards/popularTopics"
         );
         const relatedRes = await API.get(
           `/api/exploreflashcards/relatedTopics/${id}`
@@ -150,7 +224,6 @@ const ExploreScreen = () => {
         const suggestedRes = await API.get(
           `/api/exploreflashcards/suggestedTopics/${majorName}`
         );
-
         setPopularTopics(popularRes.data);
         setRelatedTopics(relatedRes.data);
         setSuggestedTopics(suggestedRes.data);
@@ -161,7 +234,6 @@ const ExploreScreen = () => {
         setLoading(false);
       }
     };
-
     fetchTopics();
   }, []);
 
@@ -174,22 +246,77 @@ const ExploreScreen = () => {
     );
   }
 
-  return (
+  if (loadingFlashcards) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#1CA7EC" />
+        <Text style={styles.loadingText}>Generating Flashcards ...</Text>
+      </View>
+    );
+  }
+
+  const handleLevelSelect = (level: string) => {
+    console.log(`Selected filter: ${level}`);
+    setLevel(level);
+    setShowDropdown(false);
+  };
+  
+  const handleSearch = async () => {
+    if (!searchTopic) {
+      Alert.alert("Error", "Please enter a topic to search");
+      return;
+    }
+     if (!level){
+      setLevel("Medium");
+     }
+     setLoadingFlashcards(true);
+     try {
+      const requestBody = {
+        "level":level,
+        "userId": userId ,
+      };
+      // Explicitly defining the response type (optional for clarity)
+      const response = await API.post(
+        `/api/exploreflashcards/searchTopic/${searchTopic}`,
+        requestBody
+      );
+      if (response.data && Array.isArray(response.data)) {
+        const exploreFlashcards = response.data;
+        router.push({
+          pathname: "/(tabs)/TopicScreen",
+          params: {
+            userId,
+            searchTopic,
+            exploreFlashcards: JSON.stringify(exploreFlashcards),
+          },
+        });
+      } else {
+        Alert.alert("No Results", "No flashcards found for this topic.");
+      }
+      } catch (error: any) {
+      console.error("Error during search:", error);
+      Alert.alert("Error", "Failed to search for topics. Please try again.");
+    } finally {
+      setLoadingFlashcards(false);
+    }
+  };
+      return (
     <View style={styles.container}>
       <Text style={styles.header}>
         <Back title={""} onBackPress={() => console.log("Back pressed")} />{" "}
         Explore
       </Text>
       <View style={styles.searchBarContainer}>
-        <View style={styles.searchBar}>
-          <TextInput
-            placeholder="Search for a new topic"
-            style={styles.searchText}
-          >
-            {" "}
-            Search for new Topic
-          </TextInput>
-        </View>
+      <View style={styles.searchBar}>
+      <TextInput
+        placeholder="Search for a new topic"
+        style={styles.searchText}
+        value={searchTopic}
+        onChangeText={(text) => setSearchTopic(text)}
+        onSubmitEditing={handleSearch}
+        returnKeyType="search"
+      />
+    </View>
         <TouchableOpacity
           style={styles.filterIcon}
           onPress={() => setShowDropdown(!showDropdown)}
@@ -200,19 +327,19 @@ const ExploreScreen = () => {
           <View style={styles.dropdown}>
             <TouchableOpacity
               style={styles.dropdownItem}
-              onPress={() => handleFilterSelect("Beginner")}
+              onPress={() => handleLevelSelect("Beginner")}
             >
               <Text style={styles.dropdownText}>Beginner</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.dropdownItem}
-              onPress={() => handleFilterSelect("Medium")}
+              onPress={() => handleLevelSelect("Medium")}
             >
               <Text style={styles.dropdownText}>Medium</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.dropdownItem}
-              onPress={() => handleFilterSelect("Advanced")}
+              onPress={() => handleLevelSelect("Advanced")}
             >
               <Text style={styles.dropdownText}>Advanced</Text>
             </TouchableOpacity>
@@ -224,9 +351,9 @@ const ExploreScreen = () => {
         <Text style={styles.sectionTitle}>History</Text>
         <FlatList
           horizontal
-          data={["History Topic 1", "History Topic 2", "History Topic 3"]}
-          renderItem={({ item }) => <HistoryCard title={item} />}
-          keyExtractor={(item, index) => `history-${index}`}
+          data={historyTopics}
+          renderItem={({ item }) => <HistoryCard searchTopic={item.topic} id={item.topiclevelId} userId={userId} setHistoryTopics={setHistoryTopics} />}
+          keyExtractor={(item) =>item.topiclevelId}
         />
       </View>
       {/* Suggested Topics */}
@@ -235,7 +362,7 @@ const ExploreScreen = () => {
         <FlatList
           horizontal
           data={suggestedTopics}
-          renderItem={({ item }) => <Card title={item} />}
+          renderItem={({ item }) => <Card searchTopic={item} userId={userId} setLoadingFlashcards={setLoadingFlashcards}/>}
           keyExtractor={(item, index) => `suggested-${index}`}
         />
       </View>
@@ -246,7 +373,7 @@ const ExploreScreen = () => {
         <FlatList
           horizontal
           data={relatedTopics}
-          renderItem={({ item }) => <Card title={item} />}
+          renderItem={({ item }) => <Card searchTopic={item} userId={userId} setLoadingFlashcards={setLoadingFlashcards}/>}
           keyExtractor={(item, index) => `related-${index}`}
         />
       </View>
@@ -257,7 +384,7 @@ const ExploreScreen = () => {
         <FlatList
           horizontal
           data={popularTopics}
-          renderItem={({ item }) => <Card title={item} />}
+          renderItem={({ item }) => <Card searchTopic={item} userId={userId} setLoadingFlashcards={setLoadingFlashcards} />}
           keyExtractor={(item, index) => `popular-${index}`}
         />
       </View>

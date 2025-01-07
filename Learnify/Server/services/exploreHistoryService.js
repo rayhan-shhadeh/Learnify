@@ -2,15 +2,14 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const exploreHistoryService = {
-  async createExploreHistory(data) {
-    const { userId, topiclevelId } = data;
+  async createExploreHistory(userId, topiclevelId, data) {
     const explorehistoryRecord = await prisma.explorehistory.findFirst({
       where: {
-        topiclevelId,
-        userId,
+        topiclevelid: parseInt(topiclevelId),
+        userid: parseInt(userId),
       },
     });
-
+  
     if (explorehistoryRecord) {
       return await prisma.explorehistory.update({
         where: {
@@ -21,13 +20,13 @@ export const exploreHistoryService = {
         },
       });
     }
-
+  
     return await prisma.explorehistory.create({
       data,
     });
   },
 
-  async getExploreHistory(userId) {
+    async getExploreHistory(userId) {
     return await prisma.explorehistory.findMany({
       where: { userid : userId},
     });

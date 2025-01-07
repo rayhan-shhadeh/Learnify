@@ -22,6 +22,16 @@ export const topicService={
         return prisma.topiclevel.delete({
             where: { topiclevelId: parseInt(id) }
         });
+    },
+
+    async getTopicLevelById(id) {
+        return prisma.topiclevel.findUnique({
+          where: { topiclevelId:id },
+          select: {
+            topicName: true,
+            level: true,
+          },
+        });
     }
 };
 
