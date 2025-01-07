@@ -14,7 +14,6 @@ import { useRouter } from 'expo-router';
 import API from '../../../api/axois';
 import { useLocalSearchParams } from 'expo-router';
 
-
 // Define types for quiz, question, and choices
 interface Choice {
   text: string;
@@ -34,7 +33,7 @@ interface Quiz {
   questions: Question[];
 }
 
-const Quiz=()=> {
+const Quiz = () => {
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [selectedChoice, setSelectedChoice] = useState<Choice | null>(null);
@@ -46,19 +45,17 @@ const Quiz=()=> {
   const [score, setScore] = useState<number | null>(null);
   const [error, setError] = useState<boolean>(false);
   const router = useRouter();
-  const { passedFileId,passedIsFromAllFilesPage,passedCourseId} = useLocalSearchParams();
+  const { passedFileId, passedIsFromAllFilesPage, passedCourseId } = useLocalSearchParams();
   const [expandedQuestionIndex, setExpandedQuestionIndex] = useState<number | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
-  
+
   const difficultyOptions = [
-    { label: 'Easy', value: 'Easy' },
-    { label: 'Medium', value: 'Medium' },
-    { label: 'Difficult', value: 'Difficult' },
+    { label: 'Easy', value: 'easy' },
+    { label: 'Medium', value: 'medium' },
+    { label: 'Difficult', value: 'difficult' },
   ];
 
-  
   useEffect(() => {
-    console.log(passedCourseId);
     if (!popupVisible) {
       generateQuiz();
     }
@@ -76,28 +73,33 @@ const Quiz=()=> {
 
   const generateQuiz = async () => {
     try {
-      console.log("Trying to genrate quiz from file "+passedFileId);
       await getId();
-      const response = await API.post(
-        `/api/file/generateQuiz/${passedFileId}`,
-        {
-          numQuestions,
-          difficulty,
-        }
-      );
-      const Quiz: Quiz = {
-        title: response.data.title,
-        description: response.data.description,
-        questions: response.data.questions.map((q: any) => ({
-          question: q.questionText,
-          questionId: q.questionId,
-          choices: q.choices.map((choice: string, index: number) => ({
-            text: choice,
-            isCorrect: String.fromCharCode(65 + index) === q.correctAnswer,
+      const response = await API.post(`/api/file/generateQuiz/${passedFileId}`, {
+        numQuestions,
+        difficulty,
+      });
+
+      if (
+        response.data &&
+        response.data.title &&
+        Array.isArray(response.data.questions)
+      ) {
+        const Quiz: Quiz = {
+          title: response.data.title,
+          description: response.data.description || 'No description provided',
+          questions: response.data.questions.map((q: any) => ({
+            question: q.questionText || 'No question text',
+            questionId: q.questionId,
+            choices: q.choices.map((choice: string, index: number) => ({
+              text: choice,
+              isCorrect: String.fromCharCode(65 + index) === q.correctAnswer,
+            })),
           })),
-        })),
-      };
-      setQuiz(Quiz);
+        };
+        setQuiz(Quiz);
+      } else {
+        throw new Error('Invalid API response structure');
+      }
     } catch (err) {
       setError(true);
       console.error('Error generating quiz:', err);
@@ -143,52 +145,47 @@ const Quiz=()=> {
         }
         return acc;
       }, 0);
-      let successRate: number = Math.round((calculatedScore / numQuestions) * 100);
-      console.log("Score:", calculatedScore);
-      console.log("Number of Questions:", numQuestions);
-      console.log("Calculated Success Rate:%", successRate);
+      const successRate: number = Math.round((calculatedScore / numQuestions) * 100);
+
       try {
         if (!quizId) {
-          console.error("Quiz ID is not set.");
+          console.error('Quiz ID is not set.');
           return;
         }
-        console.log("quizId:"+quizId)
-        const response = await API.patch(`/api/quiz/${quizId}`, { 
-          numOfQuestions: numQuestions, 
-          score: successRate
+
+        await API.patch(`/api/quiz/${quizId}`, {
+          numOfQuestions: numQuestions,
+          score: successRate,
         });
-        if (response.status === 200) {
-          console.log("Score successfully updated in the database:", successRate);
-        } else {
-          console.error("Failed to update score in the database:", response.status);
-        }
+
         setScore(calculatedScore);
       } catch (err) {
-        console.error("Error updating score in the database:", err);
+        console.error('Error updating score in the database:', err);
       }
     }
   };
-  
-  const toggleQuestion = (index: number) => {
-    setExpandedQuestionIndex(index === expandedQuestionIndex ? null : index);
-  };
 
-  const handleFinishReview =async()=>{
-    if (passedIsFromAllFilesPage =='all'){
-      router.push('/(tabs)/FilesScreen');
+  const handleFinishReview = async () => {
+    try {
+      if (passedIsFromAllFilesPage === 'all') {
+        router.push('/(tabs)/FilesScreen');
+      } else if (passedIsFromAllFilesPage === 'course') {
+        const data = await API.get(`/api/course/${passedCourseId}`);
+        const title = data.data.courseName;
+        router.push({
+          pathname: '/(tabs)/CourseFilesScreen',
+          params: { title, passedCourseId },
+        });
+      } else if (passedIsFromAllFilesPage === 'home') {
+        router.push('/(tabs)/HomeScreen');
+      } else {
+        console.error('Invalid navigation parameter');
+      }
+    } catch (err) {
+      console.error('Error during navigation:', err);
+      Alert.alert('Navigation Error', 'Unable to navigate back.');
     }
-    else if (passedIsFromAllFilesPage =='course'){
-      const data = await API.get(`/api/course/${passedCourseId}`)
-      const title = data.data.courseName;
-      router.push({
-        pathname: '/(tabs)/CourseFilesScreen',
-        params: { title,passedCourseId},
-      })
-    }
-    else if (passedIsFromAllFilesPage =='home'){
-      router.push('/(tabs)/HomeScreen');
-    }
-  }
+  };
 
   if (error) {
     return (
@@ -207,41 +204,38 @@ const Quiz=()=> {
         <View style={styles.popup}>
           <Text style={styles.popupLabel}>Number of Questions:</Text>
           <TextInput
-          style={styles.input}
-          keyboardType="numeric"
-          value={numQuestions.toString()}
-          onChangeText={(text) => {
-            const filteredText = text.replace(/[^0-9]/g, ''); // Filter non-numeric input
-            setNumQuestions(filteredText ? parseInt(filteredText, 10) : 1); // Default to 1 if empty
-          }}
-        />
-        {/* Dropdown Trigger */}
-        <TouchableOpacity
-          style={styles.dropdownList}
-          onPress={() => setShowDropdown(!showDropdown)}
-        >
-          <Text style={styles.dropdownTriggerText}>
-            {difficulty
-              ? difficultyOptions.find((option) => option.value === difficulty)?.label
-              : 'Difficulty'}
-          </Text>
-        </TouchableOpacity>
-        {showDropdown && (
-          <View style={styles.dropdownList}>
-            {difficultyOptions.map((option) => (
-              <TouchableOpacity
-                key={option.value}
-                style={styles.dropdownItem}
-                onPress={() => {
-                  setDifficulty(option.value);
-                  setShowDropdown(false); // Close dropdown after selection
-                }}
-              >
-                <Text style={styles.dropdownItemText}>{option.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
+            style={styles.input}
+            keyboardType="numeric"
+            value={numQuestions.toString()}
+            onChangeText={(text) => {
+              const filteredText = text.replace(/[^0-9]/g, '');
+              setNumQuestions(filteredText ? Math.max(1, parseInt(filteredText, 10)) : 1);
+            }}
+          />
+          <TouchableOpacity
+            style={styles.dropdownTrigger}
+            onPress={() => setShowDropdown(!showDropdown)}
+          >
+            <Text style={styles.dropdownTriggerText}>
+              {difficultyOptions.find((option) => option.value === difficulty)?.label || 'Select Difficulty'}
+            </Text>
+          </TouchableOpacity>
+          {showDropdown && (
+            <View style={styles.dropdownList}>
+              {difficultyOptions.map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                    setDifficulty(option.value);
+                    setShowDropdown(false);
+                  }}
+                >
+                  <Text style={styles.dropdownItemText}>{option.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
           <TouchableOpacity
             style={styles.startButton}
             onPress={() => setPopupVisible(false)}
@@ -253,25 +247,23 @@ const Quiz=()=> {
     );
   }
 
-  if (!quiz) {
+  if (!quiz || quiz.questions.length === 0) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#1CA7EC" />
-        <Text style={styles.loadingText}>Loading Quiz...</Text>
+        <Text style={styles.loadingText}>Generating Quiz...</Text>
       </View>
     );
   }
 
   const currentQuestion = quiz.questions[currentQuestionIndex];
+
   if (review) {
     return (
       <View style={styles.reviewContainer}>
-        {/* Display the Score */}
         <Text style={styles.scoreText}>
           Your Score: {score}/{numQuestions}
         </Text>
-  
-        {/* List of Questions */}
         <FlatList
           data={quiz.questions}
           keyExtractor={(item, index) => index.toString()}
@@ -279,10 +271,9 @@ const Quiz=()=> {
             const userAnswer = item.selectedAnswer;
             const correctChoice = item.choices.find((choice) => choice.isCorrect);
             const isExpanded = expandedQuestionIndex === index;
-  
+
             return (
               <View style={styles.reviewItem}>
-                {/* Question with Correctness Color */}
                 <TouchableOpacity
                   style={[
                     styles.questionContainer,
@@ -290,14 +281,12 @@ const Quiz=()=> {
                       ? styles.correctChoice
                       : styles.incorrectChoice,
                   ]}
-                  onPress={() => toggleQuestion(index)}
+                  onPress={() => setExpandedQuestionIndex(index === expandedQuestionIndex ? null : index)}
                 >
                   <Text style={styles.reviewQuestionText}>
                     {index + 1}. {item.question}
                   </Text>
                 </TouchableOpacity>
-  
-                {/* Show Choices and Answers if Expanded */}
                 {isExpanded && (
                   <View style={styles.choicesContainer}>
                     {item.choices.map((choice, choiceIndex) => (
@@ -316,8 +305,8 @@ const Quiz=()=> {
                       >
                         <Text style={styles.choiceText}>
                           {choice.text}
-                          {choice.text === userAnswer && !choice.isCorrect && " (Your Answer)"}
-                          {choice.isCorrect && " (Correct)"}
+                          {choice.text === userAnswer && !choice.isCorrect && ' (Your Answer)'}
+                          {choice.isCorrect && ' (Correct)'}
                         </Text>
                       </View>
                     ))}
@@ -327,60 +316,56 @@ const Quiz=()=> {
             );
           }}
         />
-  
-        {/* Finish Review Button */}
         <TouchableOpacity
           style={styles.finishButton}
-          onPress={() => handleFinishReview()}
+          onPress={handleFinishReview}
         >
           <Text style={styles.buttonText}>Finish Review</Text>
         </TouchableOpacity>
       </View>
     );
   }
-  
+
   return (
     <View style={styles.quizContainer}>
-          <View style={styles.questionCountContainer}>
-      <Text style={styles.questionCountText}>
-        Question {currentQuestionIndex + 1} of {quiz.questions.length}
-      </Text>
-    </View>
-    <ProgressBar
-      progress={(currentQuestionIndex + 1) / quiz.questions.length}
-      color="#62D9A2"
-      style={styles.progressContainer}
-    />
-    <Text style={styles.questionText}>{currentQuestion.question}</Text>
-    {currentQuestion.choices.map((choice, index) => (
-    <TouchableOpacity
-      key={index}
-      style={[
-        styles.choice,
-        selectedChoice === choice && {
-        backgroundColor: choice.isCorrect
-          ? '#D4EDDA' // Light green for correct
-          : '#F8D7DA', // Light red for incorrect
-        borderColor: choice.isCorrect ? '#28A745' : '#DC3545', // Darker green/red for border
-      },
-    ]}
-    onPress={() => handleChoiceClick(choice, currentQuestion.questionId)}
-    disabled={!!selectedChoice} // Disable choices after one is selected
-  >
-    <Text
-      style={[
-        styles.choiceText,
-        selectedChoice === choice && {
-          color: choice.isCorrect ? '#155724' : '#721C24', // Adjust text color based on correctness
-        },
-      ]}
-    >
-      {choice.text}
-    </Text>
-  </TouchableOpacity>
-))}
+      <View style={styles.questionCountContainer}>
+        <Text style={styles.questionCountText}>
+          Question {currentQuestionIndex + 1} of {quiz.questions.length}
+        </Text>
+      </View>
+      <ProgressBar
+        progress={(currentQuestionIndex + 1) / quiz.questions.length}
+        color="#62D9A2"
+        style={styles.progressContainer}
+      />
+      <Text style={styles.questionText}>{currentQuestion.question}</Text>
+      {currentQuestion.choices.map((choice, index) => (
+        <TouchableOpacity
+          key={index}
+          style={[
+            styles.choice,
+            selectedChoice === choice && {
+              backgroundColor: choice.isCorrect ? '#D4EDDA' : '#F8D7DA',
+              borderColor: choice.isCorrect ? '#28A745' : '#DC3545',
+            },
+          ]}
+          onPress={() => handleChoiceClick(choice, currentQuestion.questionId)}
+          disabled={!!selectedChoice}
+        >
+          <Text
+            style={[
+              styles.choiceText,
+              selectedChoice === choice && {
+                color: choice.isCorrect ? '#155724' : '#721C24',
+              },
+            ]}
+          >
+            {choice.text}
+          </Text>
+        </TouchableOpacity>
+      ))}
       <TouchableOpacity
-        style={styles.continueButton}
+        style={[styles.continueButton, !selectedChoice && { backgroundColor: '#ccc' }]}
         onPress={
           currentQuestionIndex + 1 === quiz.questions.length
             ? () => {
@@ -389,11 +374,10 @@ const Quiz=()=> {
               }
             : handleContinue
         }
+        disabled={!selectedChoice}
       >
         <Text style={styles.buttonText}>
-          {currentQuestionIndex + 1 === quiz.questions.length
-            ? 'Submit'
-            : 'Continue'}
+          {currentQuestionIndex + 1 === quiz.questions.length ? 'Submit' : 'Continue'}
         </Text>
       </TouchableOpacity>
     </View>
