@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  Button,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import Back from "./Back";
@@ -14,12 +15,31 @@ import NavBar from "./NavBar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import API from "../../api/axois";
 import { jwtDecode } from "jwt-decode";
+import Lottie from "lottie-react";
+import fireAnimation from "../../assets/fire.json";
+import StreakFire from "../(tabs)/streak/StreakFire";
+import { router, useRouter } from "expo-router";
 
 export default function Profile() {
+  const router = useRouter();
   const [userId, setUserId] = React.useState<string | null>(null);
-  const [userData, setUserData] = React.useState([]);
+  const [userData, setUserData] = React.useState<{
+    username: string;
+    photo: string;
+  } | null>(null);
+  const [profileImage, setProfileImage] = React.useState<string | null>(null);
+  const [streak, setStreak] = useState(1);
+  const [showStreakFire, setShowStreakFire] = useState(false);
 
+  const increaseStreak = () => {
+    setStreak(streak + 1);
+    setShowStreakFire(true);
+  };
+  const handleAnimationEnd = () => {
+    setShowStreakFire(false);
+  };
   useEffect(() => {
+    increaseStreak();
     const fetchUserData = async () => {
       try {
         const token = await AsyncStorage.getItem("token");
@@ -36,25 +56,36 @@ export default function Profile() {
           Alert.alert("Error", "Failed to fetch courses");
           return;
         }
-        Alert.alert("Success", "fetched data successfully");
-        const data = await response.data;
+        // Alert.alert("Success", "fetched data successfully");
+        const data = await response.data.data;
         setUserData(data);
-        //Alert.alert('Success',data);
+        setProfileImage(data.photo);
+        // Alert.alert(profileImage || "no image");
       } catch (error) {
-        Alert.alert("Error", "An error occurred while fetching courses");
+        Alert.alert("Error", "An error occurred while fetching user data");
       }
     };
+
     fetchUserData();
   }, []);
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {/* <View style={styles.main}>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => increaseStreak()}
+        >
+          <Text style={styles.actionText}>Streak</Text>
+        </TouchableOpacity>
+      </View> */}
+      <StreakFire
+        streak={streak}
+        visible={showStreakFire}
+        onFinish={handleAnimationEnd}
+      />
+
       <View style={styles.header}>
-        <Back
-          title={"/homepage"}
-          onBackPress={function (): void {
-            throw new Error("Function not implemented.");
-          }}
-        />
         {/* <Image source={require('../../assets/images/a-plus-4.gif')} style={styles.logoImage} /> */}
         <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.notificationButton}>
@@ -63,50 +94,71 @@ export default function Profile() {
           </TouchableOpacity>
         </View>
       </View>
+      {/* Profile Image */}
 
       <View style={styles.main}>
         <View style={styles.welcomeSection}>
-          <View>
-            <Text style={styles.welcomeText}>Welcome back!</Text>
-            <Text style={styles.subText}>Keep up the great work</Text>
-          </View>
+          <TouchableOpacity style={styles.profileImageContainer}>
+            {profileImage ? (
+              <Image
+                source={{ uri: profileImage }}
+                style={styles.profileImage}
+              />
+            ) : (
+              <Icon name="user-circle" size={32} color="#647987" />
+            )}
+          </TouchableOpacity>
+          <Text style={styles.welcomeText}>
+            Welcome back {userData?.username.toUpperCase()} !
+          </Text>
           {/* <View style={styles.progressChartContainer}>
             <View style={styles.progressChart}>
               <Text style={styles.progressText}>78%</Text>
             </View>
           </View> */}
         </View>
+        <Text style={styles.subText}>Keep up the great work</Text>
+
         {/* <View>
               <Text> Your info:</Text>
               <Text> {userData}</Text>
             </View> */}
         <View style={styles.streakSection}>
           <View style={styles.streakHeader}>
-            <Icon name="fire" size={24} color="#FFA500" />
-            <Text style={styles.streakText}>15 Day Streak!</Text>
+            {/* <Icon name="fire" size={24} color="#FFA500" />
+            <Text style={styles.streakText}>15 Day Streak!</Text> */}
           </View>
           <View style={styles.streakDetails}>
             <View style={styles.streakDetail}>
-              <Text style={styles.subText}>Tasks Today</Text>
+              <Text style={styles.subTextDetail}>Tasks Today</Text>
               <Text style={styles.detailText}>4/6</Text>
             </View>
             <View style={styles.streakDetail}>
-              <Text style={styles.subText}>Weekly Goal</Text>
+              <Text style={styles.subTextDetail}>Weekly Goal</Text>
               <Text style={styles.detailText}>85%</Text>
             </View>
           </View>
         </View>
 
         <ScrollView horizontal style={styles.actionsSection}>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => router.push("/(tabs)/FlashcardsScreen")}
+          >
             <Icon name="plus" size={16} color="#fff" />
             <Text style={styles.actionText}>Create Flashcard</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButtonOutline}>
+          <TouchableOpacity
+            style={styles.actionButtonOutline}
+            onPress={() => router.push("/(tabs)/quiz/QuizScreen")}
+          >
             <Icon name="question-circle" size={16} color="#125488" />
             <Text style={styles.actionTextOutline}>Start Quiz</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButtonOutline}>
+          <TouchableOpacity
+            style={styles.actionButtonOutline}
+            onPress={() => router.push("/(tabs)/Habits/HabitsScreen")}
+          >
             <Icon name="tasks" size={16} color="#125488" />
             <Text style={styles.actionTextOutline}>Add Habit</Text>
           </TouchableOpacity>
@@ -121,7 +173,7 @@ export default function Profile() {
                 <View style={styles.progressBar}>
                   <View style={[styles.progress, { width: "45%" }]} />
                 </View>
-                <Text style={styles.subText}>45% Complete</Text>
+                <Text style={styles.subTextDetail}>45% Complete</Text>
               </View>
             </View>
             <View style={styles.courseCard}></View>
@@ -167,6 +219,8 @@ const styles = StyleSheet.create({
   notificationButton: {
     position: "relative",
     marginRight: 16,
+    display: "flex",
+    justifyContent: "center",
   },
   notificationDot: {
     position: "absolute",
@@ -178,10 +232,11 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   profileImageContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     overflow: "hidden",
+    marginLeft: 8,
   },
   profileImage: {
     width: "100%",
@@ -193,17 +248,28 @@ const styles = StyleSheet.create({
   },
   welcomeSection: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    // justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 16,
   },
   welcomeText: {
     fontSize: 20,
     fontWeight: "bold",
+    marginLeft: 8,
   },
   subText: {
     fontSize: 14,
     color: "#888",
+    paddingLeft: 30,
+    marginBottom: 8,
+    marginLeft: 30,
+    top: -15,
+  },
+  subTextDetail: {
+    fontSize: 14,
+    color: "#888",
+    paddingLeft: 10,
+    marginBottom: 8,
   },
   progressChartContainer: {
     width: 64,
@@ -378,7 +444,3 @@ const styles = StyleSheet.create({
     color: "#888",
   },
 });
-
-function fetchCourses() {
-  throw new Error("Function not implemented.");
-}

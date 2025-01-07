@@ -23,7 +23,8 @@ const NavBar = () => {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.navButton}
-        onPress={() => router.push("/(tabs)/profile")}
+        // /streak/StreakFire
+        onPress={() => router.push("/profile")}
       >
         <Icon name="user-circle" size={24} color="#888" />
         <Text style={styles.navTextInactive}>Profile</Text>
