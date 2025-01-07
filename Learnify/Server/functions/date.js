@@ -10,8 +10,10 @@ export function generateDateArray(startDate, endDate) {
     return dateArray;
 }
 
-// Example usage
-const startDate = "2024-11-01";
-const endDate = "2024-11-05";
-const dates = generateDateArray(startDate, endDate);
-console.log(dates);
+export function differenceInDays(startDate, endDate) {
+    const date1 = new Date(startDate);
+    const date2 = new Date(endDate);
+    const diffInTime = date2.getTime() - date1.getTime();
+    const diffInDays = Math.ceil(diffInTime / (1000 * 3600 * 24));
+    return diffInDays;
+}
