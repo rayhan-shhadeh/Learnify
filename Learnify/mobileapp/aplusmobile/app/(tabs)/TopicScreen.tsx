@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,74 +6,51 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
-  Image,
+  Image,Alert
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useLocalSearchParams } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { jwtDecode } from "jwt-decode";
+import API from "../../api/axois";
 
 const TopicScreen = () => {
-  const [flippedCards, setFlippedCards] = useState<{ [key: string]: boolean }>(
-    {}
-  );
-  const isPremium = false; // Set to true to unlock all cards
+  const [flippedCards, setFlippedCards] = useState<{ [key: string]: boolean }>({});
+  let {userId,searchTopic,exploreFlashcards} = useLocalSearchParams();
+  const flashcards = JSON.parse(exploreFlashcards as string);
+  const [isPremium,setIsPremium]=useState<boolean>();
 
-  const flashcards = [
-    {
-      id: "1",
-      question: "What is React?",
-      answer: "A JavaScript library for building user interfaces.",
-    },
-    {
-      id: "2",
-      question: "What is a Component?",
-      answer: "Reusable building blocks in React.",
-    },
-    {
-      id: "3",
-      question: "What is State?",
-      answer: "A way to manage dynamic data in React.",
-    },
-    {
-      id: "4",
-      question: "What is JSX?",
-      answer: "JavaScript XML for creating React elements.",
-    },
-    {
-      id: "5",
-      question: "What is useEffect?",
-      answer: "A hook to handle side effects in React.",
-    },
-    {
-      id: "6",
-      question: "What is Context API?",
-      answer: "A way to manage global state in React.",
-    },
-    {
-      id: "7",
-      question: "What is Redux?",
-      answer: "A predictable state container for JS apps.",
-    },
-  ];
+  useEffect(() => {
+    const initialize=async()=>{
+      //preimium flag 
+      const userData = await API.get(`/api/users/getme/${userId}`);
+      const userFlag = userData.data.flag;
+      userFlag ===2 ? setIsPremium(true) :setIsPremium(false);      
+    }
+    initialize();
+  }, []);
 
   const handleFlip = (id: string) => {
-    if (isPremium || parseInt(id) <= 5) {
+    if (isPremium) {
       setFlippedCards((prev) => ({
         ...prev,
         [id]: !prev[id],
       }));
     }
   };
-
+  let count = 0 ;
   const renderItem = ({
     item,
   }: {
-    item: { id: string; question: string; answer: string };
+    item: { ExploreFlashcardId: string; ExploreFlashcardQ: string; ExploreFlashcardA: string };
   }) => {
-    const isLocked = !isPremium && parseInt(item.id) > 5;
-    const isFlipped = flippedCards[item.id];
+    count++;
+    const isLocked = !isPremium && count > 5;
+    const isFlipped = flippedCards[item.ExploreFlashcardId];
 
     return (
       <TouchableOpacity
-        onPress={() => handleFlip(item.id)}
+        onPress={() => handleFlip(item.ExploreFlashcardId)}
         activeOpacity={0.9}
         style={styles.cardContainer}
       >
@@ -88,7 +65,7 @@ const TopicScreen = () => {
             </View>
           ) : (
             <Text style={styles.cardText}>
-              {isFlipped ? item.answer : item.question}
+              {isFlipped ? item.ExploreFlashcardA : item.ExploreFlashcardQ}
             </Text>
           )}
         </View>
@@ -98,10 +75,10 @@ const TopicScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Flashcards for x topic</Text>
+      <Text style={styles.title}>Flashcards for {searchTopic}</Text>
       <FlatList
         data={flashcards}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.ExploreFlashcardId}
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 20 }}
       />
