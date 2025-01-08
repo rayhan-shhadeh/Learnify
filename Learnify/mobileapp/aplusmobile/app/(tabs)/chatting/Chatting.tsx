@@ -35,6 +35,7 @@ export default function Chatting() {
       text: string;
       senderId: any;
       groupId: any;
+      timestamp: string;
     }[]
   >([]);
   const [userId, setUserId] = useState("");
@@ -57,7 +58,9 @@ export default function Chatting() {
       return userId;
     };
     fetchUserId();
-    socket.emit("join", { groupId: passGroupId });
+    if (!socket.connected) {
+      socket.emit("join", { groupId: passGroupId });
+    }
 
     // Listen for incoming messages
     socket.on("receiveMessage", (message) => {
@@ -79,7 +82,7 @@ export default function Chatting() {
         id: Date.now().toString(),
         timestamp: new Date().toISOString(),
       };
-
+      setMessages((prev) => [...prev, messageData]);
       socket.emit("sendMessage", messageData);
 
       const response = await API.post(
@@ -90,8 +93,8 @@ export default function Chatting() {
           groupId: parseInt(messageData.groupId.toString()),
         }
       );
-      setMessages((prev) => [...prev, messageData]);
-      setRenderedMessage((prev) => [...prev, messageData]);
+      // setMessages((prev) => [...prev, messageData]);
+      // setRenderedMessage((prev) => [...prev, messageData]);
       console.log("message saved, response", response);
       // const handleRenderMessage = async () => {
       //   const response = await API.get(
@@ -107,7 +110,7 @@ export default function Chatting() {
   const renderItem = ({
     item,
   }: {
-    item: { senderId: any; id: string; text: string };
+    item: { senderId: any; id: string; text: string; timestamp: string };
   }) => {
     const isSender = item.senderId === userId;
     return (
@@ -118,6 +121,9 @@ export default function Chatting() {
         ]}
       >
         <Text style={styles.messageText}>{item.text}</Text>
+        <Text style={styles.timestamp}>
+          {new Date(item.timestamp).toLocaleTimeString()}
+        </Text>
       </View>
     );
   };
@@ -154,7 +160,7 @@ export default function Chatting() {
 
       <FlatList
         data={messages}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={styles.messageList}
       />
@@ -163,18 +169,7 @@ export default function Chatting() {
           style={styles.input}
           placeholder="Type a message..."
           value={message}
-          onChangeText={(text) => {
-            setMessage(text);
-            setRenderedMessage((prev) => [
-              ...prev,
-              {
-                id: Date.now().toString(),
-                text,
-                senderId: userId,
-                groupId: passGroupId,
-              },
-            ]);
-          }}
+          onChangeText={(text) => setMessage(text)}
         />
         <TouchableOpacity
           style={styles.sendButton}
@@ -287,5 +282,10 @@ const styles = StyleSheet.create({
   modalCloseButtonText: {
     color: "#fff",
     fontSize: 16,
+  },
+  timestamp: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 10,
   },
 });

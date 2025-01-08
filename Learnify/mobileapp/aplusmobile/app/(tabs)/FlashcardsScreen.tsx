@@ -11,15 +11,17 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import Back from "./Back";
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
-import { useRoute, RouteProp } from '@react-navigation/native';
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { useRoute, RouteProp } from "@react-navigation/native";
 
 type RootStackParamList = {
   FlashcardScreen: { fileId: string };
 };
 
-type FlashcardScreenRouteProp = RouteProp<RootStackParamList, 'FlashcardScreen'>;
-
+type FlashcardScreenRouteProp = RouteProp<
+  RootStackParamList,
+  "FlashcardScreen"
+>;
 
 const FlashcardsScreen = () => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -55,21 +57,27 @@ const FlashcardsScreen = () => {
     <View style={styles.container}>
       {/* <Image source={require('../../assets/images/a-plus-3.png')} style={styles.logo} /> */}
 
-        <TouchableOpacity style={styles.backArrow} onPress={() => router.back()} >
-        <Back title={""} onBackPress={function (): void {
-          throw new Error("Function not implemented.");
-        } }/>
+      <TouchableOpacity style={styles.backArrow} onPress={() => router.back()}>
+        <Back
+          title={""}
+          onBackPress={function (): void {
+            throw new Error("Function not implemented.");
+          }}
+        />
       </TouchableOpacity>
       <Text style={styles.title}>Flashcards</Text>
 
-<TouchableOpacity style={styles.iconContainer}>
-
-<Image source={require('../../assets/images/smartflashcard1.gif')} style={styles.smarticon} />
-<Image source={require('../../assets/images/manualflashcard.gif')} style={styles.manualicon} />
-
-</TouchableOpacity>
+      <TouchableOpacity style={styles.iconContainer}>
+        <Image
+          source={require("../../assets/images/smartflashcard1.gif")}
+          style={styles.icon}
+        />
+        <Image
+          source={require("../../assets/images/manualflashcard.gif")}
+          style={styles.icon}
+        />
+      </TouchableOpacity>
       <View style={styles.buttonsContainer}>
-        
         <TouchableOpacity
           style={[styles.mainButton, styles.smartButton]}
           onPress={() => setModalVisible(true)}
@@ -85,14 +93,19 @@ const FlashcardsScreen = () => {
       </View>
 
       <Modal
-        animationType="slide"
+        animationType="fade"
         transparent
         visible={isModalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Icon name="close" size={24} color="#333" onPress={() => setModalVisible(false)} />
+            <Icon
+              name="close"
+              size={30}
+              color="#ff4757"
+              onPress={() => setModalVisible(false)}
+            />
             <Text style={styles.modalTitle}>Select Files</Text>
             <FlatList
               data={files}
@@ -130,160 +143,127 @@ const FlashcardsScreen = () => {
   function navigateToManualFlashcard(fileId: string) {
     router.push("../(tabs)/ManualFlashcard");
     <param name="fileId" value="fileId" />;
-
-
   }
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#eef2f3",
     padding: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
-    color: "#333",
+    color: "#1e90ff",
     textAlign: "center",
     marginVertical: 20,
   },
   buttonsContainer: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-evenly",
   },
   mainButton: {
     flex: 1,
     padding: 15,
     margin: 10,
-    borderRadius: 10,
+    borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
   },
   smartButton: {
-    backgroundColor: "#4CAF50",
-    shadowColor: "#4CAF50",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    display: "flex",
-    flexDirection: "column",
+    backgroundColor: "#16a085",
   },
   manualButton: {
-    backgroundColor: "#2196F3",
-    shadowColor: "#2196F3",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-
+    backgroundColor: "#2980b9",
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
     color: "#fff",
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
     justifyContent: "center",
     alignItems: "center",
   },
   modalContent: {
-    width: "80%",
+    width: "85%",
     backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 20,
-    elevation: 5,
+    borderRadius: 15,
+    padding: 25,
+    alignItems: "center",
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 15,
-    textAlign: "center",
+    marginBottom: 20,
+    color: "#333",
   },
   fileList: {
-    maxHeight: 200,
-    marginBottom: 15,
+    maxHeight: 250,
+    width: "100%",
   },
   fileItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 10,
+    padding: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
   },
   fileItemSelected: {
-    backgroundColor: "#e0f7fa",
+    backgroundColor: "#dff9fb",
   },
   fileText: {
-    fontSize: 16,
+    fontSize: 18,
     color: "#333",
   },
   modalButtons: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    marginTop: 20,
   },
   modalButton: {
     flex: 1,
-    padding: 10,
-    marginHorizontal: 5,
-    borderRadius: 10,
+    padding: 12,
+    marginHorizontal: 10,
+    borderRadius: 12,
     alignItems: "center",
   },
   generateButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#2ecc71",
   },
   addButton: {
-    backgroundColor: "#2196F3",
+    backgroundColor: "#3498db",
   },
   modalButtonText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
-  },
-  backArrow: {
-    position: "absolute",
-    top: 50,
-    left: 20,
-  },
-  backArrowIcon: {
-    fontSize: 24,
-    color: "#111517",
-  },
-  logo: {
-    width: 60,
-    height: 60,
-    marginBottom: 70,
-    marginLeft: 40,
-    top: 10,
-    alignContent: "center",
-  },
-  smarticon: {
-    width: 60,
-    height: 60,
-    marginLeft: 40,
-    top: 10,
-    
-  },
-  manualicon: {
-    width: 60,
-    height: 60,
-    marginLeft: 40,
-    top: 10,
   },
   iconContainer: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    marginVertical: 20,
+    justifyContent: "center",
+    marginVertical: 30,
+  },
+  icon: {
+    width: 100,
+    height: 100,
+    marginHorizontal: 20,
+  },
+  closeIcon: {
+    alignSelf: "flex-end",
+  },
+  backArrow: {
+    position: "absolute",
+    top: 40,
+    left: 20,
   },
 });
+
 export default FlashcardsScreen;
