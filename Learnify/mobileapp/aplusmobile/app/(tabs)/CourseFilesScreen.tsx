@@ -374,12 +374,10 @@ const handleSort = (criteria:string) => {
   const handleChoiceSelection = (choice:string) => {
     setFileChoicesVisible(false);
     if (choice === 'Study') {
-      /*
       router.push({
-        pathname: '/Study',
-        params: { fileId: selectedFile?.id, title: selectedFile.name },
+        pathname: `/Files/PdfScreen`,
+        params: { passedFileId:selectedFileId },
       });
-      */
     } else if (choice === 'Practice') {
       const passedFileId=selectedFileId;
       router.push({
