@@ -30,6 +30,7 @@ export default function QuizScreen() {
   const [courses, setCourses] = useState<any[]>([]);
   const [files, setFiles] = useState<{ id: string; name: string }[]>([]);
   const [quizData, setQuizData] = useState<any[]>([]);
+  const [username,setUsername] = useState<any>();
   const [lastQuiz, setLastQuiz] = useState<{
     title: string;
     successRate: number;
@@ -48,6 +49,8 @@ export default function QuizScreen() {
         const id = decoded.id;
         setUserId(id);
 
+        const userData = await API.get(`/api/users/getme/${id}`);
+        setUsername(userData.data.data.username);
         const response = await API.get(`/api/user/courses/${decoded?.id}`);
         if (response.status !== 200) {
           //Alert.alert("Error", "Failed to fetch courses");
@@ -269,7 +272,7 @@ export default function QuizScreen() {
             style={styles.profileImage}
           />
           <View>
-            <Text style={styles.greeting}>Hello Tala</Text>
+            <Text style={styles.greeting}>Hello {username}</Text>
             <Text style={styles.subtitle}>Let's start your quiz now</Text>
           </View>
         </View>
