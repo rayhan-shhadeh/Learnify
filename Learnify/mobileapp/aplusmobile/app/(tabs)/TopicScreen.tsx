@@ -14,32 +14,33 @@ import { router, useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
 import API from "../../api/axois";
+import { LOCALHOST } from '@/api/axois';
 
 const TopicScreen = () => {
   const [flippedCards, setFlippedCards] = useState<{ [key: string]: boolean }>(
     {}
   );
-  let { userId, searchTopic, exploreFlashcards } = useLocalSearchParams();
+  let { userId, searchTopic, level,exploreFlashcards } = useLocalSearchParams();
   const flashcards = JSON.parse(exploreFlashcards as string);
   const [isPremium, setIsPremium] = useState<boolean>();
 
   useEffect(() => {
+    console.log("level in topic sreen is :"+level );
     const initialize = async () => {
       //preimium flag
       const userData = await API.get(`/api/users/getme/${userId}`);
       const userFlag = userData.data.flag;
       userFlag === 2 ? setIsPremium(true) : setIsPremium(false);
+      setIsPremium(true);
     };
     initialize();
   }, []);
 
   const handleFlip = (id: string) => {
-    if (isPremium) {
       setFlippedCards((prev) => ({
         ...prev,
         [id]: !prev[id],
       }));
-    }
   };
   let count = 0;
   const renderItem = ({
@@ -89,11 +90,18 @@ const TopicScreen = () => {
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 20 }}
       />
-      <TouchableOpacity onPress={() => router.push("/(tabs)/LinkListScreen")}>
-        <Text style={{ textAlign: "center", color: "#1CA7EC", fontSize: 16 }}>
-          Explore more
-        </Text>
-      </TouchableOpacity>
+      {
+        isPremium?(
+          <TouchableOpacity 
+          onPress={() => router.push(
+            {pathname:"/(tabs)/LinkListScreen",params: {searchTopic,level}})}>
+          <Text style={styles.nextButton}>
+            Explore more
+          </Text>
+        </TouchableOpacity>
+        ):
+        (<Text>upgrade to premium</Text>)
+      }
     </View>
   );
 };
@@ -101,6 +109,12 @@ const TopicScreen = () => {
 const screenWidth = Dimensions.get("window").width;
 
 const styles = StyleSheet.create({
+  nextButton: {
+    alignSelf: 'center',
+    padding: 10,
+    backgroundColor: '#007bff',
+    borderRadius: 50,
+  },
   container: {
     flex: 1,
     paddingTop: 50,

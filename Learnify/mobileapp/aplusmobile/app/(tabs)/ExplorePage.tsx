@@ -12,7 +12,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import NavBar from "../(tabs)/NavBar";
 import Back from "./Back";
-import API from "../../api/axois";
+import API, { LOCALHOST } from "../../api/axois";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -69,8 +69,9 @@ const Card: React.FC<CardProps> = ({ searchTopic,userId,setLoadingFlashcards }) 
       setLoadingFlashcards(true);
       const requestBody = {
         level:"Medium",
-        userId: userId ,
+        userId: userId 
       };
+      const level = "Medium";//to pass it to TopicScreen (from card)
       const response = await API.post(
         `/api/exploreflashcards/searchTopic/${searchTopic}`,
         requestBody
@@ -83,6 +84,7 @@ const Card: React.FC<CardProps> = ({ searchTopic,userId,setLoadingFlashcards }) 
         params: {
           userId,
           searchTopic,
+          level,
           exploreFlashcards: JSON.stringify(topicData),
         }
        });
@@ -104,11 +106,12 @@ const Card: React.FC<CardProps> = ({ searchTopic,userId,setLoadingFlashcards }) 
 interface HistoryCardProps {
   searchTopic: string;
   id : string;
+  level:string;
   userId :string;
   setHistoryTopics: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-const HistoryCard: React.FC<HistoryCardProps> = ({ searchTopic,id, setHistoryTopics, userId }) => {
+const HistoryCard: React.FC<HistoryCardProps> = ({ searchTopic,id, level,setHistoryTopics, userId }) => {
   const router = useRouter();
   const gradientColors = historyRandomGradient();
   const handleCardPress = async () => {
@@ -121,6 +124,7 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ searchTopic,id, setHistoryTop
         params: {
           userId,
           searchTopic,
+          level,
           exploreFlashcards: JSON.stringify(topicData),
         }
        });
@@ -174,7 +178,7 @@ const ExploreScreen = () => {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<any>();
   const [showDropdown, setShowDropdown] = useState(false);
-  const [level, setLevel]=useState<any>();
+  const [level, setLevel]=useState<String>();
   const [searchTopic, setSearchTopic]=useState<string>();
   const router = useRouter();
   const [isPremium,setIsPremium]=useState<boolean>();
@@ -215,18 +219,13 @@ const ExploreScreen = () => {
         if (exploreHistoryData.length>0 && Array.isArray(exploreHistoryData) ){
           setHistoryTopics(exploreHistoryData);
         }
-        const popularRes = await API.get(
-          "/api/exploreflashcards/popularTopics"
+        console.log(exploreHistoryData);
+        let generatedTopics = await API.get(
+          `/api/exploreflashcards/generateTopics/${id}`
         );
-        const relatedRes = await API.get(
-          `/api/exploreflashcards/relatedTopics/${id}`
-        );
-        const suggestedRes = await API.get(
-          `/api/exploreflashcards/suggestedTopics/${majorName}`
-        );
-        setPopularTopics(popularRes.data);
-        setRelatedTopics(relatedRes.data);
-        setSuggestedTopics(suggestedRes.data);
+        setSuggestedTopics(generatedTopics.data["Suggested Topics"]);
+        setRelatedTopics(generatedTopics.data["Related Topics"]);
+        setPopularTopics(generatedTopics.data["Popular Topics"]);
       } catch (error) {
         console.error("Error fetching topics:", error);
         Alert.alert("Error", "Failed to fetch topics. Please try again later.");
@@ -266,41 +265,52 @@ const ExploreScreen = () => {
       Alert.alert("Error", "Please enter a topic to search");
       return;
     }
-     if (!level){
+    if (!level) {
       setLevel("Medium");
-     }
-     setLoadingFlashcards(true);
-     try {
-      const requestBody = {
-        "level":level,
-        "userId": userId ,
-      };
-      // Explicitly defining the response type (optional for clarity)
-      const response = await API.post(
-        `/api/exploreflashcards/searchTopic/${searchTopic}`,
-        requestBody
+    }
+    console.log("level from explore page: " + level);
+    setLoadingFlashcards(true);
+    try {
+      const response = await fetch(
+        `http://${LOCALHOST}:8080/api/exploreflashcards/searchTopic/${searchTopic}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            level,
+            userId 
+          }),
+        }
       );
-      if (response.data && Array.isArray(response.data)) {
-        const exploreFlashcards = response.data;
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data && Array.isArray(data)) {
+        const exploreFlashcards = data;
         router.push({
           pathname: "/(tabs)/TopicScreen",
           params: {
             userId,
             searchTopic,
+            level,
             exploreFlashcards: JSON.stringify(exploreFlashcards),
           },
         });
       } else {
         Alert.alert("No Results", "No flashcards found for this topic.");
       }
-      } catch (error: any) {
-      console.error("Error during search:", error);
+    } catch (error: any) {
+      console.error("Error during search:", error.message || error);
       Alert.alert("Error", "Failed to search for topics. Please try again.");
     } finally {
       setLoadingFlashcards(false);
     }
   };
-      return (
+
+  return (
     <View style={styles.container}>
       <Text style={styles.header}>
         <Back title={""} onBackPress={() => console.log("Back pressed")} />{" "}
@@ -352,7 +362,7 @@ const ExploreScreen = () => {
         <FlatList
           horizontal
           data={historyTopics}
-          renderItem={({ item }) => <HistoryCard searchTopic={item.topic} id={item.topiclevelId} userId={userId} setHistoryTopics={setHistoryTopics} />}
+          renderItem={({ item }) => <HistoryCard searchTopic={item.topic} id={item.topiclevelId} userId={userId} level={item.level} setHistoryTopics={setHistoryTopics} />}
           keyExtractor={(item) =>item.topiclevelId}
         />
       </View>
@@ -394,6 +404,12 @@ const ExploreScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  nextButton: {
+    alignSelf: 'center',
+    padding: 10,
+    backgroundColor: '#007bff',
+    borderRadius: 50,
+  },
   container: {
     flex: 1,
     backgroundColor: "#f5f5f5",

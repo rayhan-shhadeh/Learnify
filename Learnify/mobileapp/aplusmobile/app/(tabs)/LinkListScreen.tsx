@@ -1,52 +1,102 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Image,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-
+import { useLocalSearchParams } from "expo-router";
+import * as Linking from "expo-linking";
+import API from "@/api/axois";
+import axios from "axios";
+import { LOCALHOST } from "@/api/axois";
 const LinkListScreen = () => {
-  const links: {
-    name: string;
-    icon: "link";
-    url: string;
-  }[] = [
-    { name: "Link 1 ", icon: "link", url: "#" },
-    { name: "Link 2 ", icon: "link", url: "#" },
-    { name: "Link 3 ", icon: "link", url: "#" },
-    { name: "Link 4 ", icon: "link", url: "#" },
-    { name: "Link 5 ", icon: "link", url: "#" },
-  ];
+  const { searchTopic, level } = useLocalSearchParams();
+  const [links, setLinks] = useState<{ resourceName: string; resourceLink: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    const fetchLinks = async () => {
+      try {
+        const requestBody = {
+          level: level
+        };
+        console.log("level from links page: "+level )
+        const response = await fetch(`http://${LOCALHOST}:8080/api/exploreflashcards/exploreMore/${searchTopic}`, {
+          method: 'POST', 
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody), 
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const linksData = await response.json();
+        console.log('Fetched Data:', linksData);
+        setLinks(linksData);
+      } catch (error) {
+        console.error('Error fetching links:', error);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLinks();
+  }, [searchTopic, level]); 
+  
+  const handleLinkPress = async (url: string) => {
+    const fullUrl = url.startsWith("http") ? url : `https://${url}`;
+    const supported = await Linking.canOpenURL(fullUrl);
+    if (supported) {
+      await Linking.openURL(fullUrl);
+    } else {
+      Alert.alert("Error", "Unable to open the link.");
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#1f93e0" />
+        <Text>Loading links...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.errorText}>
+          Something went wrong while fetching links. Please try again later.
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>New extra Links for you!</Text>
+        <Text style={styles.headerText}>New Extra Links for You!</Text>
       </View>
 
-      {/* Link List Section */}
       <ScrollView style={styles.scrollContainer}>
         {links.map((link, index) => (
           <TouchableOpacity
             key={index}
             style={styles.linkCard}
-            onPress={() =>
-              console.log(
-                `redirect to link from here just replace it: ${link.url}`
-              )
-            }
+            onPress={() => {
+              console.log("Redirecting to:", link.resourceLink);
+              handleLinkPress(link.resourceLink);
+            }}
           >
-            <Ionicons
-              name={link.icon}
-              size={24}
-              color="#fff"
-              style={styles.icon}
-            />
-            <Text style={styles.linkText}>{link.name}</Text>
+            <Ionicons name="link" size={24} color="#fff" style={styles.icon} />
+            <Text style={styles.linkText}>{link.resourceName}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -87,10 +137,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 5,
-    transform: [{ scale: 1 }],
-  },
-  linkCardHovered: {
-    transform: [{ scale: 1.05 }],
   },
   icon: {
     marginRight: 15,
@@ -99,6 +145,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#fff",
     fontWeight: "600",
+  },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorText: {
+    fontSize: 16,
+    color: "red",
   },
 });
 
