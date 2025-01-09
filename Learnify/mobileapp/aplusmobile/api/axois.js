@@ -1,7 +1,7 @@
 import axios from 'axios';
-//192.168.68.58
+export const LOCALHOST= `192.168.1.8`;
 const API = axios.create({
-  baseURL: `http://192.168.68.59:8080`, // Replace with your backend URL
+  baseURL: `http://192.168.1.8:8080`,
   headers: {
     'Content-Type': 'application/json',
   },
