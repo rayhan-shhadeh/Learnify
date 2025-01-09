@@ -30,6 +30,7 @@ const StreakFire: React.FC<StreakFireProps> = ({
     }
   }, [visible]);
   if (!visible) return null;
+  //n
 
   const handleAnimationFinish = () => {
     Animated.timing(fadeAnim, {

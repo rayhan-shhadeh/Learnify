@@ -60,7 +60,7 @@ export default function Profile() {
         const data = await response.data.data;
         setUserData(data);
         setProfileImage(data.photo);
-        // Alert.alert(profileImage || "no image");
+        // Alert.alert(data.photo || "no image");
       } catch (error) {
         Alert.alert("Error", "An error occurred while fetching user data");
       }

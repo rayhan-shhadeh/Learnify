@@ -20,7 +20,7 @@ import API from "../../../api/axois";
 import Icon from "react-native-vector-icons/FontAwesome";
 import Icon2 from "react-native-vector-icons/FontAwesome5";
 import { useRouter } from "expo-router";
-const SOCKET_URL = "http://192.168.68.59:8080";
+const SOCKET_URL = "http://172.23.114.43:8080";
 const socket = io(SOCKET_URL, {
   transports: ["websocket"],
   withCredentials: true,
@@ -86,7 +86,7 @@ export default function Chatting() {
       socket.emit("sendMessage", messageData);
 
       const response = await API.post(
-        "http://192.168.68.59:8080/api/messages/savemessage",
+        "http://172.23.114.43:8080/api/messages/savemessage",
         {
           text: messageData.text,
           senderId: parseInt(messageData.senderId),
