@@ -80,9 +80,9 @@ export const practiceController={
         }
         else{
             //get flashcards ids where nextReviewDate == currentDate
-            const reviews = await reviewService.getByReviewDate(currentDate);
+            const reviews = await reviewService.getByReviewDate(currentDate,fileId);
             //get these flashcards by thier ids 
-            const flashcardIds = reviews.map(item => item.flashcardid);
+            const flashcardIds = reviews.map(item => item.flashcardId);
             for(const flashcardId of flashcardIds){
                const flashcard  = await flashcardService.getFlashcardById(flashcardId);
                practiceFlashcardsArray.push(flashcard);
@@ -91,6 +91,7 @@ export const practiceController={
         //response 
         if(practiceFlashcardsArray.length === 0){
             res.status(201).json("No flashcards for practice today for "+file.fileName+" file!");
+            return;
         }
         await fileService.updateFile(file.fileId, {
             ...file,

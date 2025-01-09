@@ -21,7 +21,6 @@ export const exploreController={
             if(!topic || Object.keys(topic).length === 0 ){
                 const topicData = createJSONTopic(topicName,level);
                 const createdTopic = await topicService.createTopic(topicData);
-                createdTopic.topicId
                 const response = await generateExploreFlashcard(topicName,level);
                 const jsonArrayResponse = JSON.parse(response);
                 if(!isArrayOfJSONObjects(jsonArrayResponse)){
@@ -59,7 +58,7 @@ export const exploreController={
             return;
         }
     },
-
+    /*
     async suggestedTopics(req, res) {
     try{
         const majorName = req.params.majorName;//based on user
@@ -121,19 +120,66 @@ export const exploreController={
             res.status(500).json({ error: "An error occurred while processing topics." });
         }
     },   
-
+    */
+    async generateTopics(req, res) {
+        try {
+            const userId = req.params.userId;
+            const userData = await userService.getUserData(userId);
+            const majorName = userData.major;
+            const coursesResponse = await courseService.getCoursesByUserId(userId);
+            const courseNames = coursesResponse.map(course => course.courseName);
+            const prompt = 
+               `1. Suggested Topics: Give me 10 important intermediate-level topics suggested for a user studying 
+                the major of ${majorName}.
+                2. Related Topics: Provide 10 important related and specific topics for a user studying the major 
+                of ${majorName} and taking these courses: ${courseNames.join(", ")}. 
+                Ensure the topics are logically not covered in these courses.
+                3. Popular Topics: List 10 popular and trendy topics that are not widely known.
+                Please return the response in the following JSON format (without additional text
+                before or after):
+                {
+                    "Suggested Topics": ["topic1", "topic2", "topic3", ...],
+                    "Related Topics": ["topic1", "topic2", "topic3", ...],
+                    "Popular Topics": ["topic1", "topic2", "topic3", ...]
+                }
+                , please be carefull about json format I am using this response in my application as a develeper
+            `+'without ```json``` or any additional text';
+            const apiResponse = await OpenAI(prompt);
+            const parsedResponse = JSON.parse(apiResponse);
+            if (!parsedResponse || !parsedResponse["Suggested Topics"] || !parsedResponse["Related Topics"] || !parsedResponse["Popular Topics"]) {
+                throw new Error("Invalid response format from OpenAI API!");
+            }
+            if (
+                !isArrayOfStrings(parsedResponse["Suggested Topics"]) ||
+                !isArrayOfStrings(parsedResponse["Related Topics"]) ||
+                !isArrayOfStrings(parsedResponse["Popular Topics"])
+            ) {
+                throw new Error("Response contains invalid topic data!");
+            }
+            res.status(200).json(parsedResponse);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "An error occurred while processing topics." });
+        }
+    },
+    
     async exploreMore(req, res) {
         try{
-            const prompt="please give 10 top trusted resources for learning this topic:" + req.params.topicName 
-            //req.params.topicName will be fixed to be currentTopic
-            +"return it in format of array of strings be carefull without additional text befor and after like :"
-            +"www.resource1.com,www.resource2.edu,www.resource3.org,......";
+            const topicName = req.params.topicName;
+            const level = req.body.level;
+            //console.log( "hi from explore more with level " + level );
+            const prompt="Please give 10 top trusted resources for learning this topic:" 
+            +topicName + "for user has "  + level +" level in this topic. "
+            +"return it in format of array of JSON objects be carefull without additional text befor and after like :"
+            +"[{'resourceName':'resource1','resourceLink':'www.resource1.com'}, {resourceName':'resource2','resourceLink':'www.resource2.com},......]"
+            +" Without ```json``` or any additional text. "+
+            "note: short names";
             const resources = await OpenAI(prompt);
-            const resourcesArray = resources.split(",");
-            if(!isArrayOfStrings(resourcesArray)){
+            const jsonResources = JSON.parse(resources);
+            if(!isArrayOfJSONObjects(jsonResources)){
                 throw new Error("Something went wrong in response from openai api!");
             }
-            res.status(200).json(resources);
+            res.status(200).json(jsonResources);
         }catch (error) {
             console.log(error);
             res.status(500).json({ error: "An error occurred while processing topics." });
