@@ -6,27 +6,30 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
-  Image,Alert
+  Image,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
 import API from "../../api/axois";
 
 const TopicScreen = () => {
-  const [flippedCards, setFlippedCards] = useState<{ [key: string]: boolean }>({});
-  let {userId,searchTopic,exploreFlashcards} = useLocalSearchParams();
+  const [flippedCards, setFlippedCards] = useState<{ [key: string]: boolean }>(
+    {}
+  );
+  let { userId, searchTopic, exploreFlashcards } = useLocalSearchParams();
   const flashcards = JSON.parse(exploreFlashcards as string);
-  const [isPremium,setIsPremium]=useState<boolean>();
+  const [isPremium, setIsPremium] = useState<boolean>();
 
   useEffect(() => {
-    const initialize=async()=>{
-      //preimium flag 
+    const initialize = async () => {
+      //preimium flag
       const userData = await API.get(`/api/users/getme/${userId}`);
       const userFlag = userData.data.flag;
-      userFlag ===2 ? setIsPremium(true) :setIsPremium(false);      
-    }
+      userFlag === 2 ? setIsPremium(true) : setIsPremium(false);
+    };
     initialize();
   }, []);
 
@@ -38,11 +41,15 @@ const TopicScreen = () => {
       }));
     }
   };
-  let count = 0 ;
+  let count = 0;
   const renderItem = ({
     item,
   }: {
-    item: { ExploreFlashcardId: string; ExploreFlashcardQ: string; ExploreFlashcardA: string };
+    item: {
+      ExploreFlashcardId: string;
+      ExploreFlashcardQ: string;
+      ExploreFlashcardA: string;
+    };
   }) => {
     count++;
     const isLocked = !isPremium && count > 5;
@@ -82,6 +89,11 @@ const TopicScreen = () => {
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 20 }}
       />
+      <TouchableOpacity onPress={() => router.push("/(tabs)/LinkListScreen")}>
+        <Text style={{ textAlign: "center", color: "#1CA7EC", fontSize: 16 }}>
+          Explore more
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };

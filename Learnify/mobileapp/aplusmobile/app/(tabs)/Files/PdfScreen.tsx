@@ -28,10 +28,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [expandedTerm, setExpandedTerm] = useState<{
-    term: string;
-    definition: string;
-  } | null>(null);
   const [selectedTerm, setSelectedTerm] = useState<{
     term: string;
     definition: string;
@@ -111,9 +107,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
   const handleManual = () => {
     alert("Manual functionality is not implemented yet!");
   };
-  const toggleExpandTerm = (term: { term: string; definition: string }) => {
-    setExpandedTerm(expandedTerm === term ? null : term);
-  };
 
   const renderContent = () => {
     if (activeModal === "PDF") {
@@ -150,11 +143,28 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
               </View>
 
               <Text style={styles.headerTitle}>Review</Text>
-              <TouchableOpacity style={styles.settingsButton}>
-                <TouchableOpacity>
-                  <Text>Generate </Text>
-                </TouchableOpacity>
-                <Text style={styles.settingsText}>⚙️</Text>
+              <Text> </Text>
+            </View>
+            <View style={styles.flashcardsButtonContainer}>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#fbfbfb",
+                  padding: 10,
+                  borderRadius: 20,
+                  margin: 10,
+                }}
+              >
+                <Text>Generate </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#fdfdfd",
+                  padding: 10,
+                  borderRadius: 20,
+                  margin: 10,
+                }}
+              >
+                <Text>Manual </Text>
               </TouchableOpacity>
             </View>
             {/* Search Bar */}
@@ -224,7 +234,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
             onChangeText={handleSearch}
           />
           {/* Buttons */}
-          <View style={styles.buttonContainer}>
+          <View style={styles.keyTermbuttonContainer}>
             <TouchableOpacity style={styles.button} onPress={handleGenerate}>
               <Text style={styles.buttonText}>Generate</Text>
             </TouchableOpacity>
@@ -327,6 +337,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     backgroundColor: "#f5f5f5",
   },
+  flashcardsButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    paddingVertical: 10,
+    backgroundColor: "transparent",
+  },
   button: {
     padding: 10,
     backgroundColor: "#1f93e0",
@@ -347,7 +363,7 @@ const styles = StyleSheet.create({
   },
   flashcardsContainer: {
     flex: 1,
-    backgroundColor: "#021024",
+    backgroundColor: "rgb(43, 157, 233)",
     alignItems: "center",
     padding: 20,
   },
@@ -469,6 +485,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 20,
+    backgroundColor: "transparent",
   },
   keyTermbutton: {
     flex: 1,
@@ -511,6 +528,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+    marginBottom: 90,
+    height: 200,
   },
   definitionTitle: {
     fontSize: 18,

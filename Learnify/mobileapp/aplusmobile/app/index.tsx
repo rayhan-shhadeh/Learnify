@@ -14,7 +14,7 @@ const IndexScreen = () => {
   const router = useRouter();
   const handleStartPress = () => {
     console.log("Start button pressed!");
-    router.push("/(tabs)/auth/signin");
+    router.push("/(tabs)/LinkListScreen");
     // Add navigation or other logic here
   };
 

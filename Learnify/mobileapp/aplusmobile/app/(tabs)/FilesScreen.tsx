@@ -795,6 +795,8 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 18,
     alignItems: "center",
+    marginBottom: 10,
+    paddingEnd: 10,
   },
   addButtonText: {
     color: "#fff",
@@ -807,6 +809,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#f5f5f5",
     //'rgba(0, 0, 0, 0.5)'
+    overflow: "hidden",
   },
   modalContent: {
     backgroundColor: "white",
@@ -932,9 +935,16 @@ const styles = StyleSheet.create({
   searchButton: {
     backgroundColor: "#1CA7EC",
     padding: 12,
-    borderRadius: 5,
+    borderRadius: 15,
+    borderBlockColor: "white",
     alignItems: "center",
     marginBottom: 16,
+    height: 40,
+    overflow: "hidden",
+    justifyContent: "center",
+    alignContent: "center",
+    alignSelf: "center",
+    zIndex: 1,
   },
   searchButtonText: { color: "white", fontWeight: "bold" },
   fileItem: {
