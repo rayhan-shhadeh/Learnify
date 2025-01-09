@@ -1,7 +1,5 @@
 import express from 'express';
 import { quizController } from '../controllers/quizController.js';
-import { authController } from '../controllers/authController.js';
-import { restrictTo } from '../controllers/authController.js';
 export const quizRouter = express.Router();
 
 quizRouter.delete('/quiz/:id',quizController.deleteQuiz);

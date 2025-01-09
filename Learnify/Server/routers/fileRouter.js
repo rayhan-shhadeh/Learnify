@@ -1,16 +1,14 @@
 import express from 'express';
 import { fileController } from '../controllers/fileController.js';
-import { authController } from '../controllers/authController.js';
-import { restrictTo } from '../controllers/authController.js';
 export const fileRouter = express.Router();
 import multer from 'multer';
 const upload = multer();
 
-fileRouter.get('/file/flashcards/:fileId',/*  authController.protect, restrictTo( 1,2),*/fileController.getFlashcardsByFileId);
-fileRouter.get('/file/keyterms/:fileId',/* authController.protect, restrictTo( 1,2),*/ fileController.getKeytermsByFileId);
-fileRouter.put('/file/:fileId/:fileName' /*, authController.protect, restrictTo( 1,2) */,  fileController.updateFileDetails);
-fileRouter.put('/file/:fileId' /*, authController.protect, restrictTo( 1,2)*/,fileController.updateFile);
-fileRouter.get('/files/:fileName',/* authController.protect, restrictTo( 1,2)*/ fileController.getFilesByName);
-fileRouter.post('/file/upload'/*,authController.protect, restrictTo( 1,2)*/, upload.single('file'), fileController.uploadFile);
-fileRouter.delete('/file/delete/:fileId'/*,authController.protect, restrictTo( 1,2)*/,fileController.deleteFile );
-fileRouter.get('/file/:fileId',/* authController.protect, restrictTo( 1,2),*/fileController.getFileById);
+fileRouter.get('/file/flashcards/:fileId',fileController.getFlashcardsByFileId);
+fileRouter.get('/file/keyterms/:fileId',fileController.getKeytermsByFileId);
+fileRouter.put('/file/:fileId/:fileName',fileController.updateFileDetails);
+fileRouter.put('/file/:fileId',fileController.updateFile);
+fileRouter.get('/files/:fileName',fileController.getFilesByName);
+fileRouter.post('/file/upload', upload.single('file'), fileController.uploadFile);
+fileRouter.delete('/file/delete/:fileId',fileController.deleteFile );
+fileRouter.get('/file/:fileId',fileController.getFileById);
