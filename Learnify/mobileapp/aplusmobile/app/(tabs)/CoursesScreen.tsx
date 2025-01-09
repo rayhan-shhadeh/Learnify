@@ -11,9 +11,8 @@ import Back from './Back'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {jwtDecode} from 'jwt-decode';
 import API from '../../api/axois';
-import {useCourses} from './hooks/CoursesContext';
 import { useLocalSearchParams } from 'expo-router';
-
+import {useCourses} from './hooks/CoursesContext'
 const randomGradient = (): [string, string, ...string[]] => {
   const colors: [string, string, ...string[]][] = [
     ['#4c669f', '#3b5998', '#192f6a'],
@@ -95,7 +94,6 @@ const CoursesScreen = () => {
         Alert.alert('Error', 'name is required');
         return;
       }
-    
       const token = await AsyncStorage.getItem('token');
       if (!token) {
         Alert.alert('Error', 'Token not found');

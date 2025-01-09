@@ -77,7 +77,7 @@ const HomePage = () => {
 
 type RouteType =
   | "/(tabs)/quiz/QuizMainScreen"
-  | "/(tabs)/StudyFlashcardsScreen"
+  | "/(tabs)/MultiFilePracticeScreen"
   | "/Learn/LearnMainScreen"
   | "/(tabs)/ExplorePage";
 
@@ -99,7 +99,7 @@ const cardData: {
     title: "Practice",
     subtitle: "Learn",
     icon: "lightning-bolt-outline",
-    route: "/(tabs)/StudyFlashcardsScreen",
+    route: "/(tabs)/MultiFilePracticeScreen",
     delay: 300,
   },
   {
