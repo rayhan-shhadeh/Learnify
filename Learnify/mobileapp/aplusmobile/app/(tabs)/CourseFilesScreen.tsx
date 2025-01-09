@@ -13,7 +13,6 @@ import { Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {jwtDecode} from 'jwt-decode';
-import { useCourses } from './hooks/CoursesContext';  // Import the useCourses hook
 import API from '../../api/axois';
 import * as DocumentPicker from 'expo-document-picker';
 import { Picker } from '@react-native-picker/picker';
@@ -28,7 +27,6 @@ const CourseFilesScreen = () => {
   const [fileDeadline, setFileDeadline] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-  const { mycourses} = useCourses();
   const [files, setFiles] = useState<any[]>([]);
   const [courses, setmyCourses] = useState<any[]>([]);
   const [courseId,setCourseId] = useState(46);
@@ -99,7 +97,6 @@ const CourseFilesScreen = () => {
           Alert.alert('Error', 'Failed to fetch courses');
           return;
         }
-
         const fetchedCourses = coursesResponse.data;
         setmyCourses(fetchedCourses);
         const coursesArrayRes = fetchedCourses.map((course: any) => ({
@@ -108,7 +105,6 @@ const CourseFilesScreen = () => {
         }));
         setCoursesArray(coursesArrayRes);
         console.log('Fetched courses:', coursesArrayRes);
-
         console.log("hi from course files page : "+ passedCourseId);
         const coursefilesResponse = await API.get(`api/user/course/files/${passedCourseId}`);
         if (coursefilesResponse.status !== 200) {
@@ -385,12 +381,11 @@ const handleSort = (criteria:string) => {
       });
       */
     } else if (choice === 'Practice') {
-      /*
+      const passedFileId=selectedFileId;
       router.push({
-        pathname: '/Practice',
-        params: { fileId: selectedFile.id, title: selectedFile.name },
+        pathname: '/(tabs)/StudyFlashcardsScreen',
+        params: { passedFileId: passedFileId},
       });
-      */
     } else if (choice === 'Quiz') {
       router.push({
         pathname: '/(tabs)/quiz/Quiz',

@@ -1,60 +1,103 @@
-import React, { useRef, useState } from 'react';
-import { Animated, StyleSheet, Text, View, TouchableOpacity, Alert, ScrollView } from 'react-native';
-import { Card, Button } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
-import * as Animatable from 'react-native-animatable';
-import Slider from '@react-native-community/slider';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import Back from './Back';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  ActivityIndicator,
+  Animated,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams } from 'expo-router';
+import API from '../../api/axois';
+import Back from './Back';
 import LottieView from 'lottie-react-native';
+import * as Animatable from 'react-native-animatable';
+import {useState,useEffect} from 'react';
 
-const StudyFlashcardsScreen = () => {
+interface Flashcard {
+  id: string;
+  question: string;
+  answer: string;
+}
+
+const PracticeScreen = () => {
   const router = useRouter();
+  const { passedFileId } = useLocalSearchParams();
+  const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [expression, setExpression] = useState('');
-  const [expressionVisible, setExpressionVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [selectedRating, setSelectedRating] = useState<number | null>(null);
+  const [finish, setFinish] = useState(false);
+  const flipAnim = useState(new Animated.Value(0))[0];
   const [showCelebration, setShowCelebration] = useState(false);
-  const flipAnim = useRef(new Animated.Value(0)).current;
 
-
-  const flashcards = [
-    { question: "What is React?", answer: "A JavaScript library for building UI." },
-    { question: "What is SM2?", answer: "A spaced repetition algorithm for learning." },
-    { question: "What's your name?", answer: "My name is Rayhan." },
-    { question: "What is the definition of SM2?", answer: "Super Memory 2 Algorithm." },
-    { question: "Front card?", answer: "Back card." },
+  const gradients: [string, string][] = [
+    ['#f9f9f9', '#e8f0ff'],
+    ['#fff4e6', '#ffe9f0'],
+    ['#f0f9ff', '#e8f0e6'],
+    ['#e9f7ff', '#fff7e6'],
+    ['#f9efff', '#f9fff9'],
   ];
 
-  const expressions = [
-    "Oops! That was a *brain freeze* 🧊... but hey, now I remember! 😅",
-    "I got it wrong, but it clicked like a lightbulb 💡! Easy peasy, lemon squeezy 🍋!",
-    "Phew, got it right, but my brain had to run a marathon 🏃💨 to recall it!",
-    "I got it right, but it took a *moment of drama*... suspense was real 🎭🤔",
-    "Nailed it! Perfect recall! 🏆 I’m a memory master 🧠💪",
-  ];
+  const getRandomGradient = (): [string, string] =>
+    gradients[Math.floor(Math.random() * gradients.length)];
 
-  const handleRating = (rating: number) => {
-    setExpression(expressions[rating - 1]);
-    setExpressionVisible(true);
-
-    setTimeout(() => {
-      setExpressionVisible(false);
-      if (currentCardIndex < flashcards.length - 1) {
-        setCurrentCardIndex(currentCardIndex + 1);
-      } else {
-        setShowCelebration(true);
+  useEffect(() => {
+    const fetchFlashcards = async () => {
+      try {
+        const response = await API.post(`/api/file/practice/${passedFileId}`);
+        console.log('API Response:', response.data); // Debugging: Log API response
+    
+        if (Array.isArray(response.data) && response.data.length > 0) {
+          const fetchedFlashcards = response.data.map((flashcard) => ({
+            id: flashcard.flashcardId,
+            question: flashcard.flashcardQ || 'No question available',
+            answer: flashcard.flashcardA || 'No answer available',
+          }));
+          setFlashcards(fetchedFlashcards);
+        } else {
+          Alert.alert('No Flashcards', 'The API returned no flashcards.');
+        }
+      } catch (error) {
+        console.error('Error fetching flashcards:', error);
+        Alert.alert('Error', `Failed to fetch flashcards for file ID ${passedFileId}`);
+      } finally {
+        setLoading(false);
       }
-    }, 2000);
-  };
-  const flipCard = () => {
+    };
+    fetchFlashcards();
+    }, [passedFileId]);
+    
+  const handleFlip = () => {
     Animated.timing(flipAnim, {
       toValue: isFlipped ? 0 : 1,
       duration: 500,
       useNativeDriver: true,
     }).start(() => setIsFlipped(!isFlipped));
+  };
+
+  const handleNext = () => {
+    setIsFlipped(false);
+    setSelectedRating(null);
+    if (currentIndex < flashcards.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    } else {
+      setFinish(true);
+    }
+  };
+
+  const handleRating = async (rating: number) => {
+    setSelectedRating(rating);
+    try {
+      await API.post(`/api/file/practice/review/${flashcards[currentIndex].id}`, { rating });
+    } catch (error) {
+      console.error('Error submitting rating:', error);
+      Alert.alert('Error', 'Failed to submit rating');
+    }
   };
 
   const frontInterpolate = flipAnim.interpolate({
@@ -67,7 +110,23 @@ const StudyFlashcardsScreen = () => {
     outputRange: ['180deg', '360deg'],
   });
 
-  if (showCelebration) {
+  if (loading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="#007bff" />
+      </View>
+    );
+  }
+
+  if (flashcards.length === 0) {
+    return (
+      <View style={styles.centered}>
+        <Text>No flashcards available</Text>
+      </View>
+    );
+  }
+
+  if (finish) {
     return (
       <LinearGradient colors={['#e8dcf4', '#dbd1e9', '#989eeb', '#989bbe']} style={styles.container}>
         <Back title="Back" onBackPress={() => router.back()} />
@@ -87,144 +146,163 @@ const StudyFlashcardsScreen = () => {
             </Animatable.Text>
         </View>
       </LinearGradient>
-    );
+    );  
   }
 
   return (
-    <LinearGradient colors={['#ddf3f5', '#f7f7f7', '#3681a7', '#21277b']} style={styles.container}>
-      <ScrollView style={styles.container}>
-        <Back title="Back" onBackPress={() => router.back()} />
-        <View style={styles.headerContainer}>
-          <Text style={styles.headerText}>Study Flashcards</Text>
+    <View style={styles.container}>
+      {/* Progress Bar */}
+      <View style={styles.progressBarContainer}>
+        <Text style={styles.progressText}>
+          {currentIndex + 1} / {flashcards.length}
+        </Text>
+        <View style={styles.progressBar}>
+          <View
+            style={[
+              styles.progress,
+              { width: `${((currentIndex + 1) / flashcards.length) * 100}%` },
+            ]}
+          />
         </View>
-        <TouchableOpacity onPress={flipCard}>
-        <Animated.View style={[styles.card, { transform: [{ rotateY: frontInterpolate }] }]}>
-              {!isFlipped && (
-                <Card.Content>
-                  <Text style={styles.cardText}>{flashcards[currentCardIndex].question}</Text>
-                </Card.Content>
-              )}
+      </View>
+
+      {/* Flashcard */}
+      <TouchableOpacity onPress={handleFlip}>
+        <LinearGradient colors={getRandomGradient()} style={styles.flashcard}>
+          {!isFlipped ? (
+            <Animated.View style={[styles.cardContent, { transform: [{ rotateY: frontInterpolate }] }]}>
+              <Text style={styles.cardText}>{flashcards[currentIndex].question}</Text>
             </Animated.View>
-            <Animated.View style={[styles.card,styles.backcard, { transform: [{ rotateY: backInterpolate }] }]}>
-              {isFlipped && (
-                <Card.Content>
-                  <Text style={styles.cardText}>{flashcards[currentCardIndex].answer}</Text>
-                </Card.Content>
-              )}
+          ) : (
+            <Animated.View style={[styles.cardContent, { transform: [{ rotateY: backInterpolate }] }]}>
+              <Text style={styles.cardText}>{flashcards[currentIndex].answer}</Text>
             </Animated.View>
-        </TouchableOpacity>
+          )}
+        </LinearGradient>
+      </TouchableOpacity>
 
+      {/* Rating */}
+      <View style={styles.ratingContainer}>
+  {[
+    { emoji: '😡', label: 'Very Hard' },
+    { emoji: '😞', label: 'Hard' },
+    { emoji: '😐', label: 'Okay' },
+    { emoji: '🙂', label: 'Easy' },
+    { emoji: '😀', label: 'Very Easy' },
+  ].map((rating, index) => (
+    <TouchableOpacity
+      key={index}
+      style={[
+        styles.ratingButton,
+        selectedRating === index + 1 && styles.selectedRating,
+      ]}
+      onPress={() => handleRating(index + 1)}
+    >
+      <Text style={styles.emoji}>{rating.emoji}</Text>
+      <Text style={styles.label}>{rating.label}</Text>
+    </TouchableOpacity>
+  ))}
+</View>
 
-        {expressionVisible && (
-          <Animatable.View
-            animation="fadeInUp"
-            duration={500}
-            style={styles.expressionContainer}
-          >
-            <Text style={styles.expressionText}>{expression}</Text>
-          </Animatable.View>
-        )}
-
-        <View style={styles.ratingContainer}>
-          {["1", "2", "3", "4", "5"].map((rating, index) => (
-            <Button
-              key={index}
-              mode="contained"
-              icon={() => (
-                <Icon
-                  name="star"
-                  size={20}
-                  color={index + 1 >= 3 ? "#FFD700" : "#ccc"}
-                />
-              )}
-              onPress={() => handleRating(index + 1)}
-              style={styles.ratingButton}
-            >
-              {index + 1}
-            </Button>
-          ))}
-        </View>
-      </ScrollView>
-    </LinearGradient>
+      {/* Next Button */}
+      <TouchableOpacity onPress={handleNext} style={styles.nextButton}>
+        <Ionicons name="arrow-forward" size={30} color="#fff" />
+      </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent',
-    padding: 10,
+    padding: 20,
   },
-  headerContainer: {
-    alignItems: 'center',
-    marginVertical: 20,
+  progressBarContainer: {
+    marginBottom: 20,
   },
-  headerText: {
-    fontSize: 24,
+  progressBar: {
+    height: 10,
+    backgroundColor: '#ccc',
+    borderRadius: 5,
+    overflow: 'hidden',
+  },
+  progress: {
+    height: '100%',
+    backgroundColor: '#007bff',
+  },
+  progressText: {
+    textAlign: 'center',
+    marginBottom: 5,
     fontWeight: 'bold',
-    color: '#1ca7ec',
   },
-  cardContainer: {
+  flashcard: {
+    height: 200,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 20,
-
+    borderRadius: 10,
+    marginBottom: 20,
   },
-  card: {
-    width: 300,
-    borderRadius: 20,
-    elevation: 4,
-    backgroundColor: 'white',
-  },
-  backcard: {
-    width: 300,
-    borderRadius: 20,
-    elevation: 4,
-    backgroundColor: 'white',
+  cardContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+    width: '100%',
   },
   cardText: {
     fontSize: 18,
     textAlign: 'center',
-    marginVertical: 20,
   },
-  flipButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#007bff',
+  nextButton: {
+    alignSelf: 'center',
     padding: 10,
-    borderRadius: 20,
-    marginTop: 10,
+    backgroundColor: '#007bff',
+    borderRadius: 50,
   },
-  flipButtonText: {
-    color: 'white',
-    marginLeft: 5,
-  },
-  expressionContainer: {
-    backgroundColor: '#ffecb3',
-    padding: 20,
-    borderRadius: 10,
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 30,
   },
-  expressionText: {
-    fontSize: 16,
+  finishButton: {
+    marginTop: 20,
+    padding: 15,
+    backgroundColor: '#007bff',
+    borderRadius: 5,
+  },
+  finishButtonText: {
+    color: '#fff',
     fontWeight: 'bold',
-    color: '#333',
+  },
+  ratingContent: {
+    flexDirection: 'row', // Arrange emoji and label horizontally
+    alignItems: 'center', // Ensure emoji and text are vertically aligned
   },
   ratingContainer: {
-    justifyContent: 'space-around',
-    marginTop: 50,
-    padding: 10,
-    display: 'flex',
-    flexDirection: 'row',
-paddingBlock: 10, 
-},
-  ratingButton: {
-    flex: 1,
-    marginHorizontal: 5,
-    backgroundColor: 'transparent',
-    
+    flexDirection: 'column', // Stack buttons vertically
+    justifyContent: 'center', // Center-align the stack
+    alignItems: 'center', // Center-align the buttons horizontally
+    marginVertical: 20,
   },
-  celebrationContainer: {
+  ratingButton: {
+    flexDirection: 'row', // Keep emoji and label side-by-side
+    alignItems: 'center', // Vertically align emoji and label
+    justifyContent: 'center', // Center-align content
+    padding: 10,
+    marginVertical: 5, // Add spacing between buttons
+    width: '80%', // Make buttons take up 80% of the container width
+    borderRadius: 5,
+    backgroundColor: '#f0f0f0',
+  },
+  selectedRating: {
+    backgroundColor: '#007bff', // Highlight selected button
+  },
+  emoji: {
+    fontSize: 20, // Adjust size for emoji
+    marginRight: 10, // Space between emoji and label
+  },
+  label: {
+    fontSize: 16, // Normal font size for label
+  },  celebrationContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -244,6 +322,8 @@ paddingBlock: 10,
     paddingTop: -10,
     marginBottom: 20,
   },
+
+
 });
 
-export default StudyFlashcardsScreen;
+export default PracticeScreen;
