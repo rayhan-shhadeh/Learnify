@@ -11,13 +11,17 @@ import {
   TextInput,
   ScrollView,
   Animated,
+  Button,
+  Keyboard,
 } from "react-native";
 import { WebView } from "react-native-webview";
-import { useLocalSearchParams } from "expo-router";
+import { Picker } from "@react-native-picker/picker";
 import API from "../../../api/axois";
-import Icon from "react-native-vector-icons/FontAwesome";
+import Icon from "react-native-vector-icons/AntDesign";
 import FlashcardIcon from "react-native-vector-icons/Ionicons";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import Header from "../../(tabs)/header/Header";
+import { useLocalSearchParams } from "expo-router";
 interface PdfViewerProps {
   fileId: string;
 }
@@ -28,6 +32,14 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [flashcardCount, setFlashcardCount] = useState(1);
+  const [difficulty, setDifficulty] = useState("Easy");
+  const [length, setLength] = useState("Short");
+  const [showFlashcardCountOptions, setShowFlashcardCountOptions] =
+    useState(false);
+  const [showDifficultyOptions, setShowDifficultyOptions] = useState(false);
+  const [showLengthOptions, setShowLengthOptions] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTerm, setSelectedTerm] = useState<{
@@ -110,17 +122,17 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
     };
     fetchPdfUrl();
   }, [fileId]);
-  const handleNextCard = () => {
-    setCurrentCardIndex((prevIndex) =>
-      prevIndex === flashcards.length - 1 ? 0 : prevIndex + 1
-    );
-  };
+  // const handleNextCard = () => {
+  //   setCurrentCardIndex((prevIndex) =>
+  //     prevIndex === flashcards.length - 1 ? 0 : prevIndex + 1
+  //   );
+  // };
 
-  const handlePreviousCard = () => {
-    setCurrentCardIndex((prevIndex) =>
-      prevIndex === 0 ? flashcards.length - 1 : prevIndex - 1
-    );
-  };
+  // const handlePreviousCard = () => {
+  //   setCurrentCardIndex((prevIndex) =>
+  //     prevIndex === 0 ? flashcards.length - 1 : prevIndex - 1
+  //   );
+  // };
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -133,9 +145,8 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
   const handleSelectTerm = (term: { term: string; definition: string }) => {
     setSelectedTerm(term);
   };
-
-  const handleGenerate = () => {
-    alert("Generate functionality is not implemented yet!");
+  const handleGenerateClick = () => {
+    setModalVisible(true);
   };
 
   const handleManual = () => {
@@ -257,7 +268,10 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
         // </View>
 
         <View style={styles.flashcardContainer}>
-          <Text style={styles.flashcardTitle}>Review Flashcards</Text>
+          <View style={{ flexDirection: "row", justifyContent: "center" }}>
+            <Icon name="switcher" size={24} color="#333" />
+            <Text style={styles.flashcardTitle}>Review Flashcards</Text>
+          </View>
 
           {/* Search Bar */}
           <TextInput
@@ -268,11 +282,19 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
           />
 
           <View style={styles.flashcardsButtonContainer}>
-            <TouchableOpacity style={styles.flashcardButton}>
-              <Text style={styles.buttonText}>Generated</Text>
+            <TouchableOpacity
+              style={styles.generateButton}
+              onPress={handleGenerateClick} // Correctly triggers modal visibility
+            >
+              <Ionicons name="add-circle" size={24} color="#fff" />
+              <Text style={styles.popupbuttonText}>Generate Flashcards</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.flashcardButton}>
-              <Text style={styles.buttonText}>Manual</Text>
+            <TouchableOpacity
+              style={styles.manualButton}
+              onPress={handleManual}
+            >
+              <Ionicons name="pencil" size={22} color="#fff" />
+              <Text style={styles.popupbuttonText}>Manual</Text>
             </TouchableOpacity>
           </View>
 
@@ -282,6 +304,146 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
             renderItem={renderFlashcard}
             contentContainerStyle={styles.list}
           />
+          {/* <TouchableOpacity
+            style={styles.generateButton}
+            onPress={handleGenerateClick} // Correctly triggers modal visibility
+          >
+            <Ionicons name="add-circle" size={24} color="#fff" />
+            <Text style={styles.popupbuttonText}>Generate Flashcards</Text>
+          </TouchableOpacity> */}
+
+          {/* Modal for Flashcard Options */}
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)} // Closes the modal when requested
+          >
+            <View style={styles.popupmodalContainer}>
+              <View style={styles.modalContent}>
+                <View style={{ flexDirection: "row" }}>
+                  <Icon name="setting" size={24} color="#333" />
+                  <Text style={styles.modalTitle}>Flashcard Settings</Text>
+                </View>
+                {/* Flashcard Count Selector */}
+                <View style={styles.option}>
+                  {/* <Text style={styles.optionLabel}>Number of Flashcards:</Text>
+                  <TouchableOpacity style={styles.dropdown}>
+                    <TextInput
+                      style={[
+                        styles.searchBarPlaceholder,
+                        { color: "#A9A9A9" },
+                      ]} // placeholder text color
+                      keyboardType="numeric"
+                      placeholder="Enter number of flashcards"
+                      placeholderTextColor="#A9A9A9" // Set placeholder text color
+                      onChangeText={(text) => setFlashcardCount(Number(text))}
+                      onSubmitEditing={() => Keyboard.dismiss()} // this will close the keyboard when the user clicks on done
+                      returnKeyType="done" // "Done" on keyboard
+                    />
+                  </TouchableOpacity> */}
+
+                  {/* Difficulty Selector */}
+                  <View style={styles.option}>
+                    <Text style={styles.optionLabel}>Length:</Text>
+                    <TouchableOpacity
+                      style={styles.dropdown}
+                      onPress={() => setShowLengthOptions(!showLengthOptions)}
+                    >
+                      <Text style={styles.dropdownText}>
+                        {length || "Select"}
+                      </Text>
+                    </TouchableOpacity>
+                    {showLengthOptions && (
+                      <View style={styles.dropdownOptions}>
+                        {["Short", "Medium", "Long"].map((length) => (
+                          <TouchableOpacity
+                            key={length}
+                            style={styles.dropdownOption}
+                            onPress={() => {
+                              setLength(length);
+                              setShowLengthOptions(false);
+                            }}
+                          >
+                            <Text style={styles.dropdownOptionText}>
+                              {length}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+                  </View>
+
+                  {/* {showFlashcardCountOptions && ( */}
+                  {/* // <View style={styles.dropdownOptions}>
+                    //   {[...Array(10).keys()].map((num) => (
+                    //     <TouchableOpacity
+                    //       key={num + 1}
+                    //       style={styles.dropdownOption}
+                    //       onPress={() => {
+                    //         setFlashcardCount(num + 1);
+                    //         setShowFlashcardCountOptions(false);
+                    //       }}
+                    //     >
+                    //       <Text style={styles.dropdownOptionText}>
+                    //         {num + 1}
+                    //       </Text>
+                    //     </TouchableOpacity>
+                    //   ))}
+                    // </View> */}
+                  {/* )} */}
+                </View>
+
+                {/* Difficulty Selector */}
+                <View style={styles.option}>
+                  <Text style={styles.optionLabel}>Difficulty:</Text>
+                  <TouchableOpacity
+                    style={styles.dropdown}
+                    onPress={() =>
+                      setShowDifficultyOptions(!showDifficultyOptions)
+                    }
+                  >
+                    <Text style={styles.dropdownText}>
+                      {difficulty || "Select"}
+                    </Text>
+                  </TouchableOpacity>
+                  {showDifficultyOptions && (
+                    <View style={styles.dropdownOptions}>
+                      {["Easy", "Intermediate", "Advanced"].map((level) => (
+                        <TouchableOpacity
+                          key={level}
+                          style={styles.dropdownOption}
+                          onPress={() => {
+                            setDifficulty(level);
+                            setShowDifficultyOptions(false);
+                          }}
+                        >
+                          <Text style={styles.dropdownOptionText}>{level}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                </View>
+
+                {/* Actions */}
+                <View style={styles.actionButtons}>
+                  <TouchableOpacity
+                    style={styles.generateButton}
+                    onPress={() => setModalVisible(false)}
+                  >
+                    <Text>Cancel</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity style={styles.popupbuttonText}>
+                    <Button
+                      title="Generate"
+                      onPress={() => console.log("Flashcards generated")}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
         </View>
       );
     }
@@ -303,7 +465,10 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
           />
           {/* Buttons */}
           <View style={styles.keyTermbuttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={handleGenerate}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleGenerateClick}
+            >
               <Text style={styles.buttonText}>Generate</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={handleManual}>
@@ -430,6 +595,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgb(169, 220, 254)",
+    zIndex: 1,
   },
   flashcardsContainer: {
     flex: 1,
@@ -501,24 +667,24 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#000",
   },
-  progressContainer: {
-    flexDirection: "row",
-    marginTop: 20,
-  },
-  progressDot: {
-    width: 10,
-    height: 10,
-    backgroundColor: "#CCC",
-    borderRadius: 5,
-    marginHorizontal: 5,
-  },
-  activeDot: {
-    backgroundColor: "#FFD700",
-  },
-  flagImage: {
-    width: 30,
-    height: 30,
-  },
+  // progressContainer: {
+  //   flexDirection: "row",
+  //   marginTop: 20,
+  // },
+  // progressDot: {
+  //   width: 10,
+  //   height: 10,
+  //   backgroundColor: "#CCC",
+  //   borderRadius: 5,
+  //   marginHorizontal: 5,
+  // },
+  // activeDot: {
+  //   backgroundColor: "#FFD700",
+  // },
+  // flagImage: {
+  //   width: 30,
+  //   height: 30,
+  // },
   icon: {
     flexDirection: "row",
     justifyContent: "flex-end",
@@ -528,15 +694,19 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     height: 40,
-    width: 250,
     marginVertical: 10,
-    backgroundColor: "#fbfbfb",
+    backgroundColor: "#ececec",
     borderRadius: 10,
-    paddingHorizontal: 15,
     fontSize: 14,
     color: "#333",
-    marginBottom: 30,
   },
+  searchBarText: {
+    color: "#333",
+  },
+  searchBarPlaceholder: {
+    color: "#A9A9A9", // Dark gray color for placeholder text
+  },
+  // Key Terms Styles
   keyTermContainer: {
     flex: 1,
     backgroundColor: "#F9F9F9",
@@ -621,6 +791,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#333",
   },
+  // Flashcard Styles
   flashcardContainer: {
     flex: 1,
     backgroundColor: "#f5f5f5",
@@ -628,6 +799,7 @@ const styles = StyleSheet.create({
     height: "100%",
     padding: 20,
     alignContent: "center",
+    justifyContent: "center",
   },
   title: {
     fontSize: 24,
@@ -656,11 +828,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#333",
+    paddingLeft: 10,
   },
   flashcardDescription: {
     fontSize: 14,
     color: "#666",
     marginTop: 5,
+    alignContent: "center",
   },
   flashcardActions: {
     flexDirection: "row",
@@ -682,6 +856,123 @@ const styles = StyleSheet.create({
     justifyContent: "center",
 
     height: 35,
+  },
+  // flashcard Pop-up
+  popupContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ccdee4",
+  },
+  generateButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#ff6f61",
+    padding: 10,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  manualButton: {
+    marginLeft: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#1f93e0",
+    padding: 11,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  popupbuttonText: {
+    marginLeft: 7,
+    fontSize: 18,
+    color: "#fff",
+    fontWeight: "600",
+  },
+  popupmodalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    height: "70%",
+  },
+  modalContent: {
+    width: "90%",
+    backgroundColor: "#f0f3fa",
+    borderRadius: 10,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+    color: "#333",
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
+    color: "#444",
+    paddingLeft: 10,
+  },
+  option: {
+    marginBottom: 5,
+    color: "#444",
+  },
+  optionLabel: {
+    fontSize: 16,
+    fontWeight: "500",
+    marginBottom: 5,
+    color: "#000",
+  },
+  picker: {
+    height: 100,
+    width: "100%",
+  },
+  actionButtons: {
+    marginTop: 20,
+    marginHorizontal: 10,
+    flexDirection: "row",
+    justifyContent: "center",
+    position: "relative",
+    color: "#aed7ed",
+  },
+  cancleButton: {
+    marginTop: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    position: "relative",
+    color: "#aed7ed",
+  },
+  dropdown: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    marginVertical: 5,
+  },
+  dropdownText: {
+    fontSize: 16,
+  },
+  dropdownOptions: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    backgroundColor: "#fff",
+    marginVertical: 5,
+  },
+  dropdownOption: {
+    padding: 10,
+  },
+  dropdownOptionText: {
+    fontSize: 16,
   },
 });
 
