@@ -16,6 +16,8 @@ import { WebView } from "react-native-webview";
 import { useLocalSearchParams } from "expo-router";
 import API from "../../../api/axois";
 import Icon from "react-native-vector-icons/FontAwesome";
+import FlashcardIcon from "react-native-vector-icons/Ionicons";
+import Header from "../../(tabs)/header/Header";
 interface PdfViewerProps {
   fileId: string;
 }
@@ -60,6 +62,38 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
         "A JavaScript runtime environment for executing code outside of a browser.",
     },
   ]);
+
+  const renderFlashcard = ({
+    item,
+  }: {
+    item: { id: string; question: string; answer: string };
+  }) => (
+    <View style={styles.flashcardCard}>
+      <View style={styles.flashcardContent}>
+        <Text style={styles.flashcardTitle}>{item.question}</Text>
+        <Text style={styles.flashcardDescription}>{item.answer}</Text>
+      </View>
+      <View style={styles.flashcardActions}>
+        <TouchableOpacity style={styles.actionButton}>
+          <FlashcardIcon name="create-outline" size={20} color="#6b2905" />
+          <Text style={styles.actionText}>Edit</Text>
+        </TouchableOpacity>
+        {/* <TouchableOpacity style={styles.actionButton}>
+            <Icon
+              name="checkmark-done-circle-outline"
+              size={20}
+              color="#11ad0c"
+            />
+            <Text style={styles.actionText}>Add</Text>
+          </TouchableOpacity> */}
+        <TouchableOpacity style={styles.actionButton}>
+          <FlashcardIcon name="trash-outline" size={20} color="#F44336" />
+          <Text style={styles.actionText}>Delete</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
   useEffect(() => {
     const fetchPdfUrl = async () => {
       fileId = passedFileId.toString();
@@ -131,101 +165,135 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
     }
     if (activeModal === "Flashcards") {
       return (
-        <View style={styles.modalContainer}>
-          <View style={styles.flashcardsContainer}>
-            {/* Header */}
-            <View style={styles.header}>
-              <View style={styles.flag}>
-                <Image
-                  source={require("../../../assets/images/flash-cards.png")}
-                  style={styles.flagImage}
-                />
-              </View>
+        // <View style={styles.modalContainer}>
+        //   <View style={styles.flashcardsContainer}>
+        //     {/* Header */}
+        //     <View style={styles.header}>
+        //       <View style={styles.flag}>
+        //         <Image
+        //           source={require("../../../assets/images/flash-cards.png")}
+        //           style={styles.flagImage}
+        //         />
+        //       </View>
 
-              <Text style={styles.headerTitle}>Review</Text>
-              <Text> </Text>
-            </View>
-            <View style={styles.flashcardsButtonContainer}>
-              <TouchableOpacity
-                style={{
-                  backgroundColor: "#fbfbfb",
-                  padding: 10,
-                  borderRadius: 20,
-                  margin: 10,
-                }}
-              >
-                <Text>Generate </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{
-                  backgroundColor: "#fdfdfd",
-                  padding: 10,
-                  borderRadius: 20,
-                  margin: 10,
-                }}
-              >
-                <Text>Manual </Text>
-              </TouchableOpacity>
-            </View>
-            {/* Search Bar */}
-            <TextInput
-              style={styles.searchBar}
-              placeholder="Search Flashcards..."
-              value={searchTerm}
-              onChangeText={handleSearch}
-            />
+        //       <Text style={styles.headerTitle}>Review</Text>
+        //       <Text> </Text>
+        //     </View>
+        //     <View style={styles.flashcardsButtonContainer}>
+        //       <TouchableOpacity
+        //         style={{
+        //           backgroundColor: "#fbfbfb",
+        //           padding: 10,
+        //           borderRadius: 20,
+        //           margin: 10,
+        //         }}
+        //       >
+        //         <Text>Generate </Text>
+        //       </TouchableOpacity>
+        //       <TouchableOpacity
+        //         style={{
+        //           backgroundColor: "#fdfdfd",
+        //           padding: 10,
+        //           borderRadius: 20,
+        //           margin: 10,
+        //         }}
+        //       >
+        //         <Text>Manual </Text>
+        //       </TouchableOpacity>
+        //     </View>
+        //     {/* Search Bar */}
+        //     <TextInput
+        //       style={styles.searchBar}
+        //       placeholder="Search Flashcards..."
+        //       value={searchTerm}
+        //       onChangeText={handleSearch}
+        //     />
 
-            {/* Flashcard */}
-            <View style={styles.cardContainer}>
-              <TouchableOpacity
-                style={styles.arrowContainer}
-                onPress={handlePreviousCard}
-              >
-                <Text style={styles.arrow}>{"<"}</Text>
-              </TouchableOpacity>
-              <View style={styles.card}>
-                <View style={styles.icon}>
-                  <TouchableOpacity style={{ marginRight: 10 }}>
-                    <Icon name="edit" size={21} color="#000" />
-                  </TouchableOpacity>{" "}
-                  <TouchableOpacity style={{ marginRight: 10 }}>
-                    <Icon name="trash" size={20} color="#000" />
-                  </TouchableOpacity>
-                </View>
-                <Text style={styles.cardText}>
-                  {flashcards[currentCardIndex].question}
-                </Text>
-                <Text style={styles.cardAnswer}>
-                  {flashcards[currentCardIndex].answer}
-                </Text>
-              </View>
-              <TouchableOpacity
-                style={styles.arrowContainer}
-                onPress={handleNextCard}
-              >
-                <Text style={styles.arrow}>{">"}</Text>
-              </TouchableOpacity>
-            </View>
+        //     {/* Flashcard */}
+        //     <View style={styles.cardContainer}>
+        //       <TouchableOpacity
+        //         style={styles.arrowContainer}
+        //         onPress={handlePreviousCard}
+        //       >
+        //         <Text style={styles.arrow}>{"<"}</Text>
+        //       </TouchableOpacity>
+        //       <View style={styles.card}>
+        //         <View style={styles.icon}>
+        //           <TouchableOpacity style={{ marginRight: 10 }}>
+        //             <Icon name="edit" size={21} color="#000" />
+        //           </TouchableOpacity>{" "}
+        //           <TouchableOpacity style={{ marginRight: 10 }}>
+        //             <Icon name="trash" size={20} color="#000" />
+        //           </TouchableOpacity>
+        //         </View>
+        //         <Text style={styles.cardText}>
+        //           {flashcards[currentCardIndex].question}
+        //         </Text>
+        //         <Text style={styles.cardAnswer}>
+        //           {flashcards[currentCardIndex].answer}
+        //         </Text>
+        //       </View>
+        //       <TouchableOpacity
+        //         style={styles.arrowContainer}
+        //         onPress={handleNextCard}
+        //       >
+        //         <Text style={styles.arrow}>{">"}</Text>
+        //       </TouchableOpacity>
+        //     </View>
 
-            {/* Progress Bar */}
-            <View style={styles.progressContainer}>
-              {flashcards.map((_, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.progressDot,
-                    index === currentCardIndex && styles.activeDot,
-                  ]}
-                />
-              ))}
-            </View>
+        //     {/* Progress Bar */}
+        //     <View style={styles.progressContainer}>
+        //       {flashcards.map((_, index) => (
+        //         <View
+        //           key={index}
+        //           style={[
+        //             styles.progressDot,
+        //             index === currentCardIndex && styles.activeDot,
+        //           ]}
+        //         />
+        //       ))}
+        //     </View>
+        //   </View>
+        // </View>
+
+        <View style={styles.flashcardContainer}>
+          <Text style={styles.flashcardTitle}>Review Flashcards</Text>
+
+          {/* Search Bar */}
+          <TextInput
+            style={styles.searchBar}
+            placeholder="Search Flashcards..."
+            value={searchTerm}
+            onChangeText={handleSearch}
+          />
+
+          <View style={styles.flashcardsButtonContainer}>
+            <TouchableOpacity style={styles.flashcardButton}>
+              <Text style={styles.buttonText}>Generated</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.flashcardButton}>
+              <Text style={styles.buttonText}>Manual</Text>
+            </TouchableOpacity>
           </View>
+
+          <FlatList
+            data={flashcards}
+            keyExtractor={(item) => item.id}
+            renderItem={renderFlashcard}
+            contentContainerStyle={styles.list}
+          />
         </View>
       );
     }
     if (activeModal === "KeyTerms") {
       return (
         <View style={styles.keyTermContainer}>
+          <Header
+            profilePhoto={""}
+            onNotificationPress={function (): void {
+              throw new Error("Function not implemented.");
+            }}
+          />
           {/* Search Bar */}
           <TextInput
             style={styles.keyTermSearchBar}
@@ -342,6 +410,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     paddingVertical: 10,
     backgroundColor: "transparent",
+    width: "50%",
   },
   button: {
     padding: 10,
@@ -354,6 +423,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontSize: 16,
+    borderRadius: 20,
   },
   modalContainer: {
     flex: 1,
@@ -458,9 +528,9 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     height: 40,
-    width: 300,
+    width: 250,
     marginVertical: 10,
-    backgroundColor: "#F1F1F1",
+    backgroundColor: "#fbfbfb",
     borderRadius: 10,
     paddingHorizontal: 15,
     fontSize: 14,
@@ -540,6 +610,78 @@ const styles = StyleSheet.create({
   definitionText: {
     fontSize: 16,
     color: "#333",
+  },
+  actionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 8,
+  },
+  actionText: {
+    marginLeft: 5,
+    fontSize: 14,
+    color: "#333",
+  },
+  flashcardContainer: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+    width: "100%",
+    height: "100%",
+    padding: 20,
+    alignContent: "center",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  list: {
+    paddingBottom: 20,
+  },
+  flashcardCard: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 15,
+    marginVertical: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  flashcardContent: {
+    marginBottom: 10,
+  },
+  flashcardTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  flashcardDescription: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 5,
+  },
+  flashcardActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  flashcardButton: {
+    top: -10,
+    width: 100,
+    paddingLeft: 10,
+    paddingRight: 10,
+    marginLeft: 10,
+    marginRight: 10,
+    backgroundColor: "#1f93e0",
+    borderRadius: 20,
+    alignItems: "center",
+    alignContent: "center",
+    alignSelf: "center",
+    textAlign: "center",
+    justifyContent: "center",
+
+    height: 35,
   },
 });
 

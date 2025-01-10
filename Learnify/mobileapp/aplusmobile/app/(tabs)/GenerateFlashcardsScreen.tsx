@@ -1,12 +1,18 @@
 import React from "react";
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet, Alert,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
   Button,
-  FlatList
+  FlatList,
+  ScrollView,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import Back from "./Back";
-import { LinearGradient } from 'expo-linear-gradient';
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 const GenerateFlashcardsScreen = () => {
   const router = useRouter();
@@ -16,7 +22,11 @@ const GenerateFlashcardsScreen = () => {
     { id: "3", title: "Flashcard 3", description: "Description 3" },
   ];
 
-  const renderFlashcard = ({ item }: { item: { id: string; title: string; description: string } }) => (
+  const renderFlashcard = ({
+    item,
+  }: {
+    item: { id: string; title: string; description: string };
+  }) => (
     <View style={styles.card}>
       <View style={styles.cardContent}>
         <Text style={styles.cardTitle}>{item.title}</Text>
@@ -27,10 +37,14 @@ const GenerateFlashcardsScreen = () => {
           <Icon name="create-outline" size={20} color="#6b2905" />
           <Text style={styles.actionText}>Edit</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Icon name="checkmark-done-circle-outline" size={20} color="#11ad0c" />
+        {/* <TouchableOpacity style={styles.actionButton}>
+          <Icon
+            name="checkmark-done-circle-outline"
+            size={20}
+            color="#11ad0c"
+          />
           <Text style={styles.actionText}>Add</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <TouchableOpacity style={styles.actionButton}>
           <Icon name="trash-outline" size={20} color="#F44336" />
           <Text style={styles.actionText}>Delete</Text>
@@ -41,8 +55,6 @@ const GenerateFlashcardsScreen = () => {
 
   return (
     <View style={styles.container}>
-      <LinearGradient colors={['#ddf3f5','#f7f7f7','#fbfbfb', '#9ad9ea']} style={styles.container}>
-      <Back title={""} onBackPress={function (): void {} }/>
       <Text style={styles.title}>Generated Flashcards</Text>
       <FlatList
         data={flashcards}
@@ -50,10 +62,12 @@ const GenerateFlashcardsScreen = () => {
         renderItem={renderFlashcard}
         contentContainerStyle={styles.list}
       />
-      <TouchableOpacity style={styles.button} onPress={() => router.push("/(tabs)/StudyFlashcardsScreen")}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => router.push("/(tabs)/StudyFlashcardsScreen")}
+      >
         <Text style={styles.buttonText}>Study Flashcards</Text>
       </TouchableOpacity>
-      </LinearGradient>
     </View>
   );
 };
@@ -62,6 +76,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f5f5f5",
+    width: "100%",
+    height: "100%",
     padding: 20,
   },
   title: {
@@ -112,15 +128,15 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   button: {
-    backgroundColor: '#007bff',
+    backgroundColor: "#007bff",
     padding: 10,
     borderRadius: 5,
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
   },
 });
 
- export default GenerateFlashcardsScreen;
+export default GenerateFlashcardsScreen;
