@@ -19,6 +19,7 @@ import { useRouter } from "expo-router";
 import API from "../../../api/axois";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { io } from "socket.io-client";
+import Header from "../header/Header";
 const SOCKET_URL = "http://192.168.68.59:8080";
 const socket = io(SOCKET_URL, {
   transports: ["websocket"],
@@ -310,6 +311,7 @@ export default function GroupsScreen() {
   );
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <Header />
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>

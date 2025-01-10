@@ -20,8 +20,8 @@ import API from "../../../api/axois";
 import Icon from "react-native-vector-icons/AntDesign";
 import FlashcardIcon from "react-native-vector-icons/Ionicons";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import Header from "../../(tabs)/header/Header";
 import { useLocalSearchParams } from "expo-router";
+import Header from "../../(tabs)/header/Header";
 interface PdfViewerProps {
   fileId: string;
 }
@@ -450,12 +450,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
     if (activeModal === "KeyTerms") {
       return (
         <View style={styles.keyTermContainer}>
-          <Header
-            profilePhoto={""}
-            onNotificationPress={function (): void {
-              throw new Error("Function not implemented.");
-            }}
-          />
           {/* Search Bar */}
           <TextInput
             style={styles.keyTermSearchBar}

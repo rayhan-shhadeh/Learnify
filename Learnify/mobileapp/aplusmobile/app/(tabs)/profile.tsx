@@ -19,6 +19,7 @@ import Lottie from "lottie-react";
 import fireAnimation from "../../assets/fire.json";
 import StreakFire from "../(tabs)/streak/StreakFire";
 import { router, useRouter } from "expo-router";
+import Header from "./header/Header";
 
 export default function Profile() {
   const router = useRouter();
@@ -84,15 +85,16 @@ export default function Profile() {
         visible={showStreakFire}
         onFinish={handleAnimationEnd}
       />
+      <Header />
 
       <View style={styles.header}>
         {/* <Image source={require('../../assets/images/a-plus-4.gif')} style={styles.logoImage} /> */}
-        <View style={styles.headerIcons}>
+        {/* <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.notificationButton}>
             <Icon name="bell" size={24} color="#647987" />
             <View style={styles.notificationDot} />
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
       {/* Profile Image */}
 
@@ -194,7 +196,6 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 10,
     backgroundColor: "#fff",
