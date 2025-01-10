@@ -16,7 +16,8 @@ import Header from "../header/Header";
 import NavBar from "../NavBar";
 import API from "../../../api/axois";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-const [userId, setUserId] = useState<string | null>(null);
+const [userId, setUserId] = useState("");
+
 const initialEvents = [
   {
     title: "Meeting with Sarah",
@@ -50,92 +51,152 @@ export default function CalendarScreen() {
   });
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [showEditStartPicker, setShowEditStartPicker] = useState(false);
+  const [showEditEndPicker, setShowEditEndPicker] = useState(false);
+  const [editEvent, setEditEvent] = useState({
+    title: "",
+    description: "",
+    start: new Date(),
+    end: new Date(),
+  });
+  const [allevents, setAllEvents] = useState([]);
+  const [userId, setUserId] = useState("");
   useEffect(() => {
-    const fetchUserId = async () => {
-      const userId = await AsyncStorage.getItem("userId");
-      setUserId(userId);
-
-      if (!userId) {
-        return; // Guard condition to prevent premature execution
-      }
-    };
-
-    fetchUserId();
-    // Function to handle creating a new event
-    const handleCreateEvent = async (start: Date, end: Date) => {
-      const newEvent = {
-        eventTitle: "try New Event ", // Change this dynamically if needed
-        eventStart: start.toISOString(),
-        eventEnd: end.toISOString(),
-        eventDescription: "A newly created event.",
+    handleGetEvents();
+  }, []);
+  const handleEditEvent = async (event: any) => {
+    setEditModalVisible(true);
+    setEditEvent(event);
+    const userId = await AsyncStorage.getItem("currentUserId");
+    const token = await AsyncStorage.getItem("token");
+    if (!userId) {
+      Alert.alert("Error", "You are not logged in.");
+      return;
+    }
+    setUserId(userId);
+    try {
+      const response = await API.put(`/api/event/${event.id}`, {
+        eventTitle: event.title,
+        eventStart: event.start.toISOString(),
+        eventEnd: event.end.toISOString(),
         allDay: 0,
-        user_: {
-          connect: {
-            userId: 2,
-          },
-        },
-      };
-      // 172.23.129.135
-      try {
-        const response = await fetch(
-          `http://192.168.68.59:8081/api/event/${userId}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(newEvent),
-            mode: "cors", // Ensure CORS mode is enabled
-          }
-        );
-
-        if (response.ok) {
-          Alert.alert("Success", "Event created successfully!");
-          setEvents((prevEvents) => [
-            ...prevEvents,
-            {
-              title: newEvent.eventTitle,
-              start: start,
-              end: end,
-              color: "#32CD32", // Add color to differentiate
-            },
-          ]);
-        } else {
-          Alert.alert("Error", "Failed to create the event.");
-        }
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Unknown error";
-        Alert.alert("Error", `Something went wrong: ${errorMessage}`);
+        description: event.description,
+        userid: parseInt(userId),
+      });
+      if (response.status === 200) {
+        Alert.alert("Success", "Event updated successfully!");
+        handleSaveEditEvent(event);
+      } else {
+        Alert.alert("Error", "Failed to update event.");
       }
-    };
-    const start = new Date(); // Replace with appropriate start date
-    const end = new Date(start.getTime() + 60 * 60 * 1000); // Replace with appropriate end date (1 hour later)
-    handleCreateEvent(start, end);
-  }, [userId]);
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "An error occurred while updating the event.");
+    }
+  };
+  const handleDeleteEvent = async (event: any) => {
+    try {
+      const response = await API.delete(`/api/event/${event.id}`);
+      if (response.status === 200) {
+        Alert.alert("Success", "Event deleted successfully!");
+        handleGetEvents();
+      } else {
+        Alert.alert("Error", "Failed to delete event.");
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "An error occurred while deleting the event.");
+    }
+  };
+  const handleSaveEditEvent = async (event: any) => {
+    try {
+      const response = await API.put(`/api/events/${event.id}`, editEvent);
+      if (response.status === 200) {
+        Alert.alert("Success", "Event updated successfully!");
+        handleGetEvents();
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "An error occurred while updating the event.");
+    }
+    setEditModalVisible(false);
+  };
+
+  const handleGetEvents = async () => {
+    try {
+      const userId = await AsyncStorage.getItem("currentUserId");
+      const token = await AsyncStorage.getItem("token");
+      if (!userId) {
+        Alert.alert("Error", "You are not logged in.");
+        return;
+      }
+      const response = await API.get(`/api/user/events/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.status === 200) {
+        const fetchedEvents = response.data.map((event: any) => ({
+          id: event.eventId,
+          title: event.eventTitle,
+          start: new Date(event.eventStart),
+          end: new Date(event.eventEnd),
+          color: "#87CEEB", // You can set color dynamically if needed
+        }));
+        setEvents(fetchedEvents);
+      } else {
+        Alert.alert("Error", "Failed to fetch events.");
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "An error occurred while fetching events.");
+    }
+  };
 
   const handleAddEvent = async () => {
     if (!newEvent.title || !newEvent.description) {
       Alert.alert("Error", "Please fill all the fields");
       return;
     }
-    setEvents((prevEvents) => [
-      ...prevEvents,
-      {
-        ...newEvent,
-        start: new Date(newEvent.start),
-        end: new Date(newEvent.end),
-        color: "#87CEEB",
+    const userId = await AsyncStorage.getItem("currentUserId");
+    const requestBody = {
+      eventTitle: newEvent.title,
+      eventStart: newEvent.start.toISOString(),
+      eventEnd: newEvent.end.toISOString(),
+      eventDescription: newEvent.description,
+      allDay: 0, // Set this dynamically if required
+      user_: {
+        connect: {
+          userId: userId ? parseInt(userId) : 0, // Replace with the actual user ID
+        },
       },
-    ]);
-    const response = await API.post("/api/events", newEvent);
-    if (response.status !== 200) {
-      Alert.alert("Error", "Failed to add event.");
-      return;
+    };
+
+    try {
+      const response = await API.post("/api/event", requestBody);
+      console.log("API Response:", response); // Debug log
+      const status = response?.status || response?.data?.status;
+      if (response.status === 200 || status === 201) {
+        setEvents((prevEvents) => [
+          ...prevEvents,
+          {
+            title: newEvent.title,
+            description: newEvent.description,
+            start: newEvent.start,
+            end: newEvent.end,
+            color: "#87CEEB",
+          },
+        ]);
+        Alert.alert("Success", "Event added successfully!");
+      } else {
+        Alert.alert("Error", "Failed to add event.");
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "An error occurred while adding the event.");
     }
 
-    Alert.alert("Success", "Event added successfully!");
     setModalVisible(false);
     setNewEvent({
       title: "",
@@ -160,8 +221,107 @@ export default function CalendarScreen() {
           borderRadius: 8,
         })}
         onPressCell={() => setModalVisible(true)}
-        onPressEvent={(event) => Alert.alert(`Event: ${event.title}`)}
+        onPressEvent={(event) => {
+          Alert.alert(
+            `Event: ${event.title}`,
+            "Choose an action",
+            [
+              {
+                text: "Edit",
+                onPress: () => handleEditEvent(event),
+              },
+              {
+                text: "Delete",
+                onPress: () => handleDeleteEvent(event),
+                style: "destructive",
+              },
+              {
+                text: "Cancel",
+                style: "cancel",
+              },
+            ],
+            { cancelable: true }
+          );
+        }}
       />
+
+      {/* Edit Event Modal */}
+      <Modal
+        isVisible={editModalVisible}
+        onBackdropPress={() => setEditModalVisible(false)}
+        animationIn="zoomIn"
+        animationOut="zoomOut"
+        backdropOpacity={0.7}
+      >
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Edit Event</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Event Title"
+            value={editEvent.title}
+            onChangeText={(text) =>
+              setEditEvent((prev) => ({ ...prev, title: text }))
+            }
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Description"
+            value={editEvent.description}
+            onChangeText={(text) =>
+              setEditEvent((prev) => ({ ...prev, description: text }))
+            }
+          />
+
+          <TouchableOpacity onPress={() => setShowEditStartPicker(true)}>
+            <Text style={styles.datePicker}>
+              Start: {dayjs(editEvent.start).format("YYYY-MM-DD HH:mm")}
+            </Text>
+          </TouchableOpacity>
+          {showEditStartPicker && (
+            <DateTimePicker
+              value={editEvent.start}
+              mode="datetime"
+              display="default"
+              onChange={(event, date) => {
+                setShowEditStartPicker(false);
+                if (date) setEditEvent((prev) => ({ ...prev, start: date }));
+              }}
+            />
+          )}
+
+          <TouchableOpacity onPress={() => setShowEditEndPicker(true)}>
+            <Text style={styles.datePicker}>
+              End: {dayjs(editEvent.end).format("YYYY-MM-DD HH:mm")}
+            </Text>
+          </TouchableOpacity>
+          {showEditEndPicker && (
+            <DateTimePicker
+              value={editEvent.end}
+              mode="datetime"
+              display="default"
+              onChange={(event, date) => {
+                setShowEditEndPicker(false);
+                if (date) setEditEvent((prev) => ({ ...prev, end: date }));
+              }}
+            />
+          )}
+
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => handleSaveEditEvent(editEvent)}
+            >
+              <Text style={styles.addButtonText}>Save</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.addButton, styles.cancelButton]}
+              onPress={() => setEditModalVisible(false)}
+            >
+              <Text style={styles.addButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       <View style={styles.viewModeButtons}>
         {(["day", "week", "month"] as Array<"day" | "week" | "month">).map(
@@ -285,12 +445,13 @@ const styles = StyleSheet.create({
   viewModeButtons: {
     flexDirection: "row",
     justifyContent: "space-evenly",
-    marginVertical: 50,
+    marginVertical: 10,
   },
   modeButton: {
     padding: 10,
     borderRadius: 20,
     backgroundColor: "#E0E0E0",
+    marginBottom: 40,
   },
   activeModeButton: {
     backgroundColor: "#1E90FF",
