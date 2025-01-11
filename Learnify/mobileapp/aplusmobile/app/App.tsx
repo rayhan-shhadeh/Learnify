@@ -4,19 +4,22 @@ import { createStackNavigator } from "@react-navigation/stack";
 import IndexScreen from "./index"; // Your IndexScreen component
 import FilesScreen from "./(tabs)/FilesScreen";
 import PdfScreen from "./(tabs)/Files/PdfScreen";
+import { CoursesProvider } from "./(tabs)/hooks/CoursesContext";
 
 const Stack = createStackNavigator();
 
 const App = () => {
   return (
-    <NavigationContainer>
-      {" "}
-      {/* Keep NavigationContainer here */}
-      <Stack.Navigator initialRouteName="IndexScreen">
-        <Stack.Screen name="IndexScreen" component={IndexScreen} />
-        <Stack.Screen name="FilesScreen" component={FilesScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <CoursesProvider>
+      <NavigationContainer>
+        {" "}
+        {/* Keep NavigationContainer here */}
+        <Stack.Navigator initialRouteName="IndexScreen">
+          <Stack.Screen name="IndexScreen" component={IndexScreen} />
+          <Stack.Screen name="FilesScreen" component={FilesScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </CoursesProvider>
   );
 };
 
