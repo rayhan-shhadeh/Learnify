@@ -127,16 +127,9 @@ const CoursesScreen = () => {
           connect: {
             userId: decoded?.id,
           },
-          logo: {
-            width: 50,
-            height: 50,
-          },
         },
       });
-      if (response.status !== 200) {
-        Alert.alert("Error", "Failed to add new course");
-        return;
-      }
+
       Alert.alert("Success", "New course added successfully");
       const data = await response.data;
       setCourses([...courses, data]); // Add new course to the list of courses
@@ -263,10 +256,19 @@ const CoursesScreen = () => {
       setCourses(fetchedCourses);
     }
   }, 300);
+  const handleSearch1 = () => {
+    if (searchQuery.trim()) {
+      const regex = new RegExp(searchQuery, "i");
+      const filteredCourses = fetchedCourses.filter(
+        (course) => regex.test(course.name) || regex.test(course.description)
+      );
+      setCourses(filteredCourses);
+    }
+  };
 
   const handleInputChange = (value: string) => {
     setSearchQuery(value);
-    handleSearch();
+    handleSearch1();
   };
   const handleFilterSelect = (filter: string) => {
     setSelectedFilter(filter);
@@ -279,7 +281,6 @@ const CoursesScreen = () => {
       setCourses(fetchedCourses);
     }
   };
-
   const toggleDropdown = () => {
     setShowDropdown((prev) => !prev);
   };
@@ -342,7 +343,11 @@ const CoursesScreen = () => {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <View style={styles.modalheadercontainer}>
-              <Icon name="plus" size={24} color="#1CA7EC" />
+              <Image
+                source={require("../../assets/images/plus.png")}
+                style={{ width: 27, height: 27, marginRight: 10 }}
+                resizeMode="contain"
+              />
               <Text style={styles.modalTitle}>Add New Course</Text>
             </View>
             <TextInput
@@ -437,105 +442,102 @@ const CoursesScreen = () => {
 
   return (
     <>
-      <LinearGradient colors={["#f7f7f7", "#fbfbfb", "#9ad9ea"]}>
-        <Header />
+      <Header />
 
-        <View style={styles.container}>
-          <View style={styles.headercontainer}>
-            <Image
-              source={require("../../assets/images/book.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-            <Text style={styles.header}> My Courses</Text>
-          </View>
-          <View style={styles.searchBar}>
-            <TextInput
-              style={styles.input}
-              value={searchQuery}
-              onChangeText={(value) => {
-                setSearchQuery(value);
-                handleInputChange(value);
-              }}
-              placeholder="Search for files"
-              returnKeyType="search"
-              onSubmitEditing={() => {
-                handleSearch();
-              }}
-            />
-            {/* Dropdown Button */}
-            <TouchableOpacity
-              style={styles.dropdownButton}
-              onPress={toggleDropdown}
-            >
-              <Image
-                source={require("../../assets/images/filter.png")}
-                style={{
-                  width: 20,
-                  height: 20,
-                  backgroundColor: "transparent",
-                }}
-              />
-            </TouchableOpacity>
-          </View>
-          <View>
-            {/* "X" Button to Clear Filter */}
-            {selectedFilter ? (
-              <TouchableOpacity
-                style={styles.clearFilterButton}
-                onPress={handleClearFilter}
-              >
-                <Text style={styles.clearFilterText}>X</Text>
-              </TouchableOpacity>
-            ) : null}
-            {/* Dropdown List */}
-            {showDropdown && (
-              <View style={styles.dropdownList}>
-                {tags.map((tag) => (
-                  <TouchableOpacity
-                    key={tag}
-                    style={styles.dropdownItem}
-                    onPress={() => handleFilterSelect(tag)}
-                  >
-                    <Text style={styles.dropdownItemText}>{tag}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-            <Animatable.View animation="fadeInUp" delay={200} duration={800}>
-              <FlatList
-                style={styles.fileList}
-                data={courses} // Adjust this based on the course structure
-                renderItem={({ item }) => (
-                  <FileCard
-                    title={item.name}
-                    tag={item.tag}
-                    description={item.description}
-                    courseId={item.id}
-                  />
-                )}
-                keyExtractor={(item, index) => index.toString()}
-                numColumns={2}
-                key={"_"}
-                columnWrapperStyle={{
-                  justifyContent: "space-between", // Space out the items evenly in a row
-                  marginBottom: 10,
-
-                  paddingBlock: 10,
-                }}
-              />
-            </Animatable.View>
-            <TouchableOpacity
-              style={styles.addButton}
-              onPress={() => setModalVisible(true)}
-            >
-              <Text style={styles.addButtonText}>Add a new Course</Text>
-            </TouchableOpacity>
-            {renderAddFileModal()}
-            {renderEditModal()}
-          </View>
+      <View style={styles.container}>
+        <View style={styles.headercontainer}>
+          <Image
+            source={require("../../assets/images/book.png")}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <Text style={styles.header}> My Courses</Text>
         </View>
-      </LinearGradient>
+        <View style={styles.searchBar}>
+          <TextInput
+            style={styles.input}
+            value={searchQuery}
+            onChangeText={(value) => {
+              setSearchQuery(value);
+              handleInputChange(value);
+            }}
+            placeholder="Search for files"
+            returnKeyType="search"
+            onSubmitEditing={() => {
+              handleSearch();
+            }}
+          />
+          {/* Dropdown Button */}
+          <TouchableOpacity
+            style={styles.dropdownButton}
+            onPress={toggleDropdown}
+          >
+            <Image
+              source={require("../../assets/images/filter.png")}
+              style={{
+                width: 20,
+                height: 20,
+                backgroundColor: "transparent",
+              }}
+            />
+          </TouchableOpacity>
+        </View>
+        <View>
+          {/* "X" Button to Clear Filter */}
+          {selectedFilter ? (
+            <TouchableOpacity
+              style={styles.clearFilterButton}
+              onPress={handleClearFilter}
+            >
+              <Text style={styles.clearFilterText}>X</Text>
+            </TouchableOpacity>
+          ) : null}
+          {/* Dropdown List */}
+          {showDropdown && (
+            <View style={styles.dropdownList}>
+              {tags.map((tag) => (
+                <TouchableOpacity
+                  key={tag}
+                  style={styles.dropdownItem}
+                  onPress={() => handleFilterSelect(tag)}
+                >
+                  <Text style={styles.dropdownItemText}>{tag}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </View>
+        <FlatList
+          style={styles.fileList}
+          data={courses} // Adjust this based on the course structure
+          renderItem={({ item }) => (
+            <FileCard
+              title={item.name}
+              tag={item.tag}
+              description={item.description}
+              courseId={item.id}
+            />
+          )}
+          keyExtractor={(item, index) => index.toString()}
+          numColumns={2}
+          key={"_"}
+          columnWrapperStyle={{
+            justifyContent: "space-between", // Space out the items evenly in a row
+            marginBottom: 10,
+
+            paddingBlock: 10,
+          }}
+          showsVerticalScrollIndicator={true} // Optional: Hide the scrollbar for a cleaner look
+        />
+      </View>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => setModalVisible(true)}
+      >
+        <Text style={styles.addButtonText}>Add a new Course</Text>
+      </TouchableOpacity>
+      {renderAddFileModal()}
+      {renderEditModal()}
       <NavBar />
     </>
   );
@@ -543,13 +545,14 @@ const CoursesScreen = () => {
 
 const styles = StyleSheet.create({
   logo: {
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
   },
   container: {
     backgroundColor: "#f5f5f5",
     paddingLeft: 20,
     paddingRight: 20,
+    marginBottom: "70%",
   },
   header: {
     fontSize: 24,
@@ -558,13 +561,13 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
   fileList: {
-    flexGrow: 1,
     display: "flex",
     shadowColor: "#000",
     shadowOffset: { width: 3, height: 6 },
     shadowOpacity: 0.4,
     shadowRadius: 4,
     paddingBlock: 10,
+    marginBottom: 20,
   },
   cardHeader: {
     flexDirection: "column",
@@ -588,6 +591,10 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: "center",
     marginBottom: 50,
+    marginHorizontal: 20,
+    bottom: 10,
+    position: "absolute",
+    alignSelf: "center",
   },
   addButtonText: {
     color: "#fff",
@@ -598,7 +605,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#bde0fe",
     //'rgba(0, 0, 0, 0.5)'
   },
   modalContent: {
@@ -616,8 +623,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 15,
     color: "#073152",
+    marginBottom: 10,
   },
   headercontainer: {
     flexDirection: "row",
@@ -736,11 +744,13 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
+    color: "#fff",
   },
   clearButtonText: {
     color: "#fff",
     fontSize: 16,
     textAlign: "center",
+    flex: 1,
   },
   courseItem: {
     padding: 10,
