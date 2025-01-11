@@ -10,7 +10,9 @@ import {
   TextInput,
   Button,
   ScrollView,
+  Image,
 } from "react-native";
+import Header from "../(tabs)/header/Header";
 import { FontAwesome } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -86,7 +88,6 @@ const CoursesScreen = () => {
           Alert.alert("Error", "Failed to fetch courses");
           return;
         }
-        Alert.alert("Success", "Courses fetched successfully");
         const data = await response.data;
         const mappedCourses = data.map((course: any) => ({
           id: course.courseId,
@@ -125,6 +126,10 @@ const CoursesScreen = () => {
         user_: {
           connect: {
             userId: decoded?.id,
+          },
+          logo: {
+            width: 50,
+            height: 50,
           },
         },
       });
@@ -433,42 +438,47 @@ const CoursesScreen = () => {
   return (
     <>
       <LinearGradient colors={["#f7f7f7", "#fbfbfb", "#9ad9ea"]}>
-        <TouchableOpacity style={styles.notificationButton}>
-          <Back title={""} onBackPress={() => {}} />
-          <MaterialCommunityIcons
-            name="bell-outline"
-            size={24}
-            color="#111517"
-          />
-        </TouchableOpacity>
+        <Header />
+
         <View style={styles.container}>
           <View style={styles.headercontainer}>
-            <Icon name="list" size={27} color="#778899" />
+            <Image
+              source={require("../../assets/images/book.png")}
+              style={styles.logo}
+              resizeMode="contain"
+            />
             <Text style={styles.header}> My Courses</Text>
           </View>
-          <TextInput
-            style={styles.input}
-            value={searchQuery}
-            onChangeText={(value) => {
-              setSearchQuery(value);
-              handleInputChange(value);
-            }}
-            placeholder="Search for files"
-            returnKeyType="search"
-            onSubmitEditing={() => {
-              handleSearch();
-            }}
-          />
-          <View style={styles.container}>
+          <View style={styles.searchBar}>
+            <TextInput
+              style={styles.input}
+              value={searchQuery}
+              onChangeText={(value) => {
+                setSearchQuery(value);
+                handleInputChange(value);
+              }}
+              placeholder="Search for files"
+              returnKeyType="search"
+              onSubmitEditing={() => {
+                handleSearch();
+              }}
+            />
             {/* Dropdown Button */}
             <TouchableOpacity
               style={styles.dropdownButton}
               onPress={toggleDropdown}
             >
-              <Text style={styles.dropdownButtonText}>
-                {selectedFilter || "Select a tag"}
-              </Text>
+              <Image
+                source={require("../../assets/images/filter.png")}
+                style={{
+                  width: 20,
+                  height: 20,
+                  backgroundColor: "transparent",
+                }}
+              />
             </TouchableOpacity>
+          </View>
+          <View>
             {/* "X" Button to Clear Filter */}
             {selectedFilter ? (
               <TouchableOpacity
@@ -505,7 +515,14 @@ const CoursesScreen = () => {
                   />
                 )}
                 keyExtractor={(item, index) => index.toString()}
-                contentContainerStyle={styles.fileList}
+                numColumns={2}
+                key={"_"}
+                columnWrapperStyle={{
+                  justifyContent: "space-between", // Space out the items evenly in a row
+                  marginBottom: 10,
+
+                  paddingBlock: 10,
+                }}
               />
             </Animatable.View>
             <TouchableOpacity
@@ -525,6 +542,10 @@ const CoursesScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  logo: {
+    width: 50,
+    height: 50,
+  },
   container: {
     backgroundColor: "#f5f5f5",
     paddingLeft: 20,
@@ -537,13 +558,13 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
   fileList: {
-    //flexGrow: 1,
+    flexGrow: 1,
     display: "flex",
-    flexDirection: "column",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
+    shadowOffset: { width: 3, height: 6 },
+    shadowOpacity: 0.4,
     shadowRadius: 4,
+    paddingBlock: 10,
   },
   cardHeader: {
     flexDirection: "column",
@@ -595,7 +616,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
     padding: 10,
-    marginBottom: 10,
     borderRadius: 5,
     color: "#073152",
   },
@@ -605,7 +625,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingRight: 90,
-    paddingVertical: 10,
+    paddingVertical: 5,
   },
   modalheadercontainer: {
     flexDirection: "row",
@@ -645,7 +665,7 @@ const styles = StyleSheet.create({
   },
   cardDescription: {
     color: "#ccf9e3",
-    fontSize: 14,
+    fontSize: 10,
     marginTop: 5,
   },
   cardTag: {
@@ -657,30 +677,39 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     padding: 15,
-    borderRadius: 40,
+    borderRadius: 30,
     marginBottom: 10,
-    justifyContent: "center",
+    justifyContent: "space-evenly",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
     shadowRadius: 4,
     elevation: 5,
     height: 150,
+    width: 150,
+    marginLeft: 4,
+    marginRight: 4,
   },
   searchBar: {
     backgroundColor: "#e0e0e0",
     borderRadius: 10,
-    padding: 10,
-    marginBottom: 20,
+    padding: 5,
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   searchText: {
     color: "#888",
   },
   dropdownButton: {
+    display: "flex",
+    flexDirection: "row",
     backgroundColor: "#1CA7EC",
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
+    width: 40,
+    alignSelf: "flex-end",
+    justifyContent: "space-between",
   },
   dropdownButtonText: {
     color: "#fff",
@@ -721,7 +750,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   courseName: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: "bold",
     color: "#333",
   },
