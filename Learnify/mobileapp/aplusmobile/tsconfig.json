@@ -15,6 +15,7 @@
     "components/Auth/AuthContent.js",
     "app/(tabs)/hooks/CoursesContext.js",
     "app/(tabs)/chatting/Chat.js",
-    "app/(tabs)/chatting/Chat.js"
+    "app/(tabs)/chatting/Chat.js",
+    "app/(tabs)/quiz/QuizReviewScreen.js"
   ]
 }
