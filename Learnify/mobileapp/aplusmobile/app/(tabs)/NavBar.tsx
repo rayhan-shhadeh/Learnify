@@ -31,7 +31,7 @@ const NavBar = () => {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.navButton}
-        onPress={() => router.push("/(tabs)/Habits/HabitsScreen")}
+        onPress={() => router.push("/(tabs)/KeyTermsScreen")}
       >
         <Icon name="bar-chart" size={24} color="#888" />
         <Text style={styles.navTextInactive}>Habits</Text>

@@ -36,10 +36,19 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
   const [flashcardCount, setFlashcardCount] = useState(1);
   const [difficulty, setDifficulty] = useState("Easy");
   const [length, setLength] = useState("Short");
+  const [keytermDifficulty, setKeytermDifficulty] = useState("Easy");
+  const [keytermLength, setKeytermLength] = useState("Short");
+  const [keytermLengthOptions, setKeytermLengthOptions] = useState(false);
   const [showFlashcardCountOptions, setShowFlashcardCountOptions] =
     useState(false);
+  const [showKeytermDifficultyOptions, setShowKeytermDifficultyOptions] =
+    useState(false);
+  const [showKeytermLengthOptions, setShowKeytermLengthOptions] =
+    useState(false);
+  const [keytermModalVisible, setKeytermModalVisible] = useState(false);
   const [showDifficultyOptions, setShowDifficultyOptions] = useState(false);
   const [showLengthOptions, setShowLengthOptions] = useState(false);
+  const [activeKey, setActiveKey] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTerm, setSelectedTerm] = useState<{
@@ -54,26 +63,42 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
     { id: "2", question: "question 2", answer: "answer 2" },
     { id: "3", question: "question 3", answer: "answer 3" },
   ];
-  const [keyTerms, setKeyTerms] = useState([
+  // const [keyTerms, setKeyTerms] = useState([
+  //   {
+  //     term: "React",
+  //     definition: "A JavaScript library for building user interfaces.",
+  //   },
+  //   {
+  //     term: "JavaScript",
+  //     definition: "A programming language used to make web pages interactive.",
+  //   },
+  //   {
+  //     term: "API",
+  //     definition:
+  //       "An interface that allows communication between two systems or components.",
+  //   },
+  //   {
+  //     term: "Node.js",
+  //     definition:
+  //       "A JavaScript runtime environment for executing code outside of a browser.",
+  //   },
+  // ]);
+  const keyTerms = [
     {
+      id: 1,
       term: "React",
       definition: "A JavaScript library for building user interfaces.",
     },
     {
-      term: "JavaScript",
-      definition: "A programming language used to make web pages interactive.",
+      id: 2,
+      term: "State",
+      definition: "A built-in React object to hold data.",
     },
-    {
-      term: "API",
-      definition:
-        "An interface that allows communication between two systems or components.",
-    },
-    {
-      term: "Node.js",
-      definition:
-        "A JavaScript runtime environment for executing code outside of a browser.",
-    },
-  ]);
+  ];
+
+  const toggleDefinition = (id: number) => {
+    setActiveKey((prev) => (prev === id ? null : id));
+  };
 
   const renderFlashcard = ({
     item,
@@ -147,6 +172,12 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
   };
   const handleGenerateClick = () => {
     setModalVisible(true);
+  };
+  const handleKeytermGenerateClick = () => {
+    setKeytermModalVisible(true);
+  };
+  const handleKeyternManual = () => {
+    alert("Manual functionality is not implemented yet!");
   };
 
   const handleManual = () => {
@@ -461,7 +492,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
           <View style={styles.keyTermbuttonContainer}>
             <TouchableOpacity
               style={styles.button}
-              onPress={handleGenerateClick}
+              onPress={handleKeytermGenerateClick}
             >
               <Text style={styles.buttonText}>Generate</Text>
             </TouchableOpacity>
@@ -469,9 +500,125 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
               <Text style={styles.buttonText}>Manual</Text>
             </TouchableOpacity>
           </View>
+          {/* Modal for Flashcard Options */}
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={keytermModalVisible}
+            onRequestClose={() => setKeytermModalVisible(false)} // Closes the modal when requested
+          >
+            <View style={styles.popupmodalContainer}>
+              <View style={styles.modalContent}>
+                <View style={{ flexDirection: "row" }}>
+                  <Icon name="setting" size={24} color="#333" />
+                  <Text style={styles.modalTitle}>Keyterm Settings</Text>
+                </View>
+                {/* Flashcard Count Selector */}
+                <View style={styles.option}>
+                  {/* <Text style={styles.optionLabel}>Number of Flashcards:</Text>
+                  <TouchableOpacity style={styles.dropdown}>
+                    <TextInput
+                      style={[
+                        styles.searchBarPlaceholder,
+                        { color: "#A9A9A9" },
+                      ]} // placeholder text color
+                      keyboardType="numeric"
+                      placeholder="Enter number of flashcards"
+                      placeholderTextColor="#A9A9A9" // Set placeholder text color
+                      onChangeText={(text) => setFlashcardCount(Number(text))}
+                      onSubmitEditing={() => Keyboard.dismiss()} // this will close the keyboard when the user clicks on done
+                      returnKeyType="done" // "Done" on keyboard
+                    />
+                  </TouchableOpacity> */}
 
+                  {/* Difficulty Selector */}
+                  <View style={styles.option}>
+                    <Text style={styles.optionLabel}>Length:</Text>
+                    <TouchableOpacity
+                      style={styles.dropdown}
+                      onPress={() =>
+                        setShowKeytermLengthOptions(!showKeytermLengthOptions)
+                      }
+                    >
+                      <Text style={styles.dropdownText}>
+                        {length || "Select"}
+                      </Text>
+                    </TouchableOpacity>
+                    {showKeytermLengthOptions && (
+                      <View style={styles.dropdownOptions}>
+                        {["Short", "Medium", "Long"].map((keytermLength) => (
+                          <TouchableOpacity
+                            key={keytermLength}
+                            style={styles.dropdownOption}
+                            onPress={() => {
+                              setLength(keytermLength);
+                              setKeytermLength(keytermLength);
+                            }}
+                          >
+                            <Text style={styles.dropdownOptionText}>
+                              {keytermLength}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+                  </View>
+                </View>
+
+                {/* Difficulty Selector */}
+                <View style={styles.option}>
+                  <Text style={styles.optionLabel}>Difficulty:</Text>
+                  <TouchableOpacity
+                    style={styles.dropdown}
+                    onPress={() =>
+                      setShowKeytermDifficultyOptions(
+                        !showKeytermDifficultyOptions
+                      )
+                    }
+                  >
+                    <Text style={styles.dropdownText}>
+                      {difficulty || "Select"}
+                    </Text>
+                  </TouchableOpacity>
+                  {showKeytermDifficultyOptions && (
+                    <View style={styles.dropdownOptions}>
+                      {["Easy", "Intermediate", "Advanced"].map((level) => (
+                        <TouchableOpacity
+                          key={level}
+                          style={styles.dropdownOption}
+                          onPress={() => {
+                            setKeytermDifficulty(level);
+                            setKeytermDifficulty(level);
+                          }}
+                        >
+                          <Text style={styles.dropdownOptionText}>{level}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                </View>
+
+                {/* Actions */}
+                <View style={styles.actionButtons}>
+                  <TouchableOpacity
+                    style={styles.generateButton}
+                    onPress={() => setKeytermModalVisible(false)}
+                  >
+                    <Text>Cancel</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity style={styles.popupbuttonText}>
+                    <Button
+                      title="Generate"
+                      onPress={() => console.log("Flashcards generated")}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
           {/* Key Terms */}
-          <ScrollView style={styles.keyTermsContainer}>
+          {/* <ScrollView style={styles.keyTermsContainer}>
             {filteredKeyTerms.map((keyTerm, index) => (
               <TouchableOpacity
                 key={index}
@@ -484,14 +631,29 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
           </ScrollView>
 
           {/* Selected Definition */}
-          {selectedTerm && (
+          {/* {selectedTerm && (
             <View style={styles.definitionContainer}>
               <Text style={styles.definitionTitle}>Definition</Text>
               <Text style={styles.definitionText}>
                 {selectedTerm.definition}
               </Text>
             </View>
-          )}
+          )}  */}
+          <FlatList
+            data={keyTerms}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <View>
+                <TouchableOpacity
+                  style={styles.keyTermCard}
+                  onPress={() => toggleDefinition(item.id)}
+                >
+                  <Text style={styles.keyTermText}>{item.term}</Text>
+                </TouchableOpacity>
+                {activeKey === item.id && <Text>{item.definition}</Text>}
+              </View>
+            )}
+          />
         </View>
       );
     }
@@ -724,7 +886,8 @@ const styles = StyleSheet.create({
   keyTermbutton: {
     flex: 1,
     marginHorizontal: 5,
-    backgroundColor: "#1f93e0",
+    marginVertical: 5,
+    backgroundColor: "#92e1ff",
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
@@ -732,13 +895,14 @@ const styles = StyleSheet.create({
   keyTermbuttonText: {
     color: "#FFF",
     fontWeight: "bold",
+    fontSize: 16,
   },
   keyTermsContainer: {
     flex: 1,
     marginBottom: 10,
   },
   keyTermCard: {
-    backgroundColor: "#FFF",
+    backgroundColor: "#92e1ff",
     padding: 15,
     marginBottom: 10,
     borderRadius: 8,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,11 +8,11 @@ import {
   TextInput,
   Alert,
   ActivityIndicator,
-} from 'react-native';
-import { ProgressBar } from 'react-native-paper';
-import { useRouter } from 'expo-router';
-import API from '../../../api/axois';
-import { useLocalSearchParams } from 'expo-router';
+} from "react-native";
+import { ProgressBar } from "react-native-paper";
+import { useRouter } from "expo-router";
+import API from "../../../api/axois";
+import { useLocalSearchParams } from "expo-router";
 
 // Define types for quiz, question, and choices
 interface Choice {
@@ -39,20 +39,23 @@ const Quiz = () => {
   const [selectedChoice, setSelectedChoice] = useState<Choice | null>(null);
   const [popupVisible, setPopupVisible] = useState<boolean>(true);
   const [numQuestions, setNumQuestions] = useState<number>(5);
-  const [difficulty, setDifficulty] = useState<string>('easy');
+  const [difficulty, setDifficulty] = useState<string>("easy");
   const [quizId, setQuizId] = useState<number | null>(null);
   const [review, setReview] = useState<boolean>(false);
   const [score, setScore] = useState<number | null>(null);
   const [error, setError] = useState<boolean>(false);
   const router = useRouter();
-  const { passedFileId, passedIsFromAllFilesPage, passedCourseId } = useLocalSearchParams();
-  const [expandedQuestionIndex, setExpandedQuestionIndex] = useState<number | null>(null);
+  const { passedFileId, passedIsFromAllFilesPage, passedCourseId } =
+    useLocalSearchParams();
+  const [expandedQuestionIndex, setExpandedQuestionIndex] = useState<
+    number | null
+  >(null);
   const [showDropdown, setShowDropdown] = useState(false);
 
   const difficultyOptions = [
-    { label: 'Easy', value: 'easy' },
-    { label: 'Medium', value: 'medium' },
-    { label: 'Difficult', value: 'difficult' },
+    { label: "Easy", value: "easy" },
+    { label: "Medium", value: "medium" },
+    { label: "Difficult", value: "difficult" },
   ];
 
   useEffect(() => {
@@ -63,21 +66,24 @@ const Quiz = () => {
 
   const getId = async (): Promise<void> => {
     try {
-      const response = await API.get('/api/maxQuizId');
+      const response = await API.get("/api/maxQuizId");
       const id = response.data.maxQuizId + 1;
       setQuizId(id);
     } catch (err) {
-      console.error('Error fetching quiz ID:', err);
+      console.error("Error fetching quiz ID:", err);
     }
   };
 
   const generateQuiz = async () => {
     try {
       await getId();
-      const response = await API.post(`/api/file/generateQuiz/${passedFileId}`, {
-        numQuestions,
-        difficulty,
-      });
+      const response = await API.post(
+        `/api/file/generateQuiz/${passedFileId}`,
+        {
+          numQuestions,
+          difficulty,
+        }
+      );
 
       if (
         response.data &&
@@ -86,9 +92,9 @@ const Quiz = () => {
       ) {
         const Quiz: Quiz = {
           title: response.data.title,
-          description: response.data.description || 'No description provided',
+          description: response.data.description || "No description provided",
           questions: response.data.questions.map((q: any) => ({
-            question: q.questionText || 'No question text',
+            question: q.questionText || "No question text",
             questionId: q.questionId,
             choices: q.choices.map((choice: string, index: number) => ({
               text: choice,
@@ -98,17 +104,20 @@ const Quiz = () => {
         };
         setQuiz(Quiz);
       } else {
-        throw new Error('Invalid API response structure');
+        throw new Error("Invalid API response structure");
       }
     } catch (err) {
       setError(true);
-      console.error('Error generating quiz:', err);
+      console.error("Error generating quiz:", err);
     }
   };
 
-  const handleChoiceClick = async (choice: Choice, id: number): Promise<void> => {
+  const handleChoiceClick = async (
+    choice: Choice,
+    id: number
+  ): Promise<void> => {
     try {
-      await API.post('/api/answer', {
+      await API.post("/api/answer", {
         chosenAnswer: choice.text,
         isCorrect: choice.isCorrect,
         question: { connect: { questionId: id } },
@@ -116,12 +125,13 @@ const Quiz = () => {
 
       if (quiz) {
         const updatedQuiz = { ...quiz };
-        updatedQuiz.questions[currentQuestionIndex].selectedAnswer = choice.text;
+        updatedQuiz.questions[currentQuestionIndex].selectedAnswer =
+          choice.text;
         setQuiz(updatedQuiz);
       }
     } catch (err) {
-      console.error('Error storing answer:', err);
-      Alert.alert('Error', 'Unable to save your answer. Please try again.');
+      console.error("Error storing answer:", err);
+      Alert.alert("Error", "Unable to save your answer. Please try again.");
     }
     setSelectedChoice(choice);
   };
@@ -139,17 +149,21 @@ const Quiz = () => {
     if (quiz) {
       const calculatedScore = quiz.questions.reduce((acc, question) => {
         const userAnswer = question.selectedAnswer;
-        const correctChoice = question.choices.find((choice) => choice.isCorrect);
+        const correctChoice = question.choices.find(
+          (choice) => choice.isCorrect
+        );
         if (userAnswer === correctChoice?.text) {
           return acc + 1;
         }
         return acc;
       }, 0);
-      const successRate: number = Math.round((calculatedScore / numQuestions) * 100);
+      const successRate: number = Math.round(
+        (calculatedScore / numQuestions) * 100
+      );
 
       try {
         if (!quizId) {
-          console.error('Quiz ID is not set.');
+          console.error("Quiz ID is not set.");
           return;
         }
 
@@ -160,30 +174,30 @@ const Quiz = () => {
 
         setScore(calculatedScore);
       } catch (err) {
-        console.error('Error updating score in the database:', err);
+        console.error("Error updating score in the database:", err);
       }
     }
   };
 
   const handleFinishReview = async () => {
     try {
-      if (passedIsFromAllFilesPage === 'all') {
-        router.push('/(tabs)/FilesScreen');
-      } else if (passedIsFromAllFilesPage === 'course') {
+      if (passedIsFromAllFilesPage === "all") {
+        router.push("/(tabs)/FilesScreen");
+      } else if (passedIsFromAllFilesPage === "course") {
         const data = await API.get(`/api/course/${passedCourseId}`);
         const title = data.data.courseName;
         router.push({
-          pathname: '/(tabs)/CourseFilesScreen',
+          pathname: "/(tabs)/CourseFilesScreen",
           params: { title, passedCourseId },
         });
-      } else if (passedIsFromAllFilesPage === 'home') {
-        router.push('/(tabs)/HomeScreen');
+      } else if (passedIsFromAllFilesPage === "home") {
+        router.push("/(tabs)/HomeScreen");
       } else {
-        console.error('Invalid navigation parameter');
+        console.error("Invalid navigation parameter");
       }
     } catch (err) {
-      console.error('Error during navigation:', err);
-      Alert.alert('Navigation Error', 'Unable to navigate back.');
+      console.error("Error during navigation:", err);
+      Alert.alert("Navigation Error", "Unable to navigate back.");
     }
   };
 
@@ -208,8 +222,10 @@ const Quiz = () => {
             keyboardType="numeric"
             value={numQuestions.toString()}
             onChangeText={(text) => {
-              const filteredText = text.replace(/[^0-9]/g, '');
-              setNumQuestions(filteredText ? Math.max(1, parseInt(filteredText, 10)) : 1);
+              const filteredText = text.replace(/[^0-9]/g, "");
+              setNumQuestions(
+                filteredText ? Math.max(1, parseInt(filteredText, 10)) : 1
+              );
             }}
           />
           <TouchableOpacity
@@ -217,7 +233,8 @@ const Quiz = () => {
             onPress={() => setShowDropdown(!showDropdown)}
           >
             <Text style={styles.dropdownTriggerText}>
-              {difficultyOptions.find((option) => option.value === difficulty)?.label || 'Select Difficulty'}
+              {difficultyOptions.find((option) => option.value === difficulty)
+                ?.label || "Select Difficulty"}
             </Text>
           </TouchableOpacity>
           {showDropdown && (
@@ -269,7 +286,9 @@ const Quiz = () => {
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item, index }) => {
             const userAnswer = item.selectedAnswer;
-            const correctChoice = item.choices.find((choice) => choice.isCorrect);
+            const correctChoice = item.choices.find(
+              (choice) => choice.isCorrect
+            );
             const isExpanded = expandedQuestionIndex === index;
 
             return (
@@ -281,7 +300,11 @@ const Quiz = () => {
                       ? styles.correctChoice
                       : styles.incorrectChoice,
                   ]}
-                  onPress={() => setExpandedQuestionIndex(index === expandedQuestionIndex ? null : index)}
+                  onPress={() =>
+                    setExpandedQuestionIndex(
+                      index === expandedQuestionIndex ? null : index
+                    )
+                  }
                 >
                   <Text style={styles.reviewQuestionText}>
                     {index + 1}. {item.question}
@@ -305,8 +328,10 @@ const Quiz = () => {
                       >
                         <Text style={styles.choiceText}>
                           {choice.text}
-                          {choice.text === userAnswer && !choice.isCorrect && ' (Your Answer)'}
-                          {choice.isCorrect && ' (Correct)'}
+                          {choice.text === userAnswer &&
+                            !choice.isCorrect &&
+                            " (Your Answer)"}
+                          {choice.isCorrect && " (Correct)"}
                         </Text>
                       </View>
                     ))}
@@ -345,8 +370,8 @@ const Quiz = () => {
           style={[
             styles.choice,
             selectedChoice === choice && {
-              backgroundColor: choice.isCorrect ? '#D4EDDA' : '#F8D7DA',
-              borderColor: choice.isCorrect ? '#28A745' : '#DC3545',
+              backgroundColor: choice.isCorrect ? "#D4EDDA" : "#F8D7DA",
+              borderColor: choice.isCorrect ? "#28A745" : "#DC3545",
             },
           ]}
           onPress={() => handleChoiceClick(choice, currentQuestion.questionId)}
@@ -356,7 +381,7 @@ const Quiz = () => {
             style={[
               styles.choiceText,
               selectedChoice === choice && {
-                color: choice.isCorrect ? '#155724' : '#721C24',
+                color: choice.isCorrect ? "#155724" : "#721C24",
               },
             ]}
           >
@@ -365,7 +390,10 @@ const Quiz = () => {
         </TouchableOpacity>
       ))}
       <TouchableOpacity
-        style={[styles.continueButton, !selectedChoice && { backgroundColor: '#ccc' }]}
+        style={[
+          styles.continueButton,
+          !selectedChoice && { backgroundColor: "#ccc" },
+        ]}
         onPress={
           currentQuestionIndex + 1 === quiz.questions.length
             ? () => {
@@ -377,7 +405,9 @@ const Quiz = () => {
         disabled={!selectedChoice}
       >
         <Text style={styles.buttonText}>
-          {currentQuestionIndex + 1 === quiz.questions.length ? 'Submit' : 'Continue'}
+          {currentQuestionIndex + 1 === quiz.questions.length
+            ? "Submit"
+            : "Continue"}
         </Text>
       </TouchableOpacity>
     </View>
@@ -385,254 +415,254 @@ const Quiz = () => {
 };
 
 const styles = StyleSheet.create({
-    // Main Container
-    quizContainer: {
-      flex: 1,
-      padding: 16,
-      backgroundColor: '#F9F9F9',
-      justifyContent: 'center',
-    },
-  
-    // Popup Styles
-    popupContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: '#F5FCFF',
-    },
-    bannerText: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: '#3785DE',
-      textAlign: 'center',
-      marginBottom: 20,
-    },
-    popup: {
-      width: '90%',
-      backgroundColor: 'white',
-      borderRadius: 10,
-      padding: 20,
-      shadowColor: '#000',
-      shadowOpacity: 0.1,
-      shadowRadius: 5,
-      elevation: 5,
-    },
-    popupLabel: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: '#333',
-      marginVertical: 10,
-    },
-    input: {
-      borderWidth: 1,
-      borderColor: '#ddd',
-      borderRadius: 5,
-      padding: 8,
-      fontSize: 16,
-      marginBottom: 10,
-    },
-    startButton: {
-      backgroundColor: '#1CA7EC',
-      padding: 12,
-      borderRadius: 5,
-      alignItems: 'center',
-      marginTop: 10,
-    },
-  
-    // Question Section
-    questionText: {
-      fontSize: 18,
-      fontWeight: '600',
-      marginBottom: 20,
-      textAlign: 'center',
-      color: '#333',
-    },
-  
-    // Choices Section
-    choice: {
-      backgroundColor: '#FFFFFF',
-      borderWidth: 1,
-      borderColor: '#ddd',
-      padding: 12,
-      borderRadius: 8,
-      marginVertical: 8,
-    },
-    selected: {
-      backgroundColor: '#E6F7FF',
-      borderWidth: 1,
-      borderColor: '#1CA7EC',
-      padding: 12,
-      borderRadius: 8,
-      marginVertical: 8,
-    },
-    choiceText: {
-      fontSize: 16,
-      color: '#333',
-    },
-  
-    // Progress Bar
-    progressContainer: {
-      marginBottom: 24,
-    },
-  
-    // Continue/Submit Button
-    continueButton: {
-      backgroundColor: '#62D9A2',
-      padding: 12,
-      borderRadius: 5,
-      alignItems: 'center',
-      marginTop: 20,
-    },
-    buttonText: {
-      color: 'white',
-      fontWeight: 'bold',
-      fontSize: 16,
-    },
-  
-    // Review Section
-    reviewContainer: {
-      flex: 1,
-      padding: 16,
-      backgroundColor: '#F9F9F9',
-    },
-    scoreText: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      textAlign: 'center',
-      marginBottom: 20,
-      color: '#3785DE',
-    },
-    reviewItem: {
-      backgroundColor: '#FFFFFF',
-      borderWidth: 1,
-      borderColor: '#ddd',
-      padding: 12,
-      borderRadius: 8,
-      marginVertical: 8,
-    },
-    reviewText: {
-      fontSize: 16,
-      color: '#333',
-    },
-    finishButton: {
-      backgroundColor: '#1CA7EC',
-      padding: 12,
-      borderRadius: 5,
-      alignItems: 'center',
-      marginTop: 20,
-    },
-  
-    // Error Styles
-    error: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      color: 'red',
-      fontSize: 16,
-    },loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#F9F9F9', // Light background to keep it clean and readable
-      },
-      loadingText: {
-        marginTop: 10,
-        fontSize: 16,
-        color: '#1CA7EC', // Matches the primary theme color
-        fontWeight: '500',
-      },  errorContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#FFF5F5', // Light red background to indicate an error
-      },
-      errorText: {
-        fontSize: 18,
-        color: '#D9534F', // Strong red color for error text
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginHorizontal: 20, // Ensure the text is not too close to the edges
-      },questionCountContainer: {
-        marginBottom: 16,
-        alignItems: 'center',
-      },
-      questionCountText: {
-        fontSize: 16,
-        fontWeight: '500',
-        color: '#333',
-      },reviewQuestionText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginBottom: 10,
-        color: '#333',
-      },
-      reviewChoice: {
-        padding: 8,
-        borderWidth: 1,
-        borderRadius: 5,
-        marginVertical: 4,
-      },
-      correctChoice: {
-        backgroundColor: '#D4EDDA', // Light green for correct
-        borderColor: '#28A745', // Dark green for border
-      },
-      incorrectChoice: {
-        backgroundColor: '#F8D7DA', // Light red for incorrect
-        borderColor: '#DC3545', // Dark red for border
-      },
-      questionContainer: {
-        padding: 12,
-        borderRadius: 5,
-        marginVertical: 8,
-      },
-      choicesContainer: {
-        paddingVertical: 8,
-        paddingHorizontal: 12,
-        backgroundColor: '#F9F9F9',
-        borderRadius: 5,
-        marginTop: 8,
-      },
-      choiceContainer: {
-        padding: 8,
-        borderWidth: 1,
-        borderRadius: 5,
-        marginVertical: 4,
-      },  dropdownTrigger: {
-        width: '100%',
-        height: 50,
-        borderColor: 'gray',
-        borderWidth: 1,
-        borderRadius: 5,
-        justifyContent: 'center',
-        paddingHorizontal: 10,
-        marginBottom: 10,
-      },
-      dropdownTriggerText: {
-        fontSize: 16,
-        color: 'black',
-      },
-      dropdownList: {
-        width: '100%',
-        backgroundColor: 'white',
-        borderWidth: 1,
-        borderColor: 'gray',
-        borderRadius: 5,
-        marginBottom: 10,
-      },
-      dropdownItem: {
-        padding: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: 'gray',
-      },
-      dropdownItemText: {
-        fontSize: 16,
-        color: 'black',
-      },
-    
-      
-    
-      
-   
-  });
-  
+  // Main Container
+  quizContainer: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#F9F9F9",
+    justifyContent: "center",
+  },
+
+  // Popup Styles
+  popupContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F5FCFF",
+  },
+  bannerText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#3785DE",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  popup: {
+    width: "90%",
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  popupLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+    marginVertical: 10,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 5,
+    padding: 8,
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  startButton: {
+    backgroundColor: "#1CA7EC",
+    padding: 12,
+    borderRadius: 5,
+    alignItems: "center",
+    marginTop: 10,
+  },
+
+  // Question Section
+  questionText: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 20,
+    textAlign: "center",
+    color: "#333",
+  },
+
+  // Choices Section
+  choice: {
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 8,
+  },
+  selected: {
+    backgroundColor: "#E6F7FF",
+    borderWidth: 1,
+    borderColor: "#1CA7EC",
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 8,
+  },
+  choiceText: {
+    fontSize: 16,
+    color: "#333",
+  },
+
+  // Progress Bar
+  progressContainer: {
+    marginBottom: 24,
+  },
+
+  // Continue/Submit Button
+  continueButton: {
+    backgroundColor: "#62D9A2",
+    padding: 12,
+    borderRadius: 5,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+
+  // Review Section
+  reviewContainer: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#F9F9F9",
+  },
+  scoreText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 20,
+    color: "#3785DE",
+  },
+  reviewItem: {
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 8,
+  },
+  reviewText: {
+    fontSize: 16,
+    color: "#333",
+  },
+  finishButton: {
+    backgroundColor: "#1CA7EC",
+    padding: 12,
+    borderRadius: 5,
+    alignItems: "center",
+    marginTop: 20,
+  },
+
+  // Error Styles
+  error: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    color: "red",
+    fontSize: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F9F9F9", // Light background to keep it clean and readable
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#1CA7EC", // Matches the primary theme color
+    fontWeight: "500",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFF5F5", // Light red background to indicate an error
+  },
+  errorText: {
+    fontSize: 18,
+    color: "#D9534F", // Strong red color for error text
+    fontWeight: "bold",
+    textAlign: "center",
+    marginHorizontal: 20, // Ensure the text is not too close to the edges
+  },
+  questionCountContainer: {
+    marginBottom: 16,
+    alignItems: "center",
+  },
+  questionCountText: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#333",
+  },
+  reviewQuestionText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#333",
+  },
+  reviewChoice: {
+    padding: 8,
+    borderWidth: 1,
+    borderRadius: 5,
+    marginVertical: 4,
+  },
+  correctChoice: {
+    backgroundColor: "#D4EDDA", // Light green for correct
+    borderColor: "#28A745", // Dark green for border
+  },
+  incorrectChoice: {
+    backgroundColor: "#F8D7DA", // Light red for incorrect
+    borderColor: "#DC3545", // Dark red for border
+  },
+  questionContainer: {
+    padding: 12,
+    borderRadius: 5,
+    marginVertical: 8,
+  },
+  choicesContainer: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: "#F9F9F9",
+    borderRadius: 5,
+    marginTop: 8,
+  },
+  choiceContainer: {
+    padding: 8,
+    borderWidth: 1,
+    borderRadius: 5,
+    marginVertical: 4,
+  },
+  dropdownTrigger: {
+    width: "100%",
+    height: 50,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    justifyContent: "center",
+    paddingHorizontal: 10,
+    marginBottom: 10,
+  },
+  dropdownTriggerText: {
+    fontSize: 16,
+    color: "black",
+  },
+  dropdownList: {
+    width: "100%",
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  dropdownItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "gray",
+  },
+  dropdownItemText: {
+    fontSize: 16,
+    color: "black",
+  },
+});
+
 export default Quiz;
