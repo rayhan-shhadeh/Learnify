@@ -1,10 +1,9 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -37,6 +36,7 @@ model file {
   fileURL       String?     @db.VarChar(500)
   courseid      Int
   practiceCount Int?
+  numberOfPages Int
   course        course      @relation(fields: [courseid], references: [courseId], onDelete: Cascade, onUpdate: Restrict, map: "fk_file_course")
   flashcard     flashcard[]
   keyterm       keyterm[]
@@ -52,7 +52,7 @@ model review {
   repetitions    Int?
   nextReviewDate DateTime?  @db.Date
   easeFactor     Int?
-  flashcard      flashcard? @relation(fields: [flashcardid], references: [flashcardId], onDelete: Cascade, onUpdate: Restrict, map: "fk_review_flash1")
+  flashcard      flashcard? @relation(fields: [flashcardid], references: [flashcardId], onDelete: Cascade, onUpdate: Restrict, map: "fk_review_flash")
 
   @@index([flashcardid], map: "fk_review_flash")
   @@map("review")
@@ -100,16 +100,18 @@ model keyterm {
   keytermText String? @db.VarChar(255)
   keytermDef  String? @db.VarChar(500)
   fileid      Int
+  page        Int
+  type        Int
   file        file    @relation(fields: [fileid], references: [fileId], onDelete: Cascade, onUpdate: Restrict, map: "fk_keyterm_file")
 
-  @@index([fileid], map: "fileId_flashcard1")
+  @@index([fileid], map: "fileId")
 }
 
 model question {
   questionId    Int      @id @default(autoincrement())
   questionText  String   @db.VarChar(500)
   correctAnswer String   @db.VarChar(255)
-  choices       String   @db.Text
+  choices       String   @db.LongText
   quizid        Int
   answer        answer[]
   quiz          quiz     @relation(fields: [quizid], references: [quizId], onDelete: Cascade, onUpdate: Restrict, map: "fk_question_quiz")
@@ -123,11 +125,11 @@ model quiz {
   quizTitle       String     @db.VarChar(255)
   quizDescription String?    @db.VarChar(500)
   fileid          Int
-  score           Int        @default(0)
+  score           Int?
   question        question[]
   file            file       @relation(fields: [fileid], references: [fileId], onDelete: Cascade, onUpdate: Restrict, map: "fk_quiz_file")
 
-  @@index([fileid], map: "fileId_flashcard")
+  @@index([fileid], map: "fileId")
 }
 
 model user_ {
@@ -136,70 +138,33 @@ model user_ {
   username             String           @db.VarChar(100)
   password             String           @db.VarChar(255)
   dateOfBirth          DateTime         @db.Date
-  major                String?          @db.VarChar(255)
+  major                String           @db.VarChar(255)
   flag                 Int?
   subscription         Int?
   passwordResetExpires DateTime?        @db.Date
   passwordResetToken   String?          @db.VarChar(255)
   photo                String?          @db.VarChar(255)
-  active               Boolean?         @default(true)
-  createdAt            DateTime?        @default(dbgenerated("CURRENT_TIMESTAMP(3)"))
-  googleId             String?          @db.VarChar(191)
-  isGoogleAccount      Int              @default(0) @db.SmallInt
-  profilePicture       String?          @db.VarChar(191)
-  updatedAt            DateTime?
-  token                String?          @db.VarChar(255)
-  streak               Int?             @default(0)
-  groups               group_users[]
-  adminGroups          group_[]         @relation("AdminRelation") // Added relation for admin
+  active               Boolean?
+  createdAt            DateTime?        @default(now())
+  googleId             String?
+  isGoogleAccount      Boolean          @default(false)
+  profilePicture       String?
+  updatedAt            DateTime?        @updatedAt
+  token                String           @db.VarChar(500)
   calenderevent        calenderevent[]
   course               course[]
-  habit                habit[]
   explorehistory       explorehistory[]
-  messages             Message[]
+  habit                habit[]
 
   @@index([major], map: "fk_user__major")
   @@map("user_")
 }
 
-model group_ {
-  groupId     Int           @id @default(autoincrement())
-  name        String
-  description String?       @db.VarChar(255)
-  isPrivate   Boolean       @default(false)
-  adminId     Int // New admin field
-  admin       user_         @relation(fields: [adminId], references: [userId], name: "AdminRelation", onDelete: Cascade, onUpdate: Restrict)
-  users       group_users[]
-  createdAt   DateTime?     @default(now())
-  messages    Message[]
-}
-
-model group_users {
-  id      Int    @id @default(autoincrement())
-  user_   user_  @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Restrict)
-  group_  group_ @relation(fields: [groupId], references: [groupId], onDelete: Cascade, onUpdate: Restrict)
-  userId  Int
-  groupId Int
-
-  @@unique([userId, groupId])
-}
-
-model Message {
-  id        Int       @id @default(autoincrement())
-  text      String
-  senderId  Int
-  groupId   Int
-  timestamp DateTime? @default(now())
-
-  sender user_  @relation(fields: [senderId], references: [userId], onDelete: Cascade, onUpdate: Restrict)
-  group  group_ @relation(fields: [groupId], references: [groupId], onDelete: Cascade, onUpdate: Restrict)
-}
-
 model calenderevent {
   eventId          Int      @id @default(autoincrement())
   eventTitle       String   @db.VarChar(255)
-  eventStart       DateTime @db.Date
-  eventEnd         DateTime @db.Date
+  eventStart       DateTime @db.DateTime(0)
+  eventEnd         DateTime @db.DateTime(0)
   eventDescription String   @db.VarChar(255)
   allDay           Int      @default(0)
   userid           Int
@@ -216,6 +181,20 @@ model exploreflashcard {
   topic              topiclevel? @relation(fields: [topicid], references: [topiclevelId], onDelete: Cascade, onUpdate: Restrict, map: "exploreflashcard_ibfk_1")
 
   @@index([topicid], map: "topicid")
+}
+
+model flashcard {
+  flashcardId   Int      @id @default(autoincrement())
+  flashcardName String   @db.VarChar(255)
+  flashcardQ    String?  @db.VarChar(255)
+  flashcardA    String?  @db.VarChar(255)
+  fileid        Int
+  page          Int
+  type          Int?
+  file          file     @relation(fields: [fileid], references: [fileId], onDelete: Cascade, onUpdate: Restrict, map: "fk_flashcard_file")
+  review        review[]
+
+  @@index([fileid], map: "fileId")
 }
 
 model explorehistory {
@@ -236,16 +215,4 @@ model topiclevel {
   level             String             @db.VarChar(255)
   exploreflashcards exploreflashcard[]
   explorehistory    explorehistory[]
-}
-
-model flashcard {
-  flashcardId   Int      @id @default(autoincrement())
-  flashcardName String   @db.VarChar(255)
-  flashcardQ    String?  @db.VarChar(255)
-  flashcardA    String?  @db.VarChar(255)
-  fileid        Int
-  file          file     @relation(fields: [fileid], references: [fileId], onDelete: Cascade, onUpdate: Restrict, map: "fk_flashcard_file")
-  review        review[]
-
-  @@index([fileid], map: "fileId")
 }

@@ -1,10 +1,11 @@
-export  function createJSONFile( fileName,fileDeadline,fileURL,courseid) {
+export  function createJSONFile( fileName,fileDeadline,fileURL,courseid,numberOfPages) {
     console.log(fileDeadline);
     const jsonObject = {
         "fileName": fileName,
         "fileDeadline": fileDeadline,
         "fileURL": fileURL ,
         "practiceCount":0,
+        "numberOfPages":numberOfPages,
         "course":{
             "connect": {
               "courseId": courseid
@@ -14,24 +15,28 @@ export  function createJSONFile( fileName,fileDeadline,fileURL,courseid) {
     return jsonObject;
 }
 
-export function createJSONFlashcard( name,Q,A,fileid) {
+export function createJSONFlashcard( name,Q,A,fileid, page,type) {
     const jsonObject = {
         "flashcardName": name,
         "flashcardQ": Q,
         "flashcardA": A ,
+        "page" : page,
+        "type":type,
         "file":{
             "connect": {
-              "fileId": fileid
+              "fileId": parseInt(fileid)
             }
         }
     };
     return jsonObject;
 }
 
-export function createJSONkeyterm(key,def,fileid) {
+export function createJSONkeyterm(key,def,fileid,page,type) {
     const jsonObject = {
         "keytermText": key,
         "keytermDef": def,
+        "page" : page,
+        "type":type,
         "file":{
             "connect": {
               "fileId": fileid

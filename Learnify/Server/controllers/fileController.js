@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import { PrismaClient } from '@prisma/client';
 import { createJSONFile} from '../functions/createJsonObject.js';
+import { PDFDocument } from 'pdf-lib';
 const prisma = new PrismaClient();
 export const fileController = {
     async uploadFile(req, res) {
@@ -31,15 +32,19 @@ export const fileController = {
             };
             const command = new PutObjectCommand(params);
             await s3.send(command);
+            const pdfDoc = await PDFDocument.load(file.buffer);
+            const numberOfPages = pdfDoc.getPageCount();
+            console.log("Number Of Pages="+numberOfPages);
             // Construct the file URL
             const fileURL = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
-            const preparedFile = createJSONFile(fileName,fileDeadline,fileURL,courseId);
+            const preparedFile = createJSONFile(fileName,fileDeadline,fileURL,courseId,numberOfPages);
             const newFile = await fileService.upload(preparedFile);
             if (newFile){
                 res.status(200).json({
                     message: 'File uploaded successfully',
                     "fileId":  newFile.fileId,
-                    "fileUrl" :fileURL 
+                    "fileUrl" :fileURL ,
+                    "numberOfPages" :numberOfPages
                 });
             }
         } catch (error) {

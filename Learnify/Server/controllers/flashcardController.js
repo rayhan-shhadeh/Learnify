@@ -4,22 +4,28 @@ import {deletePDF,downloadPDF} from '../functions/pdfHandling.js';
 import {OpenAIPromptHandling } from '../functions/openAIPromptHandling.js';
 import {createJSONFlashcard} from '../functions/createJsonObject.js'
 import {isArrayOfJSONObjects} from '../functions/validateFormat.js'
-// Tala 1: I added my laptop path to the myPath variable
-const myPath = "C:\\Users\\rshha\\Documents\\VSCode\\projects\\Graduation-v7\\Learnify\\Server\\TempPDFs\\";
+
 export const flashcardController = {
     async generateSmartFlashcard(req, res) {
         try {
             const file = await fileService.getFileById(req.params.fileid);
             //file info
-            const fileid = file.fileId;
+            const fileId = file.fileId;
             const filename = file.fileName;
             const fileurl = file.fileURL;
             //prepare prompt and fullpath for openAI function
-            const prompt = 'Create Flashcards for attached file In following format as array of json with QA pairs[{"Q": "What is today", "A": "Tuesday"},............] without any additional text before or after json object and without ```json```';
-            const fullPath = myPath+filename;
-            console.log("this is my full path",fullPath);
+            const prompt = 'Create flashcards for the attached file, focus on important infrormation.' + 
+            'in the following format as an array of JSON objects with QA pairs,' 
+            +'including the slide number where each card is generated. Use this format:'
+            +'[{"Q": "What is today?", "A": "Tuesday", "page": 1},...]'
+            +'without any additional text, comments, quotes, before or after the json object, no formatting, quotes, only the json array between [].'
+            +"Generate flashcards that covered important informations in file without loss or duplication. don't include any key term and its defiftion."
+            +"one flashcard from each slide."
+            +'With a ' +req.body.complexity +
+            +'complexity level and a ' +req.body.length+ 'card length';
+             const fullPath = process.env.SAVE_PATH+filename;
             //download pdf, send to openAI, delete pdf
-            await downloadPDF(fileurl , myPath ,filename);//url, savePath, filename
+            await downloadPDF(fileurl , process.env.SAVE_PATH ,filename);//url, savePath, filename
             const response = await OpenAIPromptHandling(fullPath,prompt);//filename,prompt
             await deletePDF(fullPath);
             //parse the response to deal with it as json
@@ -31,13 +37,13 @@ export const flashcardController = {
             }
             //store flashcards in db
             const flashcardPromises = jsonArrayResponse.map(async (flashcard) => {
-                const JSONflashcard = createJSONFlashcard("flashcard"+fileid,flashcard.Q,flashcard.A,fileid);
+                const JSONflashcard = createJSONFlashcard("flashcard"+fileId,flashcard.Q,flashcard.A,fileId, flashcard.page,1);
                 const createdFlahcard = await flashcardService.createFlashcard(JSONflashcard);
                 return createdFlahcard;
             });
             await Promise.all(flashcardPromises);
-            //get complete flashcards from db (with thier ids) 
-            const flashcardsResponse = await fileService.getFlashcardsByFileId(fileid);
+            //get complete flashcards from db (with thier ids)
+            const flashcardsResponse = await fileService.getFlashcardsByFileId(fileId);
             //response
             res.status(201).json(flashcardsResponse);
         } catch (error) {

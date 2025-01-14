@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
-//import {updateReviewsForNewDeadline} from "../functions/practice.js";
 export const fileService = {
     async upload(data){
         console.log("hi from uploader!!");
@@ -20,14 +19,17 @@ export const fileService = {
             data
         });
     },
-    async getFlashcardsByFileId(fileId){
+    async getFlashcardsByFileId(fileId) {
         return await prisma.flashcard.findMany({
-            where: { fileid : parseInt(fileId) }
+            where: { fileid: parseInt(fileId) },
+            orderBy: { page: 'asc' }
         });
     },
+
     async getKeytermsByFileId(fileId){
         return await prisma.keyterm.findMany({
-            where: { fileid : parseInt(fileId) }
+            where: { fileid : parseInt(fileId) },
+            orderBy: { page: 'asc' }
         });
     },
 
@@ -47,11 +49,5 @@ export const fileService = {
             where : { fileId : parseInt(fileId) }
         }
         )
-    },
-    async getFileByCourseId(courseId){
-        return await prisma.file.findMany({
-            where : { courseId : parseInt(courseId) }
-        })
     }
-
 }

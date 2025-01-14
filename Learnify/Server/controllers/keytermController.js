@@ -4,8 +4,7 @@ import {downloadPDF,deletePDF} from '../functions/pdfHandling.js';
 import {OpenAIPromptHandling}  from '../functions/openAIPromptHandling.js';
 import {createJSONkeyterm} from '../functions/createJsonObject.js'
 import {isArrayOfJSONObjects} from '../functions/validateFormat.js'
-// Tala 3: I added my laptop path to the myPath variable
-const myPath ="C:\\Users\\rshha\\Documents\\VSCode\\projects\\Graduation-v7\\Learnify\\Server\\TempPDFs\\";
+
 export const keytermController = {
     async generateSmartKeyterms(req, res) {
         try {
@@ -15,10 +14,19 @@ export const keytermController = {
             const filename = file.fileName;
             const fileurl = file.fileURL;
             //prepare propmt and fullpath for openAI function
-            const prompt = 'Create keyterms and their definetions for attached file In following format as array of json with key def pairs[{"key": "Replication", "def": "it is a key concept in cloud computing ...."},............] without any additional text befor or after json object and without ```json```';
-            const fullPath = myPath+filename;
+            const prompt = 'Create keyterms and their definetions for attached file, focus on important infrormations.' +
+            +'including the slide number where each card is generated.'
+            +'In following format as array of json with key def pairs'
+            +'[{"key": "Replication", "def": "it is a key concept in cloud computing ....","page":1},............]' 
+            +'without any additional text, comments, quotes, before or after the json object.' 
+            +'no formatting, quotes, only the json array between [].'
+            +'Generate key terms that covered importatnt key terms in file without loss or duplication.'
+            +"one key term from each slide."
+            +'With a complexity of' +req.body.complexity 
+            +'key and definition length ' +req.body.length  
+            const fullPath = process.env.SAVE_PATH+filename;
             //download pdf, send to openAI, delete pdf 
-            await downloadPDF(fileurl , myPath ,filename);//url, savePath, filename
+            await downloadPDF(fileurl , process.env.SAVE_PATH ,filename);//url, savePath, filename
             const response = await OpenAIPromptHandling(fullPath,prompt); //filename,prompt
             await deletePDF(fullPath);
             //parse response to deal with it as json
@@ -30,7 +38,7 @@ export const keytermController = {
             }
             //store
             const keytermsPromises = jsonArray.map(async (keyterm) => {
-                const JSONkeyterm= createJSONkeyterm(keyterm.key,keyterm.def,fileid);
+                const JSONkeyterm= createJSONkeyterm(keyterm.key,keyterm.def,fileid,keyterm.page,1);
                 const createdKeyterm = await keytermService.createKeyterm(JSONkeyterm);
                 return createdKeyterm;
             });

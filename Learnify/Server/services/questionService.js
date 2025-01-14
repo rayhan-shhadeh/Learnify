@@ -23,10 +23,9 @@ export const questionService = {
 
     async getQuestionsByQuizId(quizId) {
         try {
-            // Use Prisma to fetch questions where the `quizId` matches
             return await prisma.question.findMany({
                 where: {
-                    quizid: quizId, // Filter questions by quizId
+                    quizid: parseInt(quizId)
                 },
             });
         } catch (error) {
