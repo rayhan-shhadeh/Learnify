@@ -68,7 +68,6 @@ const CourseFilesScreen = () => {
     setFileDeadline(currentDate.toISOString());
     }
   };
-  
   useEffect(() => {
     const initialize = async () => {
       try {
@@ -140,10 +139,11 @@ const CourseFilesScreen = () => {
     Alert.alert('Error', 'An error occurred while deleting file');
   }
 }
-const handleFileView = (uri: string) => {
+const handleFileView = (passedFileId: string) => {
+  const activeTab:string = "PDF";
   router.push({
     pathname: `/Files/PdfScreen`,
-    params: { uri } 
+    params: { passedFileId,activeTab } 
   });
 };
 

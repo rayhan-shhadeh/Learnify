@@ -5,9 +5,11 @@ import DeleteIcon from"@mui/icons-material/Delete";
 import QuestionMarkIcon from"@mui/icons-material/QuestionMark";
 import LightbulbIcon from"@mui/icons-material/Lightbulb";
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
+import LaunchIcon from "@mui/icons-material/Launch"; // Open Page Icon
 import "../../CSS/flashcard.css";
 
-const Flashcard = ({ flashcard, onSave, onDelete, handleSaveNewItem, isEditingParent, handleCancelNewItem}) => {
+const Flashcard = ({ flashcard, onSave, onDelete, handleSaveNewItem, isEditingParent, handleCancelNewItem,
+  handleOpenPageFlashcard }) => {
   console.log(isEditingParent)
   const [isEditing, setIsEditing] = useState(isEditingParent);
   const [editedQuestion, setEditedQuestion] = useState(flashcard.flashcardQ);
@@ -61,7 +63,6 @@ const Flashcard = ({ flashcard, onSave, onDelete, handleSaveNewItem, isEditingPa
             editedAnswer
           )}
         </p>
-
         <div className="flashcard-actions">
           {isEditing ? (
             <>
@@ -71,17 +72,25 @@ const Flashcard = ({ flashcard, onSave, onDelete, handleSaveNewItem, isEditingPa
           ) : (
             <EditIcon onClick={() => setIsEditing(true)} className="flashcard-action-icon edit" />
           )}
-           {!flashcard.isNew && (
+          {!flashcard.isNew && (
+            <>
             <DeleteIcon
               onClick={() => onDelete(flashcard.id)}
               className="flashcard-action-icon delete"
             />
-          )}
+    {flashcard.type === 1 && (
+      <LaunchIcon
+        onClick={() => handleOpenPageFlashcard(flashcard.id)}
+        className="flashcard-action-icon open"
+      />
+    )}
+          </>
+        )}
         </div>
       </div>
     </div>
   );
 };
 
-  export default Flashcard;
+export default Flashcard;
   

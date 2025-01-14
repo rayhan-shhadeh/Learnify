@@ -11,7 +11,7 @@ import CourseFilesPage from "../views/CourseFilesPage"
 import FileStudyPage from '../views/fileStudyPage';
 import FilePracticePage from '../views/filePracticePage'
 import QuizPage from '../views/QuizPage'
-
+//import PDFViewer from '../Components/fileComponents/PdfTest';
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
 const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')));
 
@@ -26,7 +26,6 @@ const Shadow = Loadable(lazy(() => import('../views/utilities/Shadow')))
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
-
 
 const Router = [
   {

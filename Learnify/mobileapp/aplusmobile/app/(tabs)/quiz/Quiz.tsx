@@ -46,8 +46,7 @@ const Quiz = () => {
   const [score, setScore] = useState<number | null>(null);
   const [error, setError] = useState<boolean>(false);
   const router = useRouter();
-  const { passedFileId, passedIsFromAllFilesPage, passedCourseId } =
-    useLocalSearchParams();
+  const { passedFileId, passedIsFromAllFilesPage, passedCourseId } = useLocalSearchParams();
   const [expandedQuestionIndex, setExpandedQuestionIndex] = useState<
     number | null
   >(null);
@@ -161,25 +160,22 @@ const Quiz = () => {
       const successRate: number = Math.round(
         (calculatedScore / numQuestions) * 100
       );
-
       try {
         if (!quizId) {
           console.error("Quiz ID is not set.");
           return;
         }
-
         await API.patch(`/api/quiz/${quizId}`, {
           numOfQuestions: numQuestions,
-          score: successRate,
+          score: successRate
         });
-
         setScore(calculatedScore);
       } catch (err) {
         console.error("Error updating score in the database:", err);
       }
     }
   };
-
+/*
   const handleFinishReview = async () => {
     try {
       if (passedIsFromAllFilesPage === "all") {
@@ -201,7 +197,7 @@ const Quiz = () => {
       Alert.alert("Navigation Error", "Unable to navigate back.");
     }
   };
-
+*/
   if (error) {
     return (
       <View style={styles.errorContainer}>
@@ -279,10 +275,9 @@ const Quiz = () => {
       </View>
     );
   }
-
   const currentQuestion = quiz.questions[currentQuestionIndex];
-
-  if (review) {
+    /*
+    if (review) {
     return (
       <View style={styles.reviewContainer}>
         <Text style={styles.scoreText}>
@@ -297,7 +292,6 @@ const Quiz = () => {
               (choice) => choice.isCorrect
             );
             const isExpanded = expandedQuestionIndex === index;
-
             return (
               <View style={styles.reviewItem}>
                 <TouchableOpacity
@@ -356,8 +350,9 @@ const Quiz = () => {
         </TouchableOpacity>
       </View>
     );
-  }
-
+}
+    */
+  
   return (
     <View style={styles.quizContainer}>
       <View style={styles.questionCountContainer}>
@@ -404,7 +399,11 @@ const Quiz = () => {
         onPress={
           currentQuestionIndex + 1 === quiz.questions.length
             ? () => {
-                setReview(true);
+                //setReview(true);
+                const passedQuizId= quizId;
+                router.replace({
+                 pathname: "/quiz/QuizReviewScreen", params: {passedQuizId,passedIsFromAllFilesPage,passedCourseId}
+                })             
                 handleScore();
               }
             : handleContinue
@@ -560,8 +559,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 20,
   },
-
-  // Error Styles
   error: {
     flex: 1,
     justifyContent: "center",

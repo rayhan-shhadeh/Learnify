@@ -1,13 +1,20 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import svgr from 'vite-plugin-svgr'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
-     svgr()],
-  optimizeDeps: {
-    include: ['jwt-decode'],
-  },
-  
-});
+    ],
+    optimizeDeps: {
+      include: ['jwt-decode'],
+    },   
+    server: {
+      proxy: {
+        '/pdf': {
+          target: 'http://localhost:8080',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/pdf/, ''),
+        },
+      },
+    },
+  });
