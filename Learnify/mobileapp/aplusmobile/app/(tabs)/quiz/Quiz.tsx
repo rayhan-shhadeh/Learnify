@@ -13,6 +13,7 @@ import { ProgressBar } from "react-native-paper";
 import { useRouter } from "expo-router";
 import API from "../../../api/axois";
 import { useLocalSearchParams } from "expo-router";
+import LottieView from "lottie-react-native";
 
 // Define types for quiz, question, and choices
 interface Choice {
@@ -212,6 +213,12 @@ const Quiz = () => {
   if (popupVisible) {
     return (
       <View style={styles.popupContainer}>
+        <LottieView
+          source={require("../../../assets/quiz.json")}
+          autoPlay
+          loop
+          style={{ width: 200, height: 200 }}
+        />
         <Text style={styles.bannerText}>
           Unleash your potential and challenge your mind!
         </Text>
@@ -429,6 +436,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#F5FCFF",
+    marginBlock: 20,
   },
   bannerText: {
     fontSize: 18,
@@ -436,6 +444,7 @@ const styles = StyleSheet.create({
     color: "#3785DE",
     textAlign: "center",
     marginBottom: 20,
+    marginHorizontal: 20,
   },
   popup: {
     width: "90%",

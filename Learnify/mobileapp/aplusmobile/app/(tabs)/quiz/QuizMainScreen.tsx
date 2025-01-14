@@ -30,7 +30,7 @@ export default function QuizScreen() {
   const [courses, setCourses] = useState<any[]>([]);
   const [files, setFiles] = useState<{ id: string; name: string }[]>([]);
   const [quizData, setQuizData] = useState<any[]>([]);
-  const [username,setUsername] = useState<any>();
+  const [username, setUsername] = useState<any>();
   const [lastQuiz, setLastQuiz] = useState<{
     title: string;
     successRate: number;
@@ -518,9 +518,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#2196F3",
   },
   modalButtonText: {
-    color: "#fff",
+    color: "#333",
     fontSize: 30,
     fontWeight: "bold",
+    position: "relative",
   },
   courseItem: {
     padding: 15,

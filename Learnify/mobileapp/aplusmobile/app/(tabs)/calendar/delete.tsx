@@ -67,7 +67,12 @@ export default function CalendarScreen() {
   }, []);
   const handleEditEvent = async (event: any) => {
     setEditModalVisible(true);
-    setEditEvent(event);
+    setEditEvent({
+      title: event.title,
+      description: event.description,
+      start: event.start,
+      end: event.end,
+    });
     const userId = await AsyncStorage.getItem("currentUserId");
     const token = await AsyncStorage.getItem("token");
     if (!userId) {
@@ -110,17 +115,32 @@ export default function CalendarScreen() {
     }
   };
   const handleSaveEditEvent = async (event: any) => {
+    if (!editEvent.title || !editEvent.description) {
+      Alert.alert("Error", "Please fill in all the fields.");
+      return;
+    }
+
     try {
-      const response = await API.put(`/api/events/${event.id}`, editEvent);
+      const response = await API.put(`/api/events/${event.id}`, {
+        eventTitle: editEvent.title,
+        eventStart: editEvent.start.toISOString(),
+        eventEnd: editEvent.end.toISOString(),
+        eventDescription: editEvent.description,
+        user_: {
+          connect: {
+            userId: userId ? parseInt(userId) : 1,
+          },
+        },
+      });
       if (response.status === 200) {
         Alert.alert("Success", "Event updated successfully!");
         handleGetEvents();
+        setEditModalVisible(false);
       }
     } catch (error) {
       console.error(error);
       Alert.alert("Error", "An error occurred while updating the event.");
     }
-    setEditModalVisible(false);
   };
 
   const handleGetEvents = async () => {
@@ -413,7 +433,15 @@ export default function CalendarScreen() {
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.addButton, styles.cancelButton]}
-              onPress={() => setModalVisible(false)}
+              onPress={() => {
+                setModalVisible(false);
+                setEditEvent({
+                  title: "",
+                  description: "",
+                  start: new Date(),
+                  end: new Date(),
+                });
+              }}
             >
               <Text style={styles.addButtonText}>Cancel</Text>
             </TouchableOpacity>

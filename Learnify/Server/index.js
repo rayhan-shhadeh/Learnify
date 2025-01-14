@@ -35,7 +35,7 @@ const io = new Server(server,{
   cors: {
     origin: ["*"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    credentials: true
+    credentials: true,
 }
 });
 
@@ -60,6 +60,8 @@ app.use(cors(corsOption));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());  // This is important
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/api/test", (req, res) => {
   res.send("API is working"); 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,8 @@ import {
   StyleSheet,
   ScrollView,
   Image,
+  Pressable,
+  Modal,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
@@ -13,9 +15,13 @@ import { useRouter } from "expo-router";
 import NavBar from "./NavBar";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Icon } from "react-native-paper";
 
 const HomePage = () => {
   const router = useRouter();
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  const toggleModal = () => setModalVisible(!isModalVisible);
 
   return (
     <LinearGradient
@@ -67,9 +73,73 @@ const HomePage = () => {
       </ScrollView>
 
       <TouchableOpacity style={styles.floatingButton}>
-        <MaterialCommunityIcons name="plus-circle" size={60} color="#1ca7ec" />
+        <MaterialCommunityIcons
+          onPress={toggleModal}
+          name="progress-question"
+          size={60}
+          color="#1ca7ec"
+        />
       </TouchableOpacity>
-
+      {/* How to Use Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isModalVisible}
+        onRequestClose={toggleModal}
+      >
+        <View style={styles.modalOverlay}>
+          <Animatable.View
+            animation="fadeInUp"
+            duration={500}
+            style={styles.modalContent}
+          >
+            <Text style={styles.modalTitle}>How to Use?</Text>
+            <Text style={styles.modalText}>
+              1. Upload your study materials in the <Text>Learn</Text> section.
+              <MaterialCommunityIcons
+                name="file-upload"
+                size={20}
+                color="#1ca7ec"
+              />
+            </Text>
+            <Text style={styles.modalText}>
+              2. Click on File name to view the contents.
+              <MaterialCommunityIcons
+                name="file-eye"
+                size={20}
+                color="#1ca7ec"
+              />
+            </Text>
+            <Text style={styles.modalText}>
+              3. Generate Flashcards, Quizzes, and Key terms to start learning.
+              <MaterialCommunityIcons
+                name="file-check-outline"
+                size={20}
+                color="#1ca7ec"
+              />
+            </Text>
+            <Text style={styles.modalText}>
+              4. Use the <Text>Practice</Text> section to reinforce learning.
+              <MaterialCommunityIcons
+                name="file-document"
+                size={20}
+                color="#1ca7ec"
+              />
+            </Text>{" "}
+            <Text style={styles.modalText}>
+              5. Explore or Learn new decks for more resources.
+              <MaterialCommunityIcons
+                name="search-web"
+                size={20}
+                color="#1ca7ec"
+              />
+            </Text>
+            <Pressable style={styles.closeButton} onPress={toggleModal}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </Pressable>
+          </Animatable.View>
+        </View>
+      </Modal>
       <NavBar />
     </LinearGradient>
   );
@@ -130,7 +200,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: "center",
-    marginVertical: 20,
+    marginVertical: 10,
   },
   headerTitle: {
     fontSize: 28,
@@ -182,14 +252,51 @@ const styles = StyleSheet.create({
   floatingButton: {
     position: "absolute",
     right: 20,
-    bottom: 90,
+    bottom: 65,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.5,
     shadowRadius: 6,
+    marginTop: 20,
   },
   icons: {
     color: "#fff",
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 15,
+    width: "90%",
+    alignItems: "center",
+    elevation: 10,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#1ca7ec",
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 16,
+    color: "#555",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  closeButton: {
+    backgroundColor: "#1ca7ec",
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
   },
 });
 

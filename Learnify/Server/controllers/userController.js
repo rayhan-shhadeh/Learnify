@@ -20,23 +20,29 @@ export const userController = {
       res.status(500).json({ error: 'Internal server error' });
     }
   },
-  async updateMe (req, res, next) {
-    // 1) Create error if user POSTs password data
-    try {
-      // 1) Create error if user POSTs password data
-      if (req.body.password || req.body.passwordConfirm) {
-        return res.status(400).json({
-          status: 'fail',
-          message: 'This route is not for password updates. Please use /api/users/updatepassword '
-        });
-      }
-
-      // Add the rest of your updateMe logic here
-
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+async updateMe (req, res, next) {
+  try {
+    // 1) Check if user is trying to update password
+    if (req.body.password || req.body.passwordConfirm) {
+      return next(new AppError('This route is not for password updates. Please use /updateMyPassword.', 400));
     }
-  },
+
+    // 2) Update user document
+    const updatedUser = await userService.updateMe(req.params.id, req.body);
+
+    if (!updatedUser) {
+      return next(new AppError('User not found', 404));
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: updatedUser
+    });
+  } catch (error) {
+    console.error('Error in updateMe:', error);
+    next(new AppError('Failed to update user data', 500));
+  }
+},
  
   async deleteMe(req, res, next) {
     try {

@@ -31,14 +31,14 @@ const NavBar = () => {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.navButton}
-        onPress={() => router.push("/(tabs)/quiz/QuizReviewScreen")}
+        onPress={() => router.push("/(tabs)/Habits/HabitsScreen")}
       >
         <Icon name="bar-chart" size={24} color="#888" />
         <Text style={styles.navTextInactive}>Habits</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.navButton}
-        onPress={() => router.push("/(tabs)/calendar/delete")}
+        onPress={() => router.push("/(tabs)/charts/ChartsScreen")}
       >
         <Icon name="calendar" size={24} color="#888" />
         <Text style={styles.navTextInactive}>Calendar</Text>

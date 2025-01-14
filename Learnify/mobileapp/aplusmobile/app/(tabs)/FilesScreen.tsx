@@ -336,13 +336,13 @@ const FilesScreen = () => {
     if (choice === "Study") {
       router.push({
         pathname: `/Files/PdfScreen`,
-        params: { passedFileId:selectedFileId },
+        params: { passedFileId: selectedFileId },
       });
     } else if (choice === "Practice") {
-      const passedFileId=selectedFileId;
+      const passedFileId = selectedFileId;
       router.push({
-        pathname: '/(tabs)/StudyFlashcardsScreen',
-        params: { passedFileId: passedFileId},
+        pathname: "/(tabs)/StudyFlashcardsScreen",
+        params: { passedFileId: passedFileId },
       });
     } else if (choice === "Quiz") {
       router.push({
@@ -784,8 +784,10 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    width: 100,
+    justifyContent: "flex-end",
+    alignContent: "flex-start",
+    width: "100%",
+    paddingHorizontal: 10,
   },
   addButton: {
     backgroundColor: "#778899",
@@ -810,20 +812,18 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: "white",
-    padding: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 20,
     borderRadius: 18,
     width: "80%",
-    marginHorizontal: "10%",
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: "bold",
   },
   input: {
-    borderWidth: 1,
+    borderWidth: 0.2,
     borderColor: "#ddd",
-    padding: 10,
-    marginBottom: 10,
     borderRadius: 5,
     color: "#000",
   },
@@ -862,7 +862,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
-    marginBottom: 20,
+    marginBottom: 5,
   },
   selectedText: {
     fontSize: 16,

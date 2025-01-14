@@ -7,7 +7,10 @@ const API = axios.create({
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
-  'Authorization': 'Bearer '+localStorage.getItem('token')
+  'Authorization': 'Bearer '+localStorage.getItem('token'),
+  'Access-Control-Allow-Credentials': 'true',
+'Access-Control-Max-Age': 86400
+
 }});
 
 

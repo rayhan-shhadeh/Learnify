@@ -17,7 +17,7 @@ import {
 import { WebView } from "react-native-webview";
 import { Picker } from "@react-native-picker/picker";
 import API from "../../../api/axois";
-import Icon from "react-native-vector-icons/AntDesign";
+import Icon from "react-native-vector-icons/Ionicons";
 import FlashcardIcon from "react-native-vector-icons/Ionicons";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useLocalSearchParams } from "expo-router";

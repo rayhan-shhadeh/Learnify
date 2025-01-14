@@ -63,7 +63,7 @@ const SignIn = () => {
       if (response.status === 200) {
         const token = JSON.stringify(data.token);
         authCtx.authenticate(token);
-        Alert.alert("Success", `Token: ${token}`);
+        Alert.alert("Success");
         await AsyncStorage.setItem("token", token);
         const decoded: any = jwtDecode(token);
         const currentUserId = decoded.id.toString();

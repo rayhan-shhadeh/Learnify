@@ -29,15 +29,21 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await API.post('login', formData);  
+      const response = await fetch('http://localhost:8080/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });  
       const token = response.data.token;
       console.log("token from login: ",token);
-Cookies.set('authToken', token);
+      Cookies.set('authToken', token, { sameSite: "None", secure: false });
 
       localStorage.setItem('authToken', token);
       setMessage('Logged in successfully!');
       setError(false); // Reset error state
-res.setToken(token);
+      res.setToken(token, { sameSite: "None", secure: false, maxAge: 10000 });
       // Redirect to the profile page after successful login
       navigate('/dashboard');
     } catch (error) {
