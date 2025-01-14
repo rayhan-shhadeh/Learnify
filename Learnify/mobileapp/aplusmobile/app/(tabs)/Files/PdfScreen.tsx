@@ -6,6 +6,7 @@ import Icon from "react-native-vector-icons/AntDesign";
 import FlashcardIcon from "react-native-vector-icons/Ionicons";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useLocalSearchParams } from "expo-router";
+import {Keyboard } from "react-native";
 
 interface PdfViewerProps {
   fileId: string;
@@ -51,7 +52,10 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
   const [flashcardStates, setFlashcardStates] = useState<Record<string, { isEditing: boolean; editedQuestion: string; editedAnswer: string }>>({});
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentKeyterm, setCurrentKeyterm] = useState<KeyTerm | null>(null);
-  
+  const [startPage,setStartPage]=useState<number>(1);
+  const [endPage,setEndPage]=useState<number>(1);
+  const [isAllPages,setIsAllPages]=useState<boolean>(true);
+  const [numberOfPages,setNumberOfPages]=useState<number>(1);
     useEffect(() => {
     const fetchPdfUrl = async () => {
       fileId = passedFileId.toString();
@@ -59,6 +63,9 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
         setLoading(true);
         const response = await API.get(`/api/file/${fileId}`);
         setPdfUrl(response.data.fileURL);
+        setNumberOfPages(response.data.numberOfPages);
+        setStartPage(1);
+        setEndPage(numberOfPages);
         //setPdfUrl("https://astudy.s3.eu-north-1.amazonaws.com/pdfs/5-Virtualization.pdf");
       } catch (err) {
         console.error("Error fetching PDF URL:", err);
@@ -378,10 +385,15 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
   };
   
   const handleGenerateFlashcards = async () => {
-    console.log("Generating flashcards....");
     if (!passedFileId) {
+      alert("Try again!");
       return;
     }
+    if(endPage< startPage){
+      alert("Invalid start and end!");
+      return;
+    }
+    console.log("Generating flashcards....");
     setLoading(true);
     try {
       const response = await fetch(`http://${LOCALHOST}:8080/api/smartFlashcards/${passedFileId}`, {
@@ -392,6 +404,9 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
         body: JSON.stringify({
           complexity: difficulty,
           length: length,
+          allPages:isAllPages,
+          startPage: startPage ,
+          endPage: endPage
         }),
       });
       if (!response.ok) {
@@ -407,10 +422,13 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
       console.log("Flashcards Generated Successfully.");
       fetchFlashcards();
       setLoading(false);
+      setDifficulty("Easy")
+      setLength("Short ");
+      setIsAllPages(true);
     } catch (error) {
       console.error("Error generating flashcards:", error);
       setError("hi");
-      setLoading(false);
+      setLoading(true);
     }
   };
     
@@ -429,6 +447,9 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
         body: JSON.stringify({
           complexity: difficulty,
           length: length,
+          allPages:isAllPages,
+          startPage: startPage ,
+          endPage: endPage
         }),
       });
       if (!response.ok) {
@@ -451,6 +472,9 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
       console.log("hi after key terms");
       setLoading(false);
       setKeytermModalVisible(false );
+      setDifficulty("Easy")
+      setLength("Short ");
+      setIsAllPages(true);
     } catch (error) {
       console.error("Error generating key terms:", error);
       setError("Failed to generate key terms. Please try again.");
@@ -506,6 +530,38 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
         params:{questionORterm,answerORdefinition,pdfUrl,page,passedFileId,KF}
       });
   }
+
+  const handleEndPageInput = (text: string) => {
+    const end = Number(text) ; 
+    if (end > numberOfPages) {
+      alert(`End page cannot exceed ${numberOfPages}`);
+      setEndPage(numberOfPages);
+    } else if (end < 1) {
+      alert(`End page must be at least 1`);
+      setEndPage(1);
+    }else{
+      setEndPage(end);
+    }
+  };      
+
+  const handleStartPage = (text: string) => {
+    const start =Number(text) ; 
+    if (start < 1) {
+      alert("Start Page must be at least 1.");
+      setStartPage(1);
+    }else if (start > numberOfPages){
+      alert("Invalid");
+      setStartPage(1);
+    }
+    else {
+      setStartPage(start);
+      console.log(`Start Page is valid: ${startPage}`);
+    }
+  };
+
+  const handleDismissKeyboard = () => {
+    Keyboard.dismiss();
+  };
 
   const renderContent = () => {
     if (activeModal === "PDF") {
@@ -672,137 +728,131 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
             <Text style={styles.popupbuttonText}>Generate Flashcards</Text>
           </TouchableOpacity> */}
           {/* Modal for Flashcard Options */}
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={flashcardModalVisible}
-            onRequestClose={() => setFlashcardModalVisible(false)} // Closes the modal when requested
-          >
-            <View style={styles.popupmodalContainer}>
-              <View style={styles.modalContent}>
-                <View style={{ flexDirection: "row" }}>
-                  <Icon name="setting" size={24} color="#333" />
-                  <Text style={styles.modalTitle}>Flashcard Settings</Text>
-                </View>
-                {/* Flashcard Count Selector */}
-                <View style={styles.option}>
-                  {/* <Text style={styles.optionLabel}>Number of Flashcards:</Text>
-                  <TouchableOpacity style={styles.dropdown}>
-                    <TextInput
-                      style={[
-                        styles.searchBarPlaceholder,
-                        { color: "#A9A9A9" },
-                      ]} // placeholder text color
-                      keyboardType="numeric"
-                      placeholder="Enter number of flashcards"
-                      placeholderTextColor="#A9A9A9" // Set placeholder text color
-                      onChangeText={(text) => setFlashcardCount(Number(text))}
-                      onSubmitEditing={() => Keyboard.dismiss()} // this will close the keyboard when the user clicks on done
-                      returnKeyType="done" // "Done" on keyboard
-                    />
-                  </TouchableOpacity> */}
-
-                  {/* Difficulty Selector */}
-                  <View style={styles.option}>
-                    <Text style={styles.optionLabel}>Length:</Text>
-                    <TouchableOpacity
-                      style={styles.dropdown}
-                      onPress={() => setShowLengthOptions(!showLengthOptions)}
-                    >
-                      <Text style={styles.dropdownText}>
-                        {length || "Select"}
-                      </Text>
-                    </TouchableOpacity>
-                    {showLengthOptions && (
-                      <View style={styles.dropdownOptions}>
-                        {["Short", "Medium", "Long"].map((length) => (
-                          <TouchableOpacity
-                            key={length}
-                            style={styles.dropdownOption}
-                            onPress={() => {
-                              setLength(length);
-                              setShowLengthOptions(false);
-                            }}
-                          >
-                            <Text style={styles.dropdownOptionText}>
-                              {length}
-                            </Text>
-                          </TouchableOpacity>
-                        ))}
-                      </View>
-                    )}
-                  </View>
-
-                  {/* {showFlashcardCountOptions && ( */}
-                  {/* // <View style={styles.dropdownOptions}>
-                    //   {[...Array(10).keys()].map((num) => (
-                    //     <TouchableOpacity
-                    //       key={num + 1}
-                    //       style={styles.dropdownOption}
-                    //       onPress={() => {
-                    //         setFlashcardCount(num + 1);
-                    //         setShowFlashcardCountOptions(false);
-                    //       }}
-                    //     >
-                    //       <Text style={styles.dropdownOptionText}>
-                    //         {num + 1}
-                    //       </Text>
-                    //     </TouchableOpacity>
-                    //   ))}
-                    // </View> */}
-                  {/* )} */}
-                </View>
-
-                {/* Difficulty Selector */}
-                <View style={styles.option}>
-                  <Text style={styles.optionLabel}>Difficulty:</Text>
-                  <TouchableOpacity
-                    style={styles.dropdown}
-                    onPress={() =>
-                      setShowDifficultyOptions(!showDifficultyOptions)
-                    }
-                  >
-                    <Text style={styles.dropdownText}>
-                      {difficulty || "Select"}
-                    </Text>
-                  </TouchableOpacity>
-                  {showDifficultyOptions && (
-                    <View style={styles.dropdownOptions}>
-                      {["Easy", "Intermediate", "Advanced"].map((level) => (
-                        <TouchableOpacity
-                          key={level}
-                          style={styles.dropdownOption}
-                          onPress={() => {
-                            setDifficulty(level);
-                            setShowDifficultyOptions(false);
-                          }}
-                        >
-                          <Text style={styles.dropdownOptionText}>{level}</Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  )}
-                </View>
-
-                {/* Actions */}
-                <View style={styles.actionButtons}>
-                  <TouchableOpacity
-                    style={styles.generateButton}
-                    onPress={() => setFlashcardModalVisible(false)}
-                  >
-                    <Text>Cancel</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity style={styles.popupbuttonText}>
-                    <Button
-                      title="Generate"
-                      onPress={()=>{handleGenerateFlashcards(); setFlashcardModalVisible(false)}}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={flashcardModalVisible}
+        onRequestClose={() => setFlashcardModalVisible(false)}
+      >
+        <View style={styles.popupmodalContainer}>
+          <View style={styles.modalContent}>
+            <View style={{ flexDirection: "row" }}>
+              <Icon name="setting" size={24} color="#333" />
+              <Text style={styles.modalTitle}>Flashcard Settings</Text>
             </View>
-          </Modal>
+            {/* Flashcard Range Selector */}
+            <View style={styles.option}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <TouchableOpacity
+              style={[styles.checkbox, isAllPages && styles.checkedCheckbox]}
+              onPress={() => setIsAllPages(!isAllPages)}
+            />
+            <Text style={styles.optionLabel}>All Pages</Text>
+          </View>
+              {!isAllPages && (
+                <View style={styles.pageRangeContainer}>
+                  <View style={styles.pageInputContainer}>
+                    <Text style={styles.optionLabel}>Start Page:</Text>
+                    <TextInput
+                    style={styles.pageInput}
+                    keyboardType="numeric"
+                    placeholder="Enter start page"
+                    placeholderTextColor="#A9A9A9"
+                    onChangeText={handleStartPage}
+                    onBlur={handleDismissKeyboard} 
+                    returnKeyType="done"
+                    onSubmitEditing={handleDismissKeyboard}
+                    />
+                  </View>
+                  <View style={styles.pageInputContainer}>
+                    <Text style={styles.optionLabel}>End Page:</Text>
+                    <TextInput
+                    style={styles.pageInput}
+                    keyboardType="numeric"
+                    placeholder={`Enter end page (Max: ${numberOfPages})`}
+                    placeholderTextColor="#A9A9A9"
+                    onChangeText={handleEndPageInput}
+                    onBlur={handleDismissKeyboard}
+                    returnKeyType="done" 
+                    onSubmitEditing={handleDismissKeyboard}
+                    />
+                  </View>
+                </View>
+              )}
+            </View>
+            {/* Length Selector */}
+            <View style={styles.option}>
+              <Text style={styles.optionLabel}>Length:</Text>
+              <TouchableOpacity
+                style={styles.dropdown}
+                onPress={() => setShowLengthOptions(!showLengthOptions)}
+              >
+                <Text style={styles.dropdownText}>{length || "Select"}</Text>
+              </TouchableOpacity>
+              {showLengthOptions && (
+                <View style={styles.dropdownOptions}>
+                  {['Short', 'Medium', 'Long'].map((lengthOption) => (
+                    <TouchableOpacity
+                      key={lengthOption}
+                      style={styles.dropdownOption}
+                      onPress={() => {
+                        setLength(lengthOption);
+                        setShowLengthOptions(false);
+                      }}
+                    >
+                      <Text style={styles.dropdownOptionText}>{lengthOption}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
+            {/* Difficulty Selector */}
+            <View style={styles.option}>
+              <Text style={styles.optionLabel}>Difficulty:</Text>
+              <TouchableOpacity
+                style={styles.dropdown}
+                onPress={() => setShowDifficultyOptions(!showDifficultyOptions)}
+              >
+                <Text style={styles.dropdownText}>{difficulty || "Select"}</Text>
+              </TouchableOpacity>
+              {showDifficultyOptions && (
+                <View style={styles.dropdownOptions}>
+                  {['Easy', 'Intermediate', 'Advanced'].map((level) => (
+                    <TouchableOpacity
+                      key={level}
+                      style={styles.dropdownOption}
+                      onPress={() => {
+                        setDifficulty(level);
+                        setShowDifficultyOptions(false);
+                      }}
+                    >
+                      <Text style={styles.dropdownOptionText}>{level}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
+            {/* Actions */}
+            <View style={styles.actionButtons}>
+              <TouchableOpacity
+                style={styles.generateButton}
+                onPress={() => setFlashcardModalVisible(false)}
+              >
+                <Text>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.popupbuttonText}>
+                <Button
+                  title="Generate"
+                  onPress={() => {
+                    handleGenerateFlashcards();
+                    setFlashcardModalVisible(false);
+                  }}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
         </View>
       );
     }
@@ -867,6 +917,47 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
                     />
                   </TouchableOpacity> */}
                   {/* Difficulty Selector */}
+                              {/* Flashcard Range Selector */}
+            <View style={styles.option}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <TouchableOpacity
+              style={[styles.checkbox, isAllPages && styles.checkedCheckbox]}
+              onPress={() => setIsAllPages(!isAllPages)}
+            />
+            <Text style={styles.optionLabel}>All Pages</Text>
+          </View>
+              {!isAllPages && (
+                <View style={styles.pageRangeContainer}>
+                  <View style={styles.pageInputContainer}>
+                    <Text style={styles.optionLabel}>Start Page:</Text>
+                    <TextInput
+                    style={styles.pageInput}
+                    keyboardType="numeric"
+                    placeholder="Enter start page"
+                    placeholderTextColor="#A9A9A9"
+                    onChangeText={handleStartPage}
+                    onBlur={handleDismissKeyboard} 
+                    returnKeyType="done"
+                    onSubmitEditing={handleDismissKeyboard}
+                    />
+                  </View>
+                  <View style={styles.pageInputContainer}>
+                    <Text style={styles.optionLabel}>End Page:</Text>
+                    <TextInput
+                    style={styles.pageInput}
+                    keyboardType="numeric"
+                    placeholder={`Enter end page (Max: ${numberOfPages})`}
+                    placeholderTextColor="#A9A9A9"
+                    onChangeText={handleEndPageInput}
+                    onBlur={handleDismissKeyboard}
+                    returnKeyType="done" 
+                    onSubmitEditing={handleDismissKeyboard}
+                    />
+                  </View>
+                </View>
+              )}
+            </View>
+
                   <View style={styles.option}>
                     <Text style={styles.optionLabel}>Length:</Text>
                     <TouchableOpacity
@@ -1582,7 +1673,38 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  }
+  },
+    pageRangeContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginVertical: 10,
+      width: '100%',
+    },
+    pageInputContainer: {
+      flex: 1,
+      marginHorizontal: 5,
+    },
+    pageInput: {
+      borderWidth: 1,
+      borderColor: '#ccc',
+      borderRadius: 5,
+      padding: 10,
+      fontSize: 14,
+      backgroundColor: '#f9f9f9',
+      color: '#333',
+    },
+    checkbox: {
+      width: 20,
+      height: 20,
+      borderWidth: 2,
+      borderColor: '#333',
+      marginRight: 10,
+    },
+    checkedCheckbox: {
+      backgroundColor: '#333',
+    },
+    
 });
 
 export default PdfViewer;
