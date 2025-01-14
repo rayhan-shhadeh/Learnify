@@ -91,6 +91,11 @@ export default function QuizScreen() {
     setSelectedFile(selectedFile === fileId ? null : fileId);
   };
 
+  const handleOpenQuiz =(passedQuizId :string)=>{
+    const passedIsFromAllFilesPage = 'history';
+    router.push({"pathname":'/(tabs)/quiz/QuizReviewScreen' ,params:{passedQuizId,passedIsFromAllFilesPage}});
+  };
+
   const renderCourseItem = ({
     item,
   }: {
@@ -233,7 +238,7 @@ export default function QuizScreen() {
       </View>
     </Modal>
   );
-
+  
   const renderQuizItem = ({
     item,
   }: {
@@ -245,7 +250,7 @@ export default function QuizScreen() {
       color: string[];
     };
   }) => (
-    <TouchableOpacity style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={()=>{handleOpenQuiz(item.id)}}>
       <LinearGradient
         colors={[...item.color] as [string, string, ...string[]]}
         style={styles.cardGradient}
