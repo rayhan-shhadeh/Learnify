@@ -113,6 +113,7 @@ model question {
   correctAnswer String   @db.VarChar(255)
   choices       String   @db.LongText
   quizid        Int
+  score         Int
   answer        answer[]
   quiz          quiz     @relation(fields: [quizid], references: [quizId], onDelete: Cascade, onUpdate: Restrict, map: "fk_question_quiz")
 
@@ -125,7 +126,6 @@ model quiz {
   quizTitle       String     @db.VarChar(255)
   quizDescription String?    @db.VarChar(500)
   fileid          Int
-  score           Int?
   question        question[]
   file            file       @relation(fields: [fileid], references: [fileId], onDelete: Cascade, onUpdate: Restrict, map: "fk_quiz_file")
 
@@ -151,6 +151,7 @@ model user_ {
   profilePicture       String?
   updatedAt            DateTime?        @updatedAt
   token                String           @db.VarChar(500)
+  streak               Int
   calenderevent        calenderevent[]
   course               course[]
   explorehistory       explorehistory[]
@@ -190,7 +191,7 @@ model flashcard {
   flashcardA    String?  @db.VarChar(255)
   fileid        Int
   page          Int
-  type          Int?
+  type          Int
   file          file     @relation(fields: [fileid], references: [fileId], onDelete: Cascade, onUpdate: Restrict, map: "fk_flashcard_file")
   review        review[]
 
