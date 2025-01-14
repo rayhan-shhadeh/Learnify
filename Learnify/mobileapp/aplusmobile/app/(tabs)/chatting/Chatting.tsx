@@ -20,7 +20,9 @@ import API from "../../../api/axois";
 import Icon from "react-native-vector-icons/FontAwesome";
 import Icon2 from "react-native-vector-icons/FontAwesome5";
 import { useRouter } from "expo-router";
-const SOCKET_URL = "http://172.23.114.43:8080";
+import { jwtDecode } from "jwt-decode";
+import { LOCALHOST } from "../../../api/axois";
+const SOCKET_URL = `http://${LOCALHOST}:8080`;
 const socket = io(SOCKET_URL, {
   transports: ["websocket"],
   withCredentials: true,
@@ -39,6 +41,7 @@ export default function Chatting() {
     }[]
   >([]);
   const [userId, setUserId] = useState("");
+  const [userData, setUserData] = useState<any>();
   const [modalVisible, setModalVisible] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const router = useRouter();
@@ -50,6 +53,34 @@ export default function Chatting() {
       groupId: any;
     }[]
   >([]);
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = await AsyncStorage.getItem("token");
+        if (!token) {
+          Alert.alert("Error", "Token not found");
+          return;
+        }
+
+        const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
+        setUserId(decoded?.id ?? null); // Adjust this based on the token structure
+
+        const response = await API.get(`/api/users/getme/${decoded?.id}`);
+        if (response.status !== 200) {
+          Alert.alert("Error", "Failed to fetch courses");
+          return;
+        }
+        // Alert.alert("Success", "fetched data successfully");
+        const data = await response.data.data;
+        setUserData(data);
+        // Alert.alert(data.photo || "no image");
+      } catch (error) {
+        Alert.alert("Error", "An error occurred while fetching user data");
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -120,6 +151,7 @@ export default function Chatting() {
           isSender ? styles.senderMessage : styles.receiverMessage,
         ]}
       >
+        <Text style={styles.messageText}>{userData.username}</Text>
         <Text style={styles.messageText}>{item.text}</Text>
         <Text style={styles.timestamp}>
           {new Date(item.timestamp).toLocaleTimeString()}

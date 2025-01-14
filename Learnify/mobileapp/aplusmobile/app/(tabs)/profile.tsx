@@ -100,7 +100,7 @@ export default function Profile() {
 
       <View style={styles.main}>
         <View style={styles.welcomeSection}>
-          <TouchableOpacity style={styles.profileImageContainer}>
+          {/* <TouchableOpacity style={styles.profileImageContainer}>
             {profileImage ? (
               <Image
                 source={{ uri: profileImage }}
@@ -109,9 +109,9 @@ export default function Profile() {
             ) : (
               <Icon name="user-circle" size={32} color="#647987" />
             )}
-          </TouchableOpacity>
+          </TouchableOpacity>  */}
           <Text style={styles.welcomeText}>
-            Welcome back {userData?.username.toUpperCase()} !
+            Welcome back {userData?.username} !
           </Text>
           {/* <View style={styles.progressChartContainer}>
             <View style={styles.progressChart}>
@@ -261,9 +261,9 @@ const styles = StyleSheet.create({
   subText: {
     fontSize: 14,
     color: "#888",
-    paddingLeft: 30,
+    paddingLeft: 10,
     marginBottom: 8,
-    marginLeft: 30,
+    marginLeft: 10,
     top: -15,
   },
   subTextDetail: {
