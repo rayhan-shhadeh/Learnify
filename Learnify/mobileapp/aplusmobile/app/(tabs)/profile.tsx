@@ -15,7 +15,7 @@ import NavBar from "./NavBar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import API from "../../api/axois";
 import { jwtDecode } from "jwt-decode";
-import Lottie from "lottie-react";
+//import Lottie from "lottie-react";
 import fireAnimation from "../../assets/fire.json";
 import StreakFire from "../(tabs)/streak/StreakFire";
 import { router, useRouter } from "expo-router";
@@ -31,6 +31,7 @@ export default function Profile() {
   const [profileImage, setProfileImage] = React.useState<string | null>(null);
   const [streak, setStreak] = useState(1);
   const [showStreakFire, setShowStreakFire] = useState(false);
+  const [successRate,setSuccessRate]= useState<number>(0);
 
   const increaseStreak = () => {
     setStreak(streak + 1);
@@ -48,10 +49,8 @@ export default function Profile() {
           Alert.alert("Error", "Token not found");
           return;
         }
-
         const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
         setUserId(decoded?.id ?? null); // Adjust this based on the token structure
-
         const response = await API.get(`/api/users/getme/${decoded?.id}`);
         if (response.status !== 200) {
           Alert.alert("Error", "Failed to fetch courses");
@@ -62,11 +61,24 @@ export default function Profile() {
         setUserData(data);
         setProfileImage(data.photo);
         // Alert.alert(data.photo || "no image");
-      } catch (error) {
+        const userQuizzes = await API.get<{ quizzes: { score: number }[] }>(`api/quiz/history/${decoded?.id}`);
+        const quizzes = userQuizzes.data.quizzes;
+        const quizzesLength = quizzes.length;
+        let totalScore = 0;
+        for (const quiz of quizzes) {
+          totalScore += quiz.score;
+        }
+        if (quizzesLength > 0) {
+          const averageSuccessRate = Math.round(totalScore / quizzesLength);
+          setSuccessRate(averageSuccessRate);
+          console.log(`Average Success Rate: ${averageSuccessRate}`);
+        } else {
+          console.log("No quizzes available.");
+        }
+      } catch (error) { 
         Alert.alert("Error", "An error occurred while fetching user data");
       }
     };
-
     fetchUserData();
   }, []);
 
@@ -136,8 +148,8 @@ export default function Profile() {
               <Text style={styles.detailText}>4/6</Text>
             </View>
             <View style={styles.streakDetail}>
-              <Text style={styles.subTextDetail}>Weekly Goal</Text>
-              <Text style={styles.detailText}>85%</Text>
+              <Text style={styles.subTextDetail}>Success Rate</Text>
+              <Text style={styles.detailText}>{successRate}</Text>
             </View>
           </View>
         </View>
@@ -145,14 +157,14 @@ export default function Profile() {
         <ScrollView horizontal style={styles.actionsSection}>
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => router.push("/(tabs)/FlashcardsScreen")}
+            onPress={() => router.push("/(tabs)/MultiFilePracticeScreen")}
           >
-            <Icon name="plus" size={16} color="#fff" />
-            <Text style={styles.actionText}>Create Flashcard</Text>
+            <Icon name="tasks" size={16} color="#fff" />
+            <Text style={styles.actionText}>Practice Now</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionButtonOutline}
-            onPress={() => router.push("/(tabs)/quiz/QuizScreen")}
+            onPress={() => router.push("/(tabs)/quiz/QuizMainScreen")}
           >
             <Icon name="question-circle" size={16} color="#125488" />
             <Text style={styles.actionTextOutline}>Start Quiz</Text>
@@ -163,6 +175,13 @@ export default function Profile() {
           >
             <Icon name="tasks" size={16} color="#125488" />
             <Text style={styles.actionTextOutline}>Add Habit</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionButtonOutline}
+            onPress={() => router.push("/(tabs)/Habits/HabitsScreen")}
+          >
+            <Icon name="plus" size={16} color="#125488" />
+            <Text style={styles.actionTextOutline}>Add Event</Text>
           </TouchableOpacity>
         </ScrollView>
 
