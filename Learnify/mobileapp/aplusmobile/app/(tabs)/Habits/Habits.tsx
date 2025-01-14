@@ -14,6 +14,8 @@ import * as Animatable from "react-native-animatable";
 import API from "../../../api/axois";
 import CheckBox from "react-native-check-box";
 import Icon from "react-native-vector-icons/FontAwesome";
+import { StreakProvider, useStreak } from "../../(tabs)/hooks/StreakContext";
+import StreakFire from "../streak/StreakFire";
 interface Habit {
   habitId: string;
   habitName: string;
@@ -60,7 +62,12 @@ const Habits = () => {
       console.error("Error deleting habit:", error);
     }
   };
-
+  // const { streak, incrementStreak } = useStreak();
+  const [visible, setVisible] = useState(false);
+  // const handleCompleteHabit = () => {
+  //   incrementStreak();
+  //   setVisible(true);
+  // };
   const toggleCheckbox = (habitId: string) => {
     setCheckedHabits((prev) =>
       prev.includes(habitId)
@@ -71,6 +78,7 @@ const Habits = () => {
     const response = API.put(`/api/habit/${habitId}`, {
       isCompleted: index === -1 ? true : false,
     });
+    // handleCompleteHabit();
   };
 
   const openEditModal = (habit: Habit) => {
@@ -110,6 +118,7 @@ const Habits = () => {
   };
 
   return (
+    // <StreakProvider>
     <View style={styles.container}>
       <ScrollView>
         {habits.map((habit, index) => (
@@ -159,6 +168,11 @@ const Habits = () => {
             </Text>
           </Animatable.View>
         ))}
+        {/* <StreakFire
+            streak={streak}
+            visible={visible}
+            onFinish={() => setVisible(false)}
+          /> */}
       </ScrollView>
 
       {isEditModalVisible && (

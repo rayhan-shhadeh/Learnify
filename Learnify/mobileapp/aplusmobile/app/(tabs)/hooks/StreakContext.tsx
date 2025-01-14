@@ -1,3 +1,5 @@
+import API from "@/api/axois";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useContext, useState } from "react";
 
 interface StreakContextProps {
@@ -12,14 +14,30 @@ export const StreakProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [streak, setStreak] = useState(0);
 
-  const incrementStreak = () => {
-    setStreak((prevStreak) => prevStreak + 1);
-    // here to send the updated streak to the server
-    fetch("/api/streak", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ streak: streak + 1 }),
-    });
+  const incrementStreak = async () => {
+    setStreak((prevStreak: number) => prevStreak + 1);
+    // here to send the updated streak to the server on streak column in user table
+    try {
+      const storedUserId = await AsyncStorage.getItem("currentUserId");
+      if (!storedUserId) {
+        throw new Error("No user ID found in storage");
+      }
+      const response = await API.post(
+        `/api/users/updateprofile/${storedUserId}`,
+        {
+          streak: streak,
+        }
+      );
+      if (response.status !== 200) {
+        throw new Error(`Failed to update streak: ${response.statusText}`);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error("Error incrementing streak:", error.message);
+      } else {
+        console.error("Unexpected error incrementing streak:", error);
+      }
+    }
   };
 
   return (
@@ -30,9 +48,9 @@ export const StreakProvider: React.FC<{ children: React.ReactNode }> = ({
 };
 
 export const useStreak = () => {
-  const context = useContext(StreakContext);
-  if (!context) {
-    throw new Error("useStreak must be used within a StreakProvider");
+  if (Error instanceof Error) {
+    console.error("Error incrementing streak:", Error.message);
+  } else {
+    console.error("Unexpected error incrementing streak:", Error);
   }
-  return context;
 };

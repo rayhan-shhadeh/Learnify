@@ -17,9 +17,11 @@ import API from "../../api/axois";
 import { jwtDecode } from "jwt-decode";
 import Lottie from "lottie-react";
 import fireAnimation from "../../assets/fire.json";
+import welcome from "../../assets/welcome.json";
 import StreakFire from "../(tabs)/streak/StreakFire";
 import { router, useRouter } from "expo-router";
 import Header from "./header/Header";
+import LottieView from "lottie-react-native";
 
 export default function Profile() {
   const router = useRouter();
@@ -54,7 +56,7 @@ export default function Profile() {
 
         const response = await API.get(`/api/users/getme/${decoded?.id}`);
         if (response.status !== 200) {
-          Alert.alert("Error", "Failed to fetch courses");
+          Alert.alert("Error", "Failed to fetch user  info. ");
           return;
         }
         // Alert.alert("Success", "fetched data successfully");
@@ -110,6 +112,13 @@ export default function Profile() {
               <Icon name="user-circle" size={32} color="#647987" />
             )}
           </TouchableOpacity>  */}
+          <LottieView
+            source={require("../../assets/welcome.json")}
+            autoPlay
+            loop={false}
+            speed={1}
+            style={styles.logoImage}
+          />
           <Text style={styles.welcomeText}>
             Welcome back {userData?.username} !
           </Text>

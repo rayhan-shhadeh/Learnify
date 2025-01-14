@@ -1,6 +1,8 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, Animated } from "react-native";
 import LottieView from "lottie-react-native";
+import API from "@/api/axois";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface StreakFireProps {
   streak: number;
@@ -16,6 +18,28 @@ const StreakFire: React.FC<StreakFireProps> = ({
   const animation = useRef<LottieView>(null);
   const celebrate = useRef<LottieView>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [currentUserId, setCurrentUserId] = useState<string>("");
+  useEffect(() => {
+    // update the streak on the server
+    const updateStreak = async () => {
+      try {
+        const userId = await AsyncStorage.getItem("currentUserId");
+        setCurrentUserId(userId || "2");
+        const response = await API.post(
+          `/api/users/updateprofile/${currentUserId}`,
+          {
+            streak: streak,
+          }
+        );
+        if (response.status !== 200) {
+          console.error("Failed to update streak");
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    updateStreak();
+  }, [streak]);
 
   useEffect(() => {
     if (visible) {

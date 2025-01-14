@@ -38,7 +38,7 @@ const NavBar = () => {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.navButton}
-        onPress={() => router.push("/(tabs)/charts/ChartsScreen")}
+        onPress={() => router.push("/(tabs)/calendar/delete")}
       >
         <Icon name="calendar" size={24} color="#888" />
         <Text style={styles.navTextInactive}>Calendar</Text>
