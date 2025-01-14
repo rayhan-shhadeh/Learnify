@@ -13,17 +13,36 @@ export const flashcardController = {
             const fileId = file.fileId;
             const filename = file.fileName;
             const fileurl = file.fileURL;
+            /*
+            const pagesDetailes = req.body.allPages ? 
+            "form all pages" : 
+            "from the content from page "+req.body.startPage+" to page "+req.body.endPage+" inclusive.";
             //prepare prompt and fullpath for openAI function
-            const prompt = 'Create flashcards for the attached file, focus on important infrormation.' + 
-            'in the following format as an array of JSON objects with QA pairs,' 
-            +'including the slide number where each card is generated. Use this format:'
-            +'[{"Q": "What is today?", "A": "Tuesday", "page": 1},...]'
-            +'without any additional text, comments, quotes, before or after the json object, no formatting, quotes, only the json array between [].'
-            +"Generate flashcards that covered important informations in file without loss or duplication. don't include any key term and its defiftion."
-            +"one flashcard from each slide."
-            +'With a ' +req.body.complexity +
-            +'complexity level and a ' +req.body.length+ 'card length';
-             const fullPath = process.env.SAVE_PATH+filename;
+            const prompt = 'Create flashcards '+pagesDetailes+' in the attached file.'
+            +" Cover important informations in the pages without loss or duplication, at least one flashcard from each slide.don't include any key term and its defiftion"
+            +'With a ' +req.body.complexity +'complexity level and a ' +req.body.length+ 'card length';
+            +'one flashcard from each slide.'
+            +`In the following format as an array of JSON objects with QA pairs,including the slide number 
+            where each card is generated. Use this format: [{"Q": "What is today?", "A": "Tuesday", "page": 1},...]
+            without any additional text, comments, quotes, before or after the json object, no formatting, 
+            quotes, only the json array between [].`
+            */
+            const pagesDetailes = req.body.allPages ? 
+            "all pages" : 
+            req.body.startPage != req.body.endPage ?
+            "only pages from page "+req.body.startPage+" to page "+req.body.endPage+"iclusive": 
+            "only from page " +req.body.startPage;
+            const prompt = 
+            `Create flashcards based on the content provided in ${pagesDetailes} in the attached file. 
+            Cover all important information from each page without loss or duplication, ensuring at least one flashcard is created from each slide. 
+            Do not include key terms and their definitions as flashcards.
+            Generate the flashcards with a complexity level of ${req.body.complexity} and a card length of ${req.body.length}. 
+            Ensure one flashcard is included from each slide, and present the results in the following format: 
+            an array of JSON objects with question-answer (QA) pairs, including the slide number where each card is generated. 
+            The format should strictly be: [{"Q": "What is today?", "A": "Tuesday", "page": 1}, ...]. 
+            Do not add any additional text, comments, quotes, or formatting outside the JSON array.`+"and without ```json";
+            //console.log(prompt);
+            const fullPath = process.env.SAVE_PATH+filename;
             //download pdf, send to openAI, delete pdf
             await downloadPDF(fileurl , process.env.SAVE_PATH ,filename);//url, savePath, filename
             const response = await OpenAIPromptHandling(fullPath,prompt);//filename,prompt
@@ -110,7 +129,6 @@ export const flashcardController = {
         } catch (error) {
             res.status(500).json({ error: 'Error retrieving flash card' });
             console.log(error);
-
         }
     }
 };

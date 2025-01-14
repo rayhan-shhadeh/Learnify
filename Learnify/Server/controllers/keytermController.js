@@ -13,17 +13,32 @@ export const keytermController = {
             const fileid = file.fileId;
             const filename = file.fileName;
             const fileurl = file.fileURL;
+            /*
+            const pagesDetailes = req.body.allPages ? 
+            "form all pages" : 
+            "from the content from page "+req.body.startPage+" to page "+req.body.endPage;
+            const prompt = 'Create keyterms and their definetions '+pagesDetailes+'in the attached file.'
+            +' Cover important informations in the pages without loss or duplication, at least one key term from each slide.'
+            +'With a ' +req.body.complexity +'complexity level and a ' +req.body.length+ 'definition length'
+            +In the following format as an array of JSON objects with key/def pairs,including the slide number 
+            where each card is generated. Use this format:[{"key": "Replication", "def": "it is a key concept 
+            in cloud computing ....","page":1},............]'
+            without any additional text, comments, quotes, before or after the json object, no formatting, 
+            quotes, only the json array between [].
+            */
+            //pages
+            const pagesDetailes = req.body.allPages ? 
+            "all pages" : 
+            "only pages from page "+req.body.startPage+" to page "+req.body.endPage+" inclusive. ";
             //prepare propmt and fullpath for openAI function
-            const prompt = 'Create keyterms and their definetions for attached file, focus on important infrormations.' +
-            +'including the slide number where each card is generated.'
-            +'In following format as array of json with key def pairs'
-            +'[{"key": "Replication", "def": "it is a key concept in cloud computing ....","page":1},............]' 
-            +'without any additional text, comments, quotes, before or after the json object.' 
-            +'no formatting, quotes, only the json array between [].'
-            +'Generate key terms that covered importatnt key terms in file without loss or duplication.'
-            +"one key term from each slide."
-            +'With a complexity of' +req.body.complexity 
-            +'key and definition length ' +req.body.length  
+            const prompt =
+            `Create key terms and their definitions based on the content provided in ${pagesDetailes} in the attached file.. 
+            Cover important information in the pages without loss or duplication, ensuring at least one key term from each slide. 
+            With a ${req.body.complexity} complexity level and a ${req.body.length} definition length. 
+            In the following format as an array of JSON objects with key/definition pairs, including the slide number where each card is generated. 
+            Use this format: [{"key": "Replication", "def": "it is a key concept in cloud computing ....", "page": 1}, ...]
+            Without any additional text, comments, quotes, before or after the JSON object, no formatting, quotes, only the JSON array between [].`+"and without ```json";
+            console.log(prompt);
             const fullPath = process.env.SAVE_PATH+filename;
             //download pdf, send to openAI, delete pdf 
             await downloadPDF(fileurl , process.env.SAVE_PATH ,filename);//url, savePath, filename
