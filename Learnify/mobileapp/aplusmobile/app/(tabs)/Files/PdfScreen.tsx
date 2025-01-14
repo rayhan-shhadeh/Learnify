@@ -1,109 +1,233 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  Modal,
-  FlatList,
-  Image,
-  TextInput,
-  ScrollView,
-  Animated,
-  Button,
-  Keyboard,
-} from "react-native";
+import {View, ActivityIndicator, StyleSheet, Text, TouchableOpacity, Modal, FlatList, TextInput, Button} from "react-native";
 import { WebView } from "react-native-webview";
-import { Picker } from "@react-native-picker/picker";
-import API from "../../../api/axois";
+import API, { LOCALHOST } from "../../../api/axois";
 import Icon from "react-native-vector-icons/AntDesign";
 import FlashcardIcon from "react-native-vector-icons/Ionicons";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useLocalSearchParams } from "expo-router";
-import Header from "../../(tabs)/header/Header";
+
 interface PdfViewerProps {
   fileId: string;
 }
+import { useRouter } from 'expo-router';
+interface Flashcard {
+  id: string;
+  question: string;
+  answer: string;
+  page :string
+  type: number;
+}
+interface KeyTerm {
+  id: string;
+  term: string; 
+  definition: string;
+  page: string;
+  type: number;
+}
 
 const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
-  const { passedFileId } = useLocalSearchParams();
-  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const router = useRouter();
+  const { passedFileId,activeTab } = useLocalSearchParams();
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [flashcardCount, setFlashcardCount] = useState(1);
+  const [flashcardModalVisible, setFlashcardModalVisible] = useState(false);
   const [difficulty, setDifficulty] = useState("Easy");
   const [length, setLength] = useState("Short");
-  const [keytermDifficulty, setKeytermDifficulty] = useState("Easy");
-  const [keytermLength, setKeytermLength] = useState("Short");
-  const [keytermLengthOptions, setKeytermLengthOptions] = useState(false);
-  const [showFlashcardCountOptions, setShowFlashcardCountOptions] =
-    useState(false);
-  const [showKeytermDifficultyOptions, setShowKeytermDifficultyOptions] =
-    useState(false);
-  const [showKeytermLengthOptions, setShowKeytermLengthOptions] =
-    useState(false);
+  const [showKeytermDifficultyOptions, setShowKeytermDifficultyOptions] = useState(false);
+  const [showKeytermLengthOptions, setShowKeytermLengthOptions] = useState(false);
   const [keytermModalVisible, setKeytermModalVisible] = useState(false);
   const [showDifficultyOptions, setShowDifficultyOptions] = useState(false);
   const [showLengthOptions, setShowLengthOptions] = useState(false);
   const [activeKey, setActiveKey] = useState<number | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTerm, setSelectedTerm] = useState<{
-    term: string;
-    definition: string;
-  } | null>(null);
-  const [activeModal, setActiveModal] = useState<
-    "PDF" | "Flashcards" | "KeyTerms"
-  >("PDF");
-  const flashcards = [
-    { id: "1", question: "question 1", answer: "answer 1" },
-    { id: "2", question: "question 2", answer: "answer 2" },
-    { id: "3", question: "question 3", answer: "answer 3" },
-  ];
-  // const [keyTerms, setKeyTerms] = useState([
-  //   {
-  //     term: "React",
-  //     definition: "A JavaScript library for building user interfaces.",
-  //   },
-  //   {
-  //     term: "JavaScript",
-  //     definition: "A programming language used to make web pages interactive.",
-  //   },
-  //   {
-  //     term: "API",
-  //     definition:
-  //       "An interface that allows communication between two systems or components.",
-  //   },
-  //   {
-  //     term: "Node.js",
-  //     definition:
-  //       "A JavaScript runtime environment for executing code outside of a browser.",
-  //   },
-  // ]);
-  const keyTerms = [
-    {
-      id: 1,
-      term: "React",
-      definition: "A JavaScript library for building user interfaces.",
-    },
-    {
-      id: 2,
-      term: "State",
-      definition: "A built-in React object to hold data.",
-    },
-  ];
+  const [fetchedFlashcards, setFetchedFlashcards] = useState<Flashcard[]>([]);
+  const [fetchedKeyTerms, setFetchedKeyTerms] = useState<KeyTerm[]>([]);
+  const activeTabString : string= activeTab?.toString() ;
+  const [activeModal, setActiveModal] = useState<string >(activeTabString|| 'PDF');//"PDF" | "Flashcards" | "KeyTerms"
+  const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
+  const [keyTerms, setKeyTerms] = useState<KeyTerm[]>([]);
+  const [flashcardStates, setFlashcardStates] = useState<Record<string, { isEditing: boolean; editedQuestion: string; editedAnswer: string }>>({});
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentKeyterm, setCurrentKeyterm] = useState<KeyTerm | null>(null);
+  
+    useEffect(() => {
+    const fetchPdfUrl = async () => {
+      fileId = passedFileId.toString();
+      try {
+        setLoading(true);
+        const response = await API.get(`/api/file/${fileId}`);
+        setPdfUrl(response.data.fileURL);
+        //setPdfUrl("https://astudy.s3.eu-north-1.amazonaws.com/pdfs/5-Virtualization.pdf");
+      } catch (err) {
+        console.error("Error fetching PDF URL:", err);
+        setError("Failed to load the PDF. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    const fetchFlashcards = async () => {
+      try {
+       // const response = await API.get(`/api/file/${fileId}`);
+        const response = await API.get(`/api/file/flashcards/${fileId}`);
+        const data = response.data.map((flashcard) => ({        
+          id: flashcard.flashcardId,
+          question: flashcard.flashcardQ || "",
+          answer: flashcard.flashcardA || "",
+          type: flashcard.type,
+          page : flashcard.page 
+        }));
+        // Initialize editing states for all flashcards
+        const initialStates = data.reduce((acc: any, flashcard: Flashcard) => {
+          acc[flashcard.id] = { isEditing: false, editedQuestion: flashcard.question, editedAnswer: flashcard.answer };
+          return acc;
+        }, {});
+        setFlashcardStates(initialStates);
+        setFlashcards(data);
+        setFetchedFlashcards(data);
+      } catch (error) {
+        console.error("Error fetching flashcards:", error);
+      }
+    };
+    const fetchKeyterms = async () => {
+      try {
+        const response = await API.get(`/api/file/keyterms/${fileId}`);
+        const data = response.data.map((keyterm) => ({
+          id: keyterm.keytermId,
+          term: keyterm.keytermText,
+          definition: keyterm.keytermDef || "",
+          type: keyterm.type,
+          page : keyterm.page
+        }));
+        setKeyTerms(data);
+        setFetchedKeyTerms(data);
+      } catch (error) {
+        console.error("Error fetching flashcards:", error);
+      }
+    };
+    fetchPdfUrl();
+    fetchFlashcards();
+    fetchKeyterms();
+  }, [fileId]);
 
   const toggleDefinition = (id: number) => {
     setActiveKey((prev) => (prev === id ? null : id));
   };
 
+  const fetchFlashcards = async () => {
+    try {
+      const response = await API.get(`/api/file/flashcards/${passedFileId}`);
+      const data = response.data.map((flashcard) => ({        
+        id: flashcard.flashcardId,
+        question: flashcard.flashcardQ || "",
+        answer: flashcard.flashcardA || "",
+        type: flashcard.type,
+        page : flashcard.page 
+      }));
+      // Initialize editing states for all flashcards
+      const initialStates = data.reduce((acc: any, flashcard: Flashcard) => {
+        acc[flashcard.id] = { isEditing: false, editedQuestion: flashcard.question, editedAnswer: flashcard.answer };
+        return acc;
+      }, {});
+      setFlashcardStates(initialStates);
+      setFlashcards(data);
+      setFetchedFlashcards(data);
+    } catch (error) {
+      console.error("Error fetching flashcards:", error);
+    }
+  };
+
+  const handleEditToggle = (id: string) => {
+    setFlashcardStates((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        isEditing: !prev[id].isEditing,
+      },
+    }));
+  };
+
+  const handleSaveFlashcard = async (id: string) => {
+    try {
+      const { editedQuestion, editedAnswer } = flashcardStates[id];
+      const response = await fetch(`http://${LOCALHOST}:8080/api/flashcard/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          flashcardQ: editedQuestion,
+          flashcardA: editedAnswer,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to update flashcard. Status: ${response.status}`);
+      }
+      setFlashcards((prevFlashcards) =>
+        prevFlashcards.map((flashcard) =>
+          flashcard.id === id
+            ? { ...flashcard, question: editedQuestion, answer: editedAnswer }
+            : flashcard
+        )
+      );
+      setFlashcardStates((prev) => ({
+        ...prev,
+        [id]: { ...prev[id], isEditing: false },
+      }));
+      console.log(`Flashcard with ID ${id} successfully updated.`);
+    } catch (error) {
+      console.error("Error saving flashcard:", error);
+    }
+  };
+
+  const handleEditKeyterm = (keyterm: KeyTerm) => {
+    setCurrentKeyterm(keyterm);
+    setIsModalVisible(true);
+  };
+  
+  const handleSaveKeyterm = async () => {
+    if (!currentKeyterm) return;
+  
+    try {
+      const response = await fetch(`http://${LOCALHOST}:8080/api/keyterm/${currentKeyterm.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          keytermText: currentKeyterm.term,
+          keytermDef: currentKeyterm.definition,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to update keyterm. Status: ${response.status}`);
+      }
+      setKeyTerms((prevKeyTerms) =>
+        prevKeyTerms.map((keyterm) =>
+          keyterm.id === currentKeyterm.id
+            ? { ...keyterm, term: currentKeyterm.term, definition: currentKeyterm.definition }
+            : keyterm
+        )
+      );
+      setIsModalVisible(false);
+      setCurrentKeyterm(null);
+      console.log(`Keyterm with ID ${currentKeyterm.id} successfully updated.`);
+    } catch (error) {
+      console.error("Error saving keyterm:", error);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsModalVisible(false);
+    setCurrentKeyterm(null);
+  };
+  
+/*
   const renderFlashcard = ({
     item,
   }: {
-    item: { id: string; question: string; answer: string };
+    item: { id: string; question: string; answer: string ; type:string };
   }) => (
     <View style={styles.flashcardCard}>
       <View style={styles.flashcardContent}>
@@ -122,67 +246,266 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
               color="#11ad0c"
             />
             <Text style={styles.actionText}>Add</Text>
-          </TouchableOpacity> */}
-        <TouchableOpacity style={styles.actionButton}>
-          <FlashcardIcon name="trash-outline" size={20} color="#F44336" />
-          <Text style={styles.actionText}>Delete</Text>
-        </TouchableOpacity>
+          </TouchableOpacity> */
+          /*
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => handleDeleteFlashcard(item.id)} // Pass the specific flashcard ID
+          >
+            <FlashcardIcon name="trash-outline" size={20} color="#F44336" />
+            <Text style={styles.actionText}>Delete</Text>
+          </TouchableOpacity>
       </View>
     </View>
   );
+*/
 
-  useEffect(() => {
-    const fetchPdfUrl = async () => {
-      fileId = passedFileId.toString();
-      try {
-        setLoading(true);
-        const response = await API.get(`/api/file/${fileId}`);
-        setPdfUrl(response.data.fileURL);
-      } catch (err) {
-        console.error("Error fetching PDF URL:", err);
-        setError("Failed to load the PDF. Please try again.");
-      } finally {
-        setLoading(false);
+const renderFlashcard = ({ item }: { item: Flashcard }) => {
+  const { isEditing, editedQuestion, editedAnswer } = flashcardStates[item.id] || {
+    isEditing: false,
+    editedQuestion: item.question,
+    editedAnswer: item.answer,
+  };
+  return (
+    <View style={styles.flashcardCard}>
+      {isEditing ? (
+        <View>
+          <TextInput
+            style={styles.flashcardInput}
+            value={editedQuestion}
+            onChangeText={(text) =>
+              setFlashcardStates((prev) => ({
+                ...prev,
+                [item.id]: { ...prev[item.id], editedQuestion: text },
+              }))
+            }
+            placeholder="Edit Question"
+            multiline={true}
+          />
+          <TextInput
+            style={styles.flashcardInput}
+            value={editedAnswer}
+            onChangeText={(text) =>
+              setFlashcardStates((prev) => ({
+                ...prev,
+                [item.id]: { ...prev[item.id], editedAnswer: text },
+              }))
+            }
+            placeholder="Edit Answer"
+            multiline={true}
+          />
+          <View style={styles.flashcardActions}>
+            <TouchableOpacity style={styles.saveButton} onPress={() => handleSaveFlashcard(item.id)}>
+              <Text style={styles.actionText}>Save</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() =>
+                setFlashcardStates((prev) => ({
+                  ...prev,
+                  [item.id]: {
+                    ...prev[item.id],
+                    isEditing: false,
+                    editedQuestion: item.question,
+                    editedAnswer: item.answer,
+                  },
+                }))
+              }
+            >
+              <Text style={styles.actionText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : (
+        <View>
+          <View style={styles.flashcardContent}>
+            <Text style={styles.flashcardTitle}>{item.question}</Text>
+            <Text style={styles.flashcardDescription}>{item.answer}</Text>
+          </View>
+          <View style={styles.flashcardActions}>
+            <TouchableOpacity style={styles.actionButton} onPress={() => handleEditToggle(item.id)}>
+              <FlashcardIcon name="create-outline" size={20} color="#6b2905" />
+              <Text style={styles.actionText}>Edit</Text>
+            </TouchableOpacity>
+            {item.type === 1 && (
+                <TouchableOpacity 
+                    style={styles.actionButton} 
+                    onPress={() => handleGoToPage(item.question, item.answer, item.page,'F')}
+                >
+                    <Icon
+                        name="create-outline"
+                        size={20}
+                        color="#11ad0c"
+                    />
+                    <Text>{item.page}</Text>
+                </TouchableOpacity>
+            )}
+            <TouchableOpacity style={styles.actionButton} onPress={() => handleDeleteFlashcard(item.id)}>
+              <FlashcardIcon name="trash-outline" size={20} color="#F44336" />
+              <Text style={styles.actionText}>Delete</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+    </View>
+  );
+};
+
+  const handleDeleteFlashcard = async (flashcardId: string) => {
+    try {
+      await API.delete(`/api/flashcard/${flashcardId}`);
+      setFlashcards((prevFlashcards) =>
+        prevFlashcards.filter((flashcard) => flashcard.id !== flashcardId)
+      );
+      setFetchedFlashcards(flashcards);
+      console.log(`Flashcard with ID ${flashcardId} deleted successfully.`);
+    } catch (error) {
+      console.error(`Error deleting flashcard with ID ${flashcardId}:, error`);
+    }
+  };
+  
+  const handleDeleteKeyTerm = async (keyTermId: string) => {
+    try {
+      await API.delete(`/api/keyterm/${keyTermId}`);
+      setKeyTerms((prevKeyTerms) =>
+        prevKeyTerms?.filter((keyTerm) => keyTerm.id !== keyTermId)
+      );
+      setFetchedKeyTerms(keyTerms);
+      console.log(`Key term with ID ${keyTermId} deleted successfully.`);
+    } catch (error) {
+      console.error(`Error deleting key term with ID ${keyTermId}:, error`);
+    }
+  };
+  
+  const handleGenerateFlashcards = async () => {
+    console.log("Generating flashcards....");
+    if (!passedFileId) {
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await fetch(`http://${LOCALHOST}:8080/api/smartFlashcards/${passedFileId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          complexity: difficulty,
+          length: length,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    };
-    fetchPdfUrl();
-  }, [fileId]);
-  // const handleNextCard = () => {
-  //   setCurrentCardIndex((prevIndex) =>
-  //     prevIndex === flashcards.length - 1 ? 0 : prevIndex + 1
-  //   );
-  // };
-
-  // const handlePreviousCard = () => {
-  //   setCurrentCardIndex((prevIndex) =>
-  //     prevIndex === 0 ? flashcards.length - 1 : prevIndex - 1
-  //   );
-  // };
-
+      const data = await response.json();
+      if (!data || data.length === 0) {
+        setFlashcards([]);
+        setLoading(false);
+        setLoading(false);
+        return;
+      }      
+      console.log("Flashcards Generated Successfully.");
+      fetchFlashcards();
+      setLoading(false);
+    } catch (error) {
+      console.error("Error generating flashcards:", error);
+      setError("hi");
+      setLoading(false);
+    }
+  };
+    
+  const handleGenerateKeyTerms = async () => {
+    console.log("Generating key terms...");
+    if (!passedFileId) {
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await fetch(`http://${LOCALHOST}:8080/api/smartKeyterms/${passedFileId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          complexity: difficulty,
+          length: length,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json(); // Parse JSON response
+      if (!data || data.length === 0) {
+        setKeyTerms([]); // Clear key terms if no data is returned
+        setLoading(false);
+        return;
+      }
+      const fetchedKeyTerms = data.map((keyTerm) => ({
+        id: keyTerm.keytermId,
+        term: keyTerm.keytermText || "",
+        definition: keyTerm.keytermDef || "",
+        type:1,
+        page: keyTerm.page 
+      }));
+      setKeyTerms(fetchedKeyTerms); // Update the key terms state
+      console.log("hi after key terms");
+      setLoading(false);
+      setKeytermModalVisible(false );
+    } catch (error) {
+      console.error("Error generating key terms:", error);
+      setError("Failed to generate key terms. Please try again.");
+      setLoading(false);
+    }
+  };
+  
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#1CA7EC" />
+        <Text style={styles.loadingText}>Generating...</Text>
+      </View>
+    );
+  }
+  
   const handleSearch = (query: string) => {
     setSearchQuery(query);
+    if (activeModal === "Flashcards") {
+      setFlashcards(
+        query
+          ? fetchedFlashcards.filter(
+              (flashcard) =>
+                flashcard.question.toLowerCase().includes(query.toLowerCase()) ||
+                flashcard.answer.toLowerCase().includes(query.toLowerCase())
+            )
+          : fetchedFlashcards 
+      );
+    } else if (activeModal === "KeyTerms") {
+      setKeyTerms(
+        query
+          ? fetchedKeyTerms.filter(
+              (keyTerm) =>
+                keyTerm.term.toLowerCase().includes(query.toLowerCase()) ||
+                keyTerm.definition.toLowerCase().includes(query.toLowerCase())
+            )
+          : fetchedKeyTerms
+      );
+    }
+  };    
+
+  const handleFlashcardGenerateClick = () => {
+    setFlashcardModalVisible(true);
   };
 
-  const filteredKeyTerms = keyTerms.filter((keyTerm) =>
-    keyTerm.term.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleSelectTerm = (term: { term: string; definition: string }) => {
-    setSelectedTerm(term);
-  };
-  const handleGenerateClick = () => {
-    setModalVisible(true);
-  };
   const handleKeytermGenerateClick = () => {
     setKeytermModalVisible(true);
   };
-  const handleKeyternManual = () => {
-    alert("Manual functionality is not implemented yet!");
-  };
 
-  const handleManual = () => {
-    alert("Manual functionality is not implemented yet!");
-  };
+  const handleGoToPage =(questionORterm:string,answerORdefinition:string,page:string,KF:string ) =>{
+      router.push({
+        pathname: "/(tabs)/Files/viewPageScreen",
+        params:{questionORterm,answerORdefinition,pdfUrl,page,passedFileId,KF}
+      });
+  }
 
   const renderContent = () => {
     if (activeModal === "PDF") {
@@ -202,7 +525,11 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
         );
       }
       return pdfUrl ? (
-        <WebView source={{ uri: pdfUrl }} style={styles.webview} />
+        <WebView 
+          source={{ uri: `${pdfUrl}#page=3` }}
+          style={styles.webview}
+          userAgent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        />
       ) : null;
     }
     if (activeModal === "Flashcards") {
@@ -303,32 +630,34 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
             <Icon name="switcher" size={24} color="#333" />
             <Text style={styles.flashcardTitle}>Review Flashcards</Text>
           </View>
-
           {/* Search Bar */}
           <TextInput
-            style={styles.searchBar}
+            style={styles.keyTermSearchBar}
             placeholder="Search Flashcards..."
-            value={searchTerm}
+            value={searchQuery}
             onChangeText={handleSearch}
           />
-
           <View style={styles.flashcardsButtonContainer}>
             <TouchableOpacity
               style={styles.generateButton}
-              onPress={handleGenerateClick} // Correctly triggers modal visibility
+              onPress={handleFlashcardGenerateClick} // Correctly triggers modal visibility
             >
               <Ionicons name="add-circle" size={24} color="#fff" />
               <Text style={styles.popupbuttonText}>Generate Flashcards</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.manualButton}
-              onPress={handleManual}
+              onPress={()=>{              
+              router.replace({
+                pathname: `/Flashcards/ManualFlashcard`,
+                params: { passedFileId},
+              });        
+              } }
             >
               <Ionicons name="pencil" size={22} color="#fff" />
               <Text style={styles.popupbuttonText}>Manual</Text>
             </TouchableOpacity>
           </View>
-
           <FlatList
             data={flashcards}
             keyExtractor={(item) => item.id}
@@ -342,13 +671,12 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
             <Ionicons name="add-circle" size={24} color="#fff" />
             <Text style={styles.popupbuttonText}>Generate Flashcards</Text>
           </TouchableOpacity> */}
-
           {/* Modal for Flashcard Options */}
           <Modal
             animationType="slide"
             transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => setModalVisible(false)} // Closes the modal when requested
+            visible={flashcardModalVisible}
+            onRequestClose={() => setFlashcardModalVisible(false)} // Closes the modal when requested
           >
             <View style={styles.popupmodalContainer}>
               <View style={styles.modalContent}>
@@ -460,7 +788,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                 <View style={styles.actionButtons}>
                   <TouchableOpacity
                     style={styles.generateButton}
-                    onPress={() => setModalVisible(false)}
+                    onPress={() => setFlashcardModalVisible(false)}
                   >
                     <Text>Cancel</Text>
                   </TouchableOpacity>
@@ -468,7 +796,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                   <TouchableOpacity style={styles.popupbuttonText}>
                     <Button
                       title="Generate"
-                      onPress={() => console.log("Flashcards generated")}
+                      onPress={()=>{handleGenerateFlashcards(); setFlashcardModalVisible(false)}}
                     />
                   </TouchableOpacity>
                 </View>
@@ -496,11 +824,19 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
             >
               <Text style={styles.buttonText}>Generate</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={handleManual}>
+            <TouchableOpacity style={styles.button} onPress={()=>
+            { 
+              router.replace({
+              //pathname: /Flashcards/ManualFlashcard,
+                pathname: `/KeyTerms/ManualKeyTerm`,
+                params: { passedFileId},
+              });        
+            }           
+            }>
               <Text style={styles.buttonText}>Manual</Text>
             </TouchableOpacity>
           </View>
-          {/* Modal for Flashcard Options */}
+          {/* Modal for key terms Options */}
           <Modal
             animationType="slide"
             transparent={true}
@@ -530,7 +866,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                       returnKeyType="done" // "Done" on keyboard
                     />
                   </TouchableOpacity> */}
-
                   {/* Difficulty Selector */}
                   <View style={styles.option}>
                     <Text style={styles.optionLabel}>Length:</Text>
@@ -552,7 +887,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                             style={styles.dropdownOption}
                             onPress={() => {
                               setLength(keytermLength);
-                              setKeytermLength(keytermLength);
                             }}
                           >
                             <Text style={styles.dropdownOptionText}>
@@ -564,7 +898,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                     )}
                   </View>
                 </View>
-
                 {/* Difficulty Selector */}
                 <View style={styles.option}>
                   <Text style={styles.optionLabel}>Difficulty:</Text>
@@ -587,8 +920,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                           key={level}
                           style={styles.dropdownOption}
                           onPress={() => {
-                            setKeytermDifficulty(level);
-                            setKeytermDifficulty(level);
+                            setDifficulty(level);
                           }}
                         >
                           <Text style={styles.dropdownOptionText}>{level}</Text>
@@ -597,7 +929,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                     </View>
                   )}
                 </View>
-
                 {/* Actions */}
                 <View style={styles.actionButtons}>
                   <TouchableOpacity
@@ -610,10 +941,55 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                   <TouchableOpacity style={styles.popupbuttonText}>
                     <Button
                       title="Generate"
-                      onPress={() => console.log("Flashcards generated")}
+                      onPress={() => {handleGenerateKeyTerms(); setKeytermModalVisible(false);}}
                     />
                   </TouchableOpacity>
                 </View>
+              </View>
+            </View>
+          </Modal>
+          {/*Edit Keyterm Modal*/}
+          <Modal
+            visible={isModalVisible}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={handleCancelEdit}
+          >
+            <View style={styles.transparentModalContainer}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Edit Keyterm</Text>
+                {currentKeyterm && (
+                  <>
+                    <TextInput
+                      style={[styles.modalInput, { minHeight: 50 }]} // Adjusted for multiline
+                      value={currentKeyterm.term}
+                      onChangeText={(text) =>
+                        setCurrentKeyterm((prev) => (prev ? { ...prev, term: text } : null))
+                      }
+                      placeholder="Edit Term"
+                      multiline={true} // Enable multiline
+                      textAlignVertical="top" // Align text to the top
+                    />
+                    <TextInput
+                      style={[styles.modalInput, { minHeight: 100 }]} // Larger for the definition
+                      value={currentKeyterm.definition}
+                      onChangeText={(text) =>
+                        setCurrentKeyterm((prev) => (prev ? { ...prev, definition: text } : null))
+                      }
+                      placeholder="Edit Definition"
+                      multiline={true} // Enable multiline
+                      textAlignVertical="top" // Align text to the top
+                    />
+                    <View style={styles.modalActions}>
+                      <TouchableOpacity style={styles.saveButton} onPress={handleSaveKeyterm}>
+                        <Text style={styles.actionText}>Save</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.cancelButton} onPress={handleCancelEdit}>
+                        <Text style={styles.actionText}>Cancel</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </>
+                )}
               </View>
             </View>
           </Modal>
@@ -629,7 +1005,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
               </TouchableOpacity>
             ))}
           </ScrollView>
-
           {/* Selected Definition */}
           {/* {selectedTerm && (
             <View style={styles.definitionContainer}>
@@ -641,16 +1016,38 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
           )}  */}
           <FlatList
             data={keyTerms}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <View>
                 <TouchableOpacity
                   style={styles.keyTermCard}
-                  onPress={() => toggleDefinition(item.id)}
+                  onPress={() => toggleDefinition(parseInt(item.id))}
                 >
                   <Text style={styles.keyTermText}>{item.term}</Text>
+                  <TouchableOpacity
+                    style={styles.actionButton}
+                    onPress={() => handleDeleteKeyTerm(item.id)} // Pass the specific flashcard ID
+                  >
+                    <FlashcardIcon name="trash-outline" size={20} color="#F44336" />
+                  </TouchableOpacity>
+                  {item.type === 1 && (
+                    <TouchableOpacity 
+                        style={styles.actionButton} 
+                        onPress={() => handleGoToPage(item.term, item.definition, item.page , 'K')}
+                    >
+                        <Icon name="create-outline" size={20} color="#11ad0c"/>
+                        {item.page}
+                    </TouchableOpacity>
+                  )}
+                  <TouchableOpacity
+                    style={styles.actionButton}
+                    onPress={() => handleEditKeyterm(item)}
+                  >
+                    <FlashcardIcon name="create-outline" size={20} color="#F44336" />
+                  </TouchableOpacity>
+
                 </TouchableOpacity>
-                {activeKey === item.id && <Text>{item.definition}</Text>}
+                {activeKey === parseInt(item.id) && <Text>{item.definition}</Text>}
               </View>
             )}
           />
@@ -658,7 +1055,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
       );
     }
   };
-
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -1131,7 +1527,63 @@ const styles = StyleSheet.create({
   },
   dropdownOptionText: {
     fontSize: 16,
+  },  
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F9F9F9", // Light background to keep it clean and readable
   },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#1CA7EC", // Matches the primary theme color
+    fontWeight: "500",
+  },
+  flashcardInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 15, // Increased padding for larger input area
+    marginVertical: 10, // Space between inputs
+    backgroundColor: "#fff",
+    minHeight: 50, // Minimum height for the input field
+    textAlignVertical: "top", // Ensures text starts at the top
+  },
+    saveButton: {
+    backgroundColor: "#4CAF50",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginVertical: 5,
+  },
+  cancelButton: {
+    backgroundColor: "#F44336",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginVertical: 5,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 15,
+    backgroundColor: "#f9f9f9",
+    minHeight: 40,
+    textAlignVertical: "top",
+  },
+  modalActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  transparentModalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  }
 });
 
 export default PdfViewer;
+

@@ -8,20 +8,16 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import Icon from "react-native-vector-icons/Ionicons";
 import API from "@/api/axois";
-import { useLocalSearchParams,router,useRouter } from "expo-router";
-import { createStaticNavigation, useNavigation } from '@react-navigation/native';
+import { useLocalSearchParams,useRouter } from "expo-router";
 
-const CreateFlashcardScreen = () => {
+const CreateKeyTermScreen = () => {
   const router = useRouter();
-  const navigation = useNavigation();
   const {passedFileId}=useLocalSearchParams();
   const [flashcardName, setFlashcardName] = useState("");
-  const [flashcardQ, setFlashcardQ] = useState("");
-  const [flashcardA, setFlashcardA] = useState("");
+  const [keytermText, setKeytermText] = useState("");
+  const [keytermDef, setKeytermDef] = useState("");
   const [message, setMessage] = useState("");
-
   const randomGradient = () => {
     const colors: [string, string, ...string[]][] = [
       ["#6a11cb", "#2575fc"],
@@ -33,17 +29,16 @@ const CreateFlashcardScreen = () => {
   };
 
 
-  const handleCreateFlashcard = async () => {
-    if (!flashcardQ || !flashcardA) {
+  const handleCreateKeyTerm = async () => {
+    if (!keytermText || !keytermDef) {
       setMessage("All fields are required!");
       return;
     }
     setFlashcardName("Flachcard" + passedFileId);
   
-    const flashcardData = {
-      flashcardName,
-      flashcardQ,
-      flashcardA,
+    const keyTermData = {
+      keytermText,
+      keytermDef,
       type: 0,
       page: 0,
       file: {
@@ -53,11 +48,11 @@ const CreateFlashcardScreen = () => {
       },
     };
     try {
-      await API.post("/api/flashcard", flashcardData);
+      await API.post("/api/keyterm", keyTermData);
       setMessage("Flashcard created successfully!");
-      setFlashcardQ("");
-      setFlashcardA("");
-      const activeTab = 'Flashcards'//"PDF" | "Flashcards" | "KeyTerms"
+      setKeytermText("");
+      setKeytermDef("");
+      const activeTab = 'KeyTerms'//"PDF" | "Flashcards" | "KeyTerms"
       router.replace({
         pathname: '/Files/PdfScreen',
         params: { passedFileId ,activeTab},
@@ -65,41 +60,41 @@ const CreateFlashcardScreen = () => {
       //navigation.pop();
     } catch (error) {
       console.error(error);
-      setMessage("Failed to create flashcard.");
+      setMessage("Failed to create key term.");
     }
   };
   
   return (
     <LinearGradient colors={randomGradient()} style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.title}>Create Flashcard</Text>
+        <Text style={styles.title}>Create Key Term</Text>
         <Image
           source={require("../../../assets/images/manualflashcard.gif")}
           style={styles.logo}
         />
-                <TouchableOpacity style={styles.button} onPress={handleCreateFlashcard}>
+                <TouchableOpacity style={styles.button} onPress={handleCreateKeyTerm}>
           <LinearGradient
             colors={["#6a11cb", "#2575fc"]}
             style={styles.buttonGradient}
           >
-            <Text style={styles.buttonText}>Create Flashcard</Text>
+            <Text style={styles.buttonText}>Create Key Term</Text>
           </LinearGradient>
         </TouchableOpacity>
 
 
         <TextInput
           style={styles.inputLarge}
-          placeholder="Question"
+          placeholder="key term"
           multiline
-          value={flashcardQ}
-          onChangeText={setFlashcardQ}
+          value={keytermText}
+          onChangeText={setKeytermText}
         />
         <TextInput
           style={styles.inputLarge}
-          placeholder="Answer"
+          placeholder="Definition"
           multiline
-          value={flashcardA}
-          onChangeText={setFlashcardA}
+          value={keytermDef}
+          onChangeText={setKeytermDef}
         />
         {message ? (
           <Text
@@ -194,4 +189,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreateFlashcardScreen;
+export default CreateKeyTermScreen;

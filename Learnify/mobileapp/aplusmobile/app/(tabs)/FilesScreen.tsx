@@ -176,10 +176,11 @@ const FilesScreen = () => {
     }
   };
   const handleFileView = (fileId: string) => {
+    const activeTab:string ="PDF"//"PDF" | "Flashcards" | "KeyTerms"
     const passedFileId = fileId;
     router.push({
       pathname: `/Files/PdfScreen`,
-      params: { passedFileId },
+      params: { passedFileId ,activeTab},
     });
   };
 
