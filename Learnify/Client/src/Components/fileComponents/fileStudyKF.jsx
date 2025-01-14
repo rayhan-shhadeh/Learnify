@@ -18,12 +18,14 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
   Button,
+  FormControl,
+  InputLabel,
   Select,
   MenuItem,
-  InputLabel,
-  FormControl,
+  TextField,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 
 const FileStudy = () => {
@@ -49,6 +51,10 @@ const FileStudy = () => {
     const [length, setLength] = useState("Medium");
     const [baseURL,setBaseURL] =useState(fileURL);
     const [URL, setURL]= useState(fileURL);//URL for baseURL + page# 
+    const [isAllPages, setIsAllPages] = useState(true);
+    const [startPage, setStartPage] = useState(1);
+    const [endPage, setEndPage] = useState(1);
+  
     useEffect(() => {
       if (activeTab === "flashcards") {
         fetchFlashcards();
@@ -59,7 +65,16 @@ const FileStudy = () => {
 
 
     const handleFCClose = () => setShowFCModal(false);
-
+    const handleStartPageChange = (e) => {
+      const value = Number(e.target.value);
+      setStartPage(value < 1 ? 1 : value); // Ensure start page is at least 1
+    };
+  
+    const handleEndPageChange = (e) => {
+      const value = Number(e.target.value);
+      setEndPage(value < startPage ? startPage : value); // Ensure end page is at least start page
+    };
+  
     const handleCreateNew = () => {
         if (activeTab === "flashcards") {
           const newFlashcard = {
@@ -100,7 +115,10 @@ const FileStudy = () => {
               `http://localhost:8080/api/smartFlashcards/${fileId}`,
               {
                 complexity: complexity,
-                length: length
+                length: length,
+                allPages:isAllPages,
+                startPage: startPage ,
+                endPage: endPage
               },
               {
                 headers: {
@@ -246,6 +264,7 @@ const FileStudy = () => {
         );
       }
     };
+
     const handleGenerateKeyterms = async()=>{
         if (!fileId) {
           return;
@@ -255,7 +274,11 @@ const FileStudy = () => {
             const response = await axios.post(`http://localhost:8080/api/smartKeyterms/${fileId}`,
              {
               complexity: complexity,
-              length: length
+              length: length,
+              allPages:isAllPages,
+              startPage: startPage ,
+              endPage: endPage
+    
              }
           );
             if (!response.data || response.data.length === 0) {
@@ -408,66 +431,98 @@ const FileStudy = () => {
               className="app-search-input"
             />
           </div>
-
           <div className="app-content">
           {activeTab === "flashcards" &&(
 
-<div class="button-container">
-<button class="generate-button"
-onClick={() => {
-  handleClickGenerateFlashcards();
-}}
->
-<AutoAwesomeIcon />
-AI Flashcards (For File)
-</button>
-<button class="create-button"
-onClick={() => {
-  handleCreateNew();
-}}
->
-<Add/> New Flashcard
-</button>
-</div>
-)}
-<Dialog open={showFCModal} onClose={handleFCClose}>
-        <DialogTitle>Customize Flashcards</DialogTitle>
-        <DialogContent>
-          {/* Complexity Dropdown */}
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Complexity</InputLabel>
-            <Select
-              value={complexity}
-              onChange={(e) => setComplexity(e.target.value)}
-            >
-              <MenuItem value="Easy">Easy</MenuItem>
-              <MenuItem value="Medium">Medium</MenuItem>
-              <MenuItem value="Hard">Hard</MenuItem>
-            </Select>
-          </FormControl>
-          {/* Length Dropdown */}
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Length</InputLabel>
-            <Select
-              value={length}
-              onChange={(e) => setLength(e.target.value)}
-            >
-              <MenuItem value="Short">Short</MenuItem>
-              <MenuItem value="Medium">Medium</MenuItem>
-              <MenuItem value="Long">Long</MenuItem>
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          {/* Actions */}
-          <Button onClick={handleFCClose} color="secondary">
-            Cancel
-          </Button>
-          <Button onClick={activeTab === "flashcards"?handleGenerateFlashcards:handleGenerateKeyterms} color="primary" variant="contained">
-            Generate
-          </Button>
-        </DialogActions>
-      </Dialog>
+          <div class="button-container">
+          <button class="generate-button"
+          onClick={() => {
+            handleClickGenerateFlashcards();
+          }}
+          >
+          <AutoAwesomeIcon />
+          AI Flashcards (For File)
+          </button>
+          <button class="create-button"
+          onClick={() => {
+            handleCreateNew();
+          }}
+          >
+          <Add/> New Flashcard
+          </button>
+          </div>
+          )}
+          <Dialog open={showFCModal} onClose={handleFCClose}>
+            <DialogContent>
+                      {/* All Pages Checkbox */}
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={isAllPages}
+              onChange={(e) => setIsAllPages(e.target.checked)}
+            />
+          }
+          label="All Pages"
+        />
+
+        {/* Start and End Page Fields */}
+        {!isAllPages && (
+          <>
+            <TextField
+              fullWidth
+              type="number"
+              label="Start Page"
+              value={startPage}
+              onChange={handleStartPageChange}
+              margin="normal"
+              InputProps={{ inputProps: { min: 1 } }}
+            />
+            <TextField
+              fullWidth
+              type="number"
+              label="End Page"
+              value={endPage}
+              onChange={handleEndPageChange}
+              margin="normal"
+              InputProps={{ inputProps: { min: startPage } }}
+            />
+            </>)}
+              {/* Complexity Dropdown */}
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Complexity</InputLabel>
+                <Select
+                  value={complexity}
+                  onChange={(e) => setComplexity(e.target.value)}
+                >
+                  <MenuItem value="Easy">Easy</MenuItem>
+                  <MenuItem value="Medium">Medium</MenuItem>
+                  <MenuItem value="Hard">Hard</MenuItem>
+                </Select>
+              </FormControl>
+              {/* Length Dropdown */}
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Length</InputLabel>
+                <Select
+                  value={length}
+                  onChange={(e) => setLength(e.target.value)}
+                >
+                  <MenuItem value="Short">Short</MenuItem>
+                  <MenuItem value="Medium">Medium</MenuItem>
+                  <MenuItem value="Long">Long</MenuItem>
+                </Select>
+              </FormControl>
+            </DialogContent>
+            <DialogActions>
+              {/* Actions */}
+              <Button onClick={handleFCClose} color="secondary">
+                Cancel
+              </Button>
+              <Button onClick={activeTab === "flashcards"?handleGenerateFlashcards:handleGenerateKeyterms} color="primary" variant="contained">
+                Generate
+              </Button>
+            </DialogActions>
+          </Dialog>
+
             {activeTab === "flashcards" && !wait  &&
 
               flashcards.map((flashcard) => (
