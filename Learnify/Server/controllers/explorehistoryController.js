@@ -1,4 +1,3 @@
-
 import { exploreHistoryService } from "../services/exploreHistoryService.js";
 import { topicService } from "../services/topicService.js"; 
 
@@ -11,6 +10,8 @@ export const exploreHistoryController = {
     try {
       const exploreHistory = await exploreHistoryService.getExploreHistory(parseInt(userId));
       if (exploreHistory.length === 0) {
+        const detailedHistory = [];
+        res.status(200).json(detailedHistory);
         return;
       }
       const detailedHistory = await Promise.all(
