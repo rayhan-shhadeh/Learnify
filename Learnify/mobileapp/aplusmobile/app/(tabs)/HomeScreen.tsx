@@ -16,7 +16,7 @@ import NavBar from "./NavBar";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Icon } from "react-native-paper";
-
+import Header from "../(tabs)/header/Header";
 const HomePage = () => {
   const router = useRouter();
   const [isModalVisible, setModalVisible] = useState(false);
@@ -28,7 +28,8 @@ const HomePage = () => {
       colors={["#ddf3f5", "#f7f7f7", "#fbfbfb", "#9ad9ea"]}
       style={styles.container}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <Header />
+      <SafeAreaView style={styles.scrollContainer}>
         {/* Header Section */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Welcome to</Text>
@@ -70,7 +71,7 @@ const HomePage = () => {
             </TouchableOpacity>
           ))}
         </View>
-      </ScrollView>
+      </SafeAreaView>
 
       <TouchableOpacity style={styles.floatingButton}>
         <MaterialCommunityIcons
@@ -80,6 +81,7 @@ const HomePage = () => {
           color="#1ca7ec"
         />
       </TouchableOpacity>
+      <Text style={styles.aiText}>This app contains AI Generated contents</Text>
       {/* How to Use Modal */}
       <Modal
         animationType="slide"
@@ -95,45 +97,46 @@ const HomePage = () => {
           >
             <Text style={styles.modalTitle}>How to Use?</Text>
             <Text style={styles.modalText}>
-              1. Upload your study materials in the <Text>Learn</Text> section.
               <MaterialCommunityIcons
                 name="file-upload"
                 size={20}
                 color="#1ca7ec"
               />
+              Upload your study materials in the <Text>Learn</Text> section.
             </Text>
             <Text style={styles.modalText}>
-              2. Click on File name to view the contents.
               <MaterialCommunityIcons
                 name="file-eye"
                 size={20}
                 color="#1ca7ec"
-              />
+              />{" "}
+              Click on File name to view the contents.
             </Text>
             <Text style={styles.modalText}>
-              3. Generate Flashcards, Quizzes, and Key terms to start learning.
               <MaterialCommunityIcons
                 name="file-check-outline"
                 size={20}
                 color="#1ca7ec"
-              />
+              />{" "}
+              Generate Flashcards, Quizzes, and Key terms to start learning.
             </Text>
             <Text style={styles.modalText}>
-              4. Use the <Text>Practice</Text> section to reinforce learning.
               <MaterialCommunityIcons
                 name="file-document"
                 size={20}
                 color="#1ca7ec"
-              />
-            </Text>{" "}
+              />{" "}
+              Use the <Text>Practice</Text> section to reinforce learning.
+            </Text>
             <Text style={styles.modalText}>
-              5. Explore or Learn new decks for more resources.
               <MaterialCommunityIcons
                 name="search-web"
                 size={20}
                 color="#1ca7ec"
               />
+              Explore or Learn new decks for more resources.
             </Text>
+
             <Pressable style={styles.closeButton} onPress={toggleModal}>
               <Text style={styles.closeButtonText}>Close</Text>
             </Pressable>
@@ -190,19 +193,19 @@ const cardData: {
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
     width: "100%",
     height: "100%",
   },
   scrollContainer: {
-    flexGrow: 1,
-    padding: 16,
+    paddingLeft: 20,
+    paddingRight: 20,
   },
   header: {
     alignItems: "center",
-    marginVertical: 10,
+    // marginVertical: 10,
   },
   headerTitle: {
+    marginTop: -50,
     fontSize: 28,
     fontWeight: "bold",
     color: "#488db4",
@@ -265,7 +268,7 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
+    textAlign: "left",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
@@ -274,6 +277,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     width: "90%",
     alignItems: "center",
+    textAlign: "left",
     elevation: 10,
   },
   modalTitle: {
@@ -297,6 +301,18 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: "#fff",
     fontWeight: "bold",
+  },
+  aiText: {
+    color: "#0077b6",
+    fontWeight: "light",
+    fontSize: 13,
+    bottom: 90,
+    position: "absolute",
+    textAlign: "center",
+    justifyContent: "center",
+    alignSelf: "center",
+    zIndex: 1,
+    paddingRight: 25,
   },
 });
 

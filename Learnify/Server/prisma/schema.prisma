@@ -33,7 +33,6 @@ model calenderevent {
   eventStart       DateTime @db.Date
   eventEnd         DateTime @db.Date
   eventDescription String   @db.VarChar(255)
-  allDay           Int      @default(0)
   userid           Int
   user_            user_    @relation(fields: [userid], references: [userId], onDelete: Cascade, onUpdate: Restrict, map: "fk_calenderevent_user")
 
@@ -131,7 +130,7 @@ model habit {
   userid           Int
   habitName        String       @db.VarChar(255)
   habitDescription String?      @db.VarChar(255)
-  reminderTime     DateTime?    @db.Date
+  reminderTime     DateTime?    @db.Time
   createdAt        DateTime     @default(now()) @db.Timestamp(0)
   user_            user_        @relation(fields: [userid], references: [userId], onDelete: Cascade, onUpdate: Restrict, map: "fk_habit_user")
   streak           streak?

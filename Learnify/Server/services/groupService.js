@@ -27,10 +27,11 @@ export const groupService = {
         });
     },
     async getUsersInGroup(id) {
-        return await prisma.group_.findUnique({
+        const usersInGroup = await prisma.group_users.findMany({
             where: { groupId: parseInt(id) },
-            include: { users: true }
+            select: { userId: true }
         });
+        return usersInGroup.map(user => user.userId);
     },
     /**
      * Adds users to a group.

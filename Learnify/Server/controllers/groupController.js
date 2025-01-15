@@ -94,16 +94,16 @@ export const groupController = {
     },
     async getUsersInGroup(req, res) {
         try {
-            const group = await groupService.getUsersInGroup(req.params.id);
-            if (!group) {
+            const userIds = await groupService.getUsersInGroup(req.params.id);
+            if (!userIds || userIds.length === 0) {
                 return res.status(404).json({
                     status: 'fail',
-                    message: 'Group not found',
+                    message: 'Group not found or no users in group',
                 });
             }
             res.status(200).json({
                 status: 'success',
-                data: group.users,
+                data: userIds,
             });
         }
         catch (error) {
