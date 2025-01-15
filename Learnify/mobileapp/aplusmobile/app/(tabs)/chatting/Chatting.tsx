@@ -249,6 +249,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: "#DDD",
     backgroundColor: "#FFF",
+    position: "relative",
+    marginBottom: 10,
   },
   input: {
     flex: 1,

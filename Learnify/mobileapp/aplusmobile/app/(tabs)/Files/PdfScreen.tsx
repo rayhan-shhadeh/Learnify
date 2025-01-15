@@ -1,33 +1,37 @@
 import React, { useEffect, useState } from "react";
-import {View, ActivityIndicator, StyleSheet, Text, TouchableOpacity, Modal, FlatList, TextInput, Button} from "react-native";
+import {
+  View,
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Modal,
+  FlatList,
+  TextInput,
+  Button,
+} from "react-native";
 import { WebView } from "react-native-webview";
-<<<<<<< HEAD
-import { Picker } from "@react-native-picker/picker";
-import API from "../../../api/axois";
-import Icon from "react-native-vector-icons/Ionicons";
-=======
 import API, { LOCALHOST } from "../../../api/axois";
 import Icon from "react-native-vector-icons/AntDesign";
->>>>>>> 8f89ecee6c2097dcecc479cb001f3ab2500e8ffc
 import FlashcardIcon from "react-native-vector-icons/Ionicons";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useLocalSearchParams } from "expo-router";
-import {Keyboard } from "react-native";
+import { Keyboard } from "react-native";
 
 interface PdfViewerProps {
   fileId: string;
 }
-import { useRouter } from 'expo-router';
+import { useRouter } from "expo-router";
 interface Flashcard {
   id: string;
   question: string;
   answer: string;
-  page :string
+  page: string;
   type: number;
 }
 interface KeyTerm {
   id: string;
-  term: string; 
+  term: string;
   definition: string;
   page: string;
   type: number;
@@ -35,15 +39,17 @@ interface KeyTerm {
 
 const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
   const router = useRouter();
-  const { passedFileId,activeTab } = useLocalSearchParams();
+  const { passedFileId, activeTab } = useLocalSearchParams();
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [flashcardModalVisible, setFlashcardModalVisible] = useState(false);
   const [difficulty, setDifficulty] = useState("Easy");
   const [length, setLength] = useState("Short");
-  const [showKeytermDifficultyOptions, setShowKeytermDifficultyOptions] = useState(false);
-  const [showKeytermLengthOptions, setShowKeytermLengthOptions] = useState(false);
+  const [showKeytermDifficultyOptions, setShowKeytermDifficultyOptions] =
+    useState(false);
+  const [showKeytermLengthOptions, setShowKeytermLengthOptions] =
+    useState(false);
   const [keytermModalVisible, setKeytermModalVisible] = useState(false);
   const [showDifficultyOptions, setShowDifficultyOptions] = useState(false);
   const [showLengthOptions, setShowLengthOptions] = useState(false);
@@ -51,18 +57,25 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [fetchedFlashcards, setFetchedFlashcards] = useState<Flashcard[]>([]);
   const [fetchedKeyTerms, setFetchedKeyTerms] = useState<KeyTerm[]>([]);
-  const activeTabString : string= activeTab?.toString() ;
-  const [activeModal, setActiveModal] = useState<string >(activeTabString|| 'PDF');//"PDF" | "Flashcards" | "KeyTerms"
+  const activeTabString: string = activeTab?.toString();
+  const [activeModal, setActiveModal] = useState<string>(
+    activeTabString || "PDF"
+  ); //"PDF" | "Flashcards" | "KeyTerms"
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [keyTerms, setKeyTerms] = useState<KeyTerm[]>([]);
-  const [flashcardStates, setFlashcardStates] = useState<Record<string, { isEditing: boolean; editedQuestion: string; editedAnswer: string }>>({});
+  const [flashcardStates, setFlashcardStates] = useState<
+    Record<
+      string,
+      { isEditing: boolean; editedQuestion: string; editedAnswer: string }
+    >
+  >({});
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentKeyterm, setCurrentKeyterm] = useState<KeyTerm | null>(null);
-  const [startPage,setStartPage]=useState<number>(1);
-  const [endPage,setEndPage]=useState<number>(1);
-  const [isAllPages,setIsAllPages]=useState<boolean>(true);
-  const [numberOfPages,setNumberOfPages]=useState<number>(1);
-    useEffect(() => {
+  const [startPage, setStartPage] = useState<number>(1);
+  const [endPage, setEndPage] = useState<number>(1);
+  const [isAllPages, setIsAllPages] = useState<boolean>(true);
+  const [numberOfPages, setNumberOfPages] = useState<number>(1);
+  useEffect(() => {
     const fetchPdfUrl = async () => {
       fileId = passedFileId.toString();
       try {
@@ -82,18 +95,22 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
     };
     const fetchFlashcards = async () => {
       try {
-       // const response = await API.get(`/api/file/${fileId}`);
+        // const response = await API.get(`/api/file/${fileId}`);
         const response = await API.get(`/api/file/flashcards/${fileId}`);
-        const data = response.data.map((flashcard) => ({        
+        const data = response.data.map((flashcard) => ({
           id: flashcard.flashcardId,
           question: flashcard.flashcardQ || "",
           answer: flashcard.flashcardA || "",
           type: flashcard.type,
-          page : flashcard.page 
+          page: flashcard.page,
         }));
         // Initialize editing states for all flashcards
         const initialStates = data.reduce((acc: any, flashcard: Flashcard) => {
-          acc[flashcard.id] = { isEditing: false, editedQuestion: flashcard.question, editedAnswer: flashcard.answer };
+          acc[flashcard.id] = {
+            isEditing: false,
+            editedQuestion: flashcard.question,
+            editedAnswer: flashcard.answer,
+          };
           return acc;
         }, {});
         setFlashcardStates(initialStates);
@@ -111,7 +128,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
           term: keyterm.keytermText,
           definition: keyterm.keytermDef || "",
           type: keyterm.type,
-          page : keyterm.page
+          page: keyterm.page,
         }));
         setKeyTerms(data);
         setFetchedKeyTerms(data);
@@ -131,16 +148,20 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
   const fetchFlashcards = async () => {
     try {
       const response = await API.get(`/api/file/flashcards/${passedFileId}`);
-      const data = response.data.map((flashcard) => ({        
+      const data = response.data.map((flashcard) => ({
         id: flashcard.flashcardId,
         question: flashcard.flashcardQ || "",
         answer: flashcard.flashcardA || "",
         type: flashcard.type,
-        page : flashcard.page 
+        page: flashcard.page,
       }));
       // Initialize editing states for all flashcards
       const initialStates = data.reduce((acc: any, flashcard: Flashcard) => {
-        acc[flashcard.id] = { isEditing: false, editedQuestion: flashcard.question, editedAnswer: flashcard.answer };
+        acc[flashcard.id] = {
+          isEditing: false,
+          editedQuestion: flashcard.question,
+          editedAnswer: flashcard.answer,
+        };
         return acc;
       }, {});
       setFlashcardStates(initialStates);
@@ -164,18 +185,23 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
   const handleSaveFlashcard = async (id: string) => {
     try {
       const { editedQuestion, editedAnswer } = flashcardStates[id];
-      const response = await fetch(`http://${LOCALHOST}:8080/api/flashcard/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          flashcardQ: editedQuestion,
-          flashcardA: editedAnswer,
-        }),
-      });
+      const response = await fetch(
+        `http://${LOCALHOST}:8080/api/flashcard/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            flashcardQ: editedQuestion,
+            flashcardA: editedAnswer,
+          }),
+        }
+      );
       if (!response.ok) {
-        throw new Error(`Failed to update flashcard. Status: ${response.status}`);
+        throw new Error(
+          `Failed to update flashcard. Status: ${response.status}`
+        );
       }
       setFlashcards((prevFlashcards) =>
         prevFlashcards.map((flashcard) =>
@@ -198,28 +224,35 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
     setCurrentKeyterm(keyterm);
     setIsModalVisible(true);
   };
-  
+
   const handleSaveKeyterm = async () => {
     if (!currentKeyterm) return;
-  
+
     try {
-      const response = await fetch(`http://${LOCALHOST}:8080/api/keyterm/${currentKeyterm.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          keytermText: currentKeyterm.term,
-          keytermDef: currentKeyterm.definition,
-        }),
-      });
+      const response = await fetch(
+        `http://${LOCALHOST}:8080/api/keyterm/${currentKeyterm.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            keytermText: currentKeyterm.term,
+            keytermDef: currentKeyterm.definition,
+          }),
+        }
+      );
       if (!response.ok) {
         throw new Error(`Failed to update keyterm. Status: ${response.status}`);
       }
       setKeyTerms((prevKeyTerms) =>
         prevKeyTerms.map((keyterm) =>
           keyterm.id === currentKeyterm.id
-            ? { ...keyterm, term: currentKeyterm.term, definition: currentKeyterm.definition }
+            ? {
+                ...keyterm,
+                term: currentKeyterm.term,
+                definition: currentKeyterm.definition,
+              }
             : keyterm
         )
       );
@@ -235,8 +268,8 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
     setIsModalVisible(false);
     setCurrentKeyterm(null);
   };
-  
-/*
+
+  /*
   const renderFlashcard = ({
     item,
   }: {
@@ -260,7 +293,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
             />
             <Text style={styles.actionText}>Add</Text>
           </TouchableOpacity> */
-          /*
+  /*
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => handleDeleteFlashcard(item.id)} // Pass the specific flashcard ID
@@ -273,96 +306,109 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
   );
 */
 
-const renderFlashcard = ({ item }: { item: Flashcard }) => {
-  const { isEditing, editedQuestion, editedAnswer } = flashcardStates[item.id] || {
-    isEditing: false,
-    editedQuestion: item.question,
-    editedAnswer: item.answer,
-  };
-  return (
-    <View style={styles.flashcardCard}>
-      {isEditing ? (
-        <View>
-          <TextInput
-            style={styles.flashcardInput}
-            value={editedQuestion}
-            onChangeText={(text) =>
-              setFlashcardStates((prev) => ({
-                ...prev,
-                [item.id]: { ...prev[item.id], editedQuestion: text },
-              }))
-            }
-            placeholder="Edit Question"
-            multiline={true}
-          />
-          <TextInput
-            style={styles.flashcardInput}
-            value={editedAnswer}
-            onChangeText={(text) =>
-              setFlashcardStates((prev) => ({
-                ...prev,
-                [item.id]: { ...prev[item.id], editedAnswer: text },
-              }))
-            }
-            placeholder="Edit Answer"
-            multiline={true}
-          />
-          <View style={styles.flashcardActions}>
-            <TouchableOpacity style={styles.saveButton} onPress={() => handleSaveFlashcard(item.id)}>
-              <Text style={styles.actionText}>Save</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={() =>
+  const renderFlashcard = ({ item }: { item: Flashcard }) => {
+    const { isEditing, editedQuestion, editedAnswer } = flashcardStates[
+      item.id
+    ] || {
+      isEditing: false,
+      editedQuestion: item.question,
+      editedAnswer: item.answer,
+    };
+    return (
+      <View style={styles.flashcardCard}>
+        {isEditing ? (
+          <View>
+            <TextInput
+              style={styles.flashcardInput}
+              value={editedQuestion}
+              onChangeText={(text) =>
                 setFlashcardStates((prev) => ({
                   ...prev,
-                  [item.id]: {
-                    ...prev[item.id],
-                    isEditing: false,
-                    editedQuestion: item.question,
-                    editedAnswer: item.answer,
-                  },
+                  [item.id]: { ...prev[item.id], editedQuestion: text },
                 }))
               }
-            >
-              <Text style={styles.actionText}>Cancel</Text>
-            </TouchableOpacity>
+              placeholder="Edit Question"
+              multiline={true}
+            />
+            <TextInput
+              style={styles.flashcardInput}
+              value={editedAnswer}
+              onChangeText={(text) =>
+                setFlashcardStates((prev) => ({
+                  ...prev,
+                  [item.id]: { ...prev[item.id], editedAnswer: text },
+                }))
+              }
+              placeholder="Edit Answer"
+              multiline={true}
+            />
+            <View style={styles.flashcardActions}>
+              <TouchableOpacity
+                style={styles.saveButton}
+                onPress={() => handleSaveFlashcard(item.id)}
+              >
+                <Text style={styles.actionText}>Save</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() =>
+                  setFlashcardStates((prev) => ({
+                    ...prev,
+                    [item.id]: {
+                      ...prev[item.id],
+                      isEditing: false,
+                      editedQuestion: item.question,
+                      editedAnswer: item.answer,
+                    },
+                  }))
+                }
+              >
+                <Text style={styles.actionText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      ) : (
-        <View>
-          <View style={styles.flashcardContent}>
-            <Text style={styles.flashcardTitle}>{item.question}</Text>
-            <Text style={styles.flashcardDescription}>{item.answer}</Text>
-          </View>
-          <View style={styles.flashcardActions}>
-            <TouchableOpacity style={styles.actionButton} onPress={() => handleEditToggle(item.id)}>
-              <FlashcardIcon name="create-outline" size={20} color="#6b2905" />
-              <Text style={styles.actionText}>Edit</Text>
-            </TouchableOpacity>
-            {item.type === 1 && (
-                <TouchableOpacity 
-                    style={styles.actionButton} 
-                    onPress={() => handleGoToPage(item.question, item.answer, item.page,'F')}
+        ) : (
+          <View>
+            <View style={styles.flashcardContent}>
+              <Text style={styles.flashcardTitle}>{item.question}</Text>
+              <Text style={styles.flashcardDescription}>{item.answer}</Text>
+            </View>
+            <View style={styles.flashcardActions}>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => handleEditToggle(item.id)}
+              >
+                <FlashcardIcon
+                  name="create-outline"
+                  size={20}
+                  color="#6b2905"
+                />
+                <Text style={styles.actionText}>Edit</Text>
+              </TouchableOpacity>
+              {item.type === 1 && (
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() =>
+                    handleGoToPage(item.question, item.answer, item.page, "F")
+                  }
                 >
-                    <Icon
-                        name="create-outline"
-                        size={20}
-                        color="#11ad0c"
-                    />
-                    <Text>{item.page}</Text>
+                  <Icon name="create-outline" size={20} color="#11ad0c" />
+                  <Text>{item.page}</Text>
                 </TouchableOpacity>
-            )}
-            <TouchableOpacity style={styles.actionButton} onPress={() => handleDeleteFlashcard(item.id)}>
-              <FlashcardIcon name="trash-outline" size={20} color="#F44336" />
-              <Text style={styles.actionText}>Delete</Text>
-            </TouchableOpacity>
+              )}
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => handleDeleteFlashcard(item.id)}
+              >
+                <FlashcardIcon name="trash-outline" size={20} color="#F44336" />
+                <Text style={styles.actionText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      )}
-    </View>
-  );
-};
+        )}
+      </View>
+    );
+  };
 
   const handleDeleteFlashcard = async (flashcardId: string) => {
     try {
@@ -376,7 +422,7 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
       console.error(`Error deleting flashcard with ID ${flashcardId}:, error`);
     }
   };
-  
+
   const handleDeleteKeyTerm = async (keyTermId: string) => {
     try {
       await API.delete(`/api/keyterm/${keyTermId}`);
@@ -389,32 +435,35 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
       console.error(`Error deleting key term with ID ${keyTermId}:, error`);
     }
   };
-  
+
   const handleGenerateFlashcards = async () => {
     if (!passedFileId) {
       alert("Try again!");
       return;
     }
-    if(endPage< startPage){
+    if (endPage < startPage) {
       alert("Invalid start and end!");
       return;
     }
     console.log("Generating flashcards....");
     setLoading(true);
     try {
-      const response = await fetch(`http://${LOCALHOST}:8080/api/smartFlashcards/${passedFileId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          complexity: difficulty,
-          length: length,
-          allPages:isAllPages,
-          startPage: startPage ,
-          endPage: endPage
-        }),
-      });
+      const response = await fetch(
+        `http://${LOCALHOST}:8080/api/smartFlashcards/${passedFileId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            complexity: difficulty,
+            length: length,
+            allPages: isAllPages,
+            startPage: startPage,
+            endPage: endPage,
+          }),
+        }
+      );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -424,11 +473,11 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
         setLoading(false);
         setLoading(false);
         return;
-      }      
+      }
       console.log("Flashcards Generated Successfully.");
       fetchFlashcards();
       setLoading(false);
-      setDifficulty("Easy")
+      setDifficulty("Easy");
       setLength("Short ");
       setIsAllPages(true);
     } catch (error) {
@@ -437,7 +486,7 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
       setLoading(true);
     }
   };
-    
+
   const handleGenerateKeyTerms = async () => {
     console.log("Generating key terms...");
     if (!passedFileId) {
@@ -445,19 +494,22 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
     }
     setLoading(true);
     try {
-      const response = await fetch(`http://${LOCALHOST}:8080/api/smartKeyterms/${passedFileId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          complexity: difficulty,
-          length: length,
-          allPages:isAllPages,
-          startPage: startPage ,
-          endPage: endPage
-        }),
-      });
+      const response = await fetch(
+        `http://${LOCALHOST}:8080/api/smartKeyterms/${passedFileId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            complexity: difficulty,
+            length: length,
+            allPages: isAllPages,
+            startPage: startPage,
+            endPage: endPage,
+          }),
+        }
+      );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -471,14 +523,14 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
         id: keyTerm.keytermId,
         term: keyTerm.keytermText || "",
         definition: keyTerm.keytermDef || "",
-        type:1,
-        page: keyTerm.page 
+        type: 1,
+        page: keyTerm.page,
       }));
       setKeyTerms(fetchedKeyTerms); // Update the key terms state
       console.log("hi after key terms");
       setLoading(false);
-      setKeytermModalVisible(false );
-      setDifficulty("Easy")
+      setKeytermModalVisible(false);
+      setDifficulty("Easy");
       setLength("Short ");
       setIsAllPages(true);
     } catch (error) {
@@ -487,7 +539,7 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
       setLoading(false);
     }
   };
-  
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -496,7 +548,7 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
       </View>
     );
   }
-  
+
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     if (activeModal === "Flashcards") {
@@ -504,10 +556,12 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
         query
           ? fetchedFlashcards.filter(
               (flashcard) =>
-                flashcard.question.toLowerCase().includes(query.toLowerCase()) ||
+                flashcard.question
+                  .toLowerCase()
+                  .includes(query.toLowerCase()) ||
                 flashcard.answer.toLowerCase().includes(query.toLowerCase())
             )
-          : fetchedFlashcards 
+          : fetchedFlashcards
       );
     } else if (activeModal === "KeyTerms") {
       setKeyTerms(
@@ -520,7 +574,7 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
           : fetchedKeyTerms
       );
     }
-  };    
+  };
 
   const handleFlashcardGenerateClick = () => {
     setFlashcardModalVisible(true);
@@ -530,36 +584,47 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
     setKeytermModalVisible(true);
   };
 
-  const handleGoToPage =(questionORterm:string,answerORdefinition:string,page:string,KF:string ) =>{
-      router.push({
-        pathname: "/(tabs)/Files/viewPageScreen",
-        params:{questionORterm,answerORdefinition,pdfUrl,page,passedFileId,KF}
-      });
-  }
+  const handleGoToPage = (
+    questionORterm: string,
+    answerORdefinition: string,
+    page: string,
+    KF: string
+  ) => {
+    router.push({
+      pathname: "/(tabs)/Files/viewPageScreen",
+      params: {
+        questionORterm,
+        answerORdefinition,
+        pdfUrl,
+        page,
+        passedFileId,
+        KF,
+      },
+    });
+  };
 
   const handleEndPageInput = (text: string) => {
-    const end = Number(text) ; 
+    const end = Number(text);
     if (end > numberOfPages) {
       alert(`End page cannot exceed ${numberOfPages}`);
       setEndPage(numberOfPages);
     } else if (end < 1) {
       alert(`End page must be at least 1`);
       setEndPage(1);
-    }else{
+    } else {
       setEndPage(end);
     }
-  };      
+  };
 
   const handleStartPage = (text: string) => {
-    const start =Number(text) ; 
+    const start = Number(text);
     if (start < 1) {
       alert("Start Page must be at least 1.");
       setStartPage(1);
-    }else if (start > numberOfPages){
+    } else if (start > numberOfPages) {
       alert("Invalid");
       setStartPage(1);
-    }
-    else {
+    } else {
       setStartPage(start);
       console.log(`Start Page is valid: ${startPage}`);
     }
@@ -587,7 +652,7 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
         );
       }
       return pdfUrl ? (
-        <WebView 
+        <WebView
           source={{ uri: `${pdfUrl}#page=3` }}
           style={styles.webview}
           userAgent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
@@ -709,12 +774,12 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.manualButton}
-              onPress={()=>{              
-              router.replace({
-                pathname: `/Flashcards/ManualFlashcard`,
-                params: { passedFileId},
-              });        
-              } }
+              onPress={() => {
+                router.replace({
+                  pathname: `/Flashcards/ManualFlashcard`,
+                  params: { passedFileId },
+                });
+              }}
             >
               <Ionicons name="pencil" size={22} color="#fff" />
               <Text style={styles.popupbuttonText}>Manual</Text>
@@ -734,131 +799,142 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
             <Text style={styles.popupbuttonText}>Generate Flashcards</Text>
           </TouchableOpacity> */}
           {/* Modal for Flashcard Options */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={flashcardModalVisible}
-        onRequestClose={() => setFlashcardModalVisible(false)}
-      >
-        <View style={styles.popupmodalContainer}>
-          <View style={styles.modalContent}>
-            <View style={{ flexDirection: "row" }}>
-              <Icon name="setting" size={24} color="#333" />
-              <Text style={styles.modalTitle}>Flashcard Settings</Text>
-            </View>
-            {/* Flashcard Range Selector */}
-            <View style={styles.option}>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <TouchableOpacity
-              style={[styles.checkbox, isAllPages && styles.checkedCheckbox]}
-              onPress={() => setIsAllPages(!isAllPages)}
-            />
-            <Text style={styles.optionLabel}>All Pages</Text>
-          </View>
-              {!isAllPages && (
-                <View style={styles.pageRangeContainer}>
-                  <View style={styles.pageInputContainer}>
-                    <Text style={styles.optionLabel}>Start Page:</Text>
-                    <TextInput
-                    style={styles.pageInput}
-                    keyboardType="numeric"
-                    placeholder="Enter start page"
-                    placeholderTextColor="#A9A9A9"
-                    onChangeText={handleStartPage}
-                    onBlur={handleDismissKeyboard} 
-                    returnKeyType="done"
-                    onSubmitEditing={handleDismissKeyboard}
-                    />
-                  </View>
-                  <View style={styles.pageInputContainer}>
-                    <Text style={styles.optionLabel}>End Page:</Text>
-                    <TextInput
-                    style={styles.pageInput}
-                    keyboardType="numeric"
-                    placeholder={`Enter end page (Max: ${numberOfPages})`}
-                    placeholderTextColor="#A9A9A9"
-                    onChangeText={handleEndPageInput}
-                    onBlur={handleDismissKeyboard}
-                    returnKeyType="done" 
-                    onSubmitEditing={handleDismissKeyboard}
-                    />
-                  </View>
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={flashcardModalVisible}
+            onRequestClose={() => setFlashcardModalVisible(false)}
+          >
+            <View style={styles.popupmodalContainer}>
+              <View style={styles.modalContent}>
+                <View style={{ flexDirection: "row" }}>
+                  <Icon name="setting" size={24} color="#333" />
+                  <Text style={styles.modalTitle}>Flashcard Settings</Text>
                 </View>
-              )}
-            </View>
-            {/* Length Selector */}
-            <View style={styles.option}>
-              <Text style={styles.optionLabel}>Length:</Text>
-              <TouchableOpacity
-                style={styles.dropdown}
-                onPress={() => setShowLengthOptions(!showLengthOptions)}
-              >
-                <Text style={styles.dropdownText}>{length || "Select"}</Text>
-              </TouchableOpacity>
-              {showLengthOptions && (
-                <View style={styles.dropdownOptions}>
-                  {['Short', 'Medium', 'Long'].map((lengthOption) => (
+                {/* Flashcard Range Selector */}
+                <View style={styles.option}>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TouchableOpacity
-                      key={lengthOption}
-                      style={styles.dropdownOption}
-                      onPress={() => {
-                        setLength(lengthOption);
-                        setShowLengthOptions(false);
-                      }}
-                    >
-                      <Text style={styles.dropdownOptionText}>{lengthOption}</Text>
-                    </TouchableOpacity>
-                  ))}
+                      style={[
+                        styles.checkbox,
+                        isAllPages && styles.checkedCheckbox,
+                      ]}
+                      onPress={() => setIsAllPages(!isAllPages)}
+                    />
+                    <Text style={styles.optionLabel}>All Pages</Text>
+                  </View>
+                  {!isAllPages && (
+                    <View style={styles.pageRangeContainer}>
+                      <View style={styles.pageInputContainer}>
+                        <Text style={styles.optionLabel}>Start Page:</Text>
+                        <TextInput
+                          style={styles.pageInput}
+                          keyboardType="numeric"
+                          placeholder="Enter start page"
+                          placeholderTextColor="#A9A9A9"
+                          onChangeText={handleStartPage}
+                          onBlur={handleDismissKeyboard}
+                          returnKeyType="done"
+                          onSubmitEditing={handleDismissKeyboard}
+                        />
+                      </View>
+                      <View style={styles.pageInputContainer}>
+                        <Text style={styles.optionLabel}>End Page:</Text>
+                        <TextInput
+                          style={styles.pageInput}
+                          keyboardType="numeric"
+                          placeholder={`Enter end page (Max: ${numberOfPages})`}
+                          placeholderTextColor="#A9A9A9"
+                          onChangeText={handleEndPageInput}
+                          onBlur={handleDismissKeyboard}
+                          returnKeyType="done"
+                          onSubmitEditing={handleDismissKeyboard}
+                        />
+                      </View>
+                    </View>
+                  )}
                 </View>
-              )}
-            </View>
-            {/* Difficulty Selector */}
-            <View style={styles.option}>
-              <Text style={styles.optionLabel}>Difficulty:</Text>
-              <TouchableOpacity
-                style={styles.dropdown}
-                onPress={() => setShowDifficultyOptions(!showDifficultyOptions)}
-              >
-                <Text style={styles.dropdownText}>{difficulty || "Select"}</Text>
-              </TouchableOpacity>
-              {showDifficultyOptions && (
-                <View style={styles.dropdownOptions}>
-                  {['Easy', 'Intermediate', 'Advanced'].map((level) => (
-                    <TouchableOpacity
-                      key={level}
-                      style={styles.dropdownOption}
-                      onPress={() => {
-                        setDifficulty(level);
-                        setShowDifficultyOptions(false);
-                      }}
-                    >
-                      <Text style={styles.dropdownOptionText}>{level}</Text>
-                    </TouchableOpacity>
-                  ))}
+                {/* Length Selector */}
+                <View style={styles.option}>
+                  <Text style={styles.optionLabel}>Length:</Text>
+                  <TouchableOpacity
+                    style={styles.dropdown}
+                    onPress={() => setShowLengthOptions(!showLengthOptions)}
+                  >
+                    <Text style={styles.dropdownText}>
+                      {length || "Select"}
+                    </Text>
+                  </TouchableOpacity>
+                  {showLengthOptions && (
+                    <View style={styles.dropdownOptions}>
+                      {["Short", "Medium", "Long"].map((lengthOption) => (
+                        <TouchableOpacity
+                          key={lengthOption}
+                          style={styles.dropdownOption}
+                          onPress={() => {
+                            setLength(lengthOption);
+                            setShowLengthOptions(false);
+                          }}
+                        >
+                          <Text style={styles.dropdownOptionText}>
+                            {lengthOption}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
                 </View>
-              )}
+                {/* Difficulty Selector */}
+                <View style={styles.option}>
+                  <Text style={styles.optionLabel}>Difficulty:</Text>
+                  <TouchableOpacity
+                    style={styles.dropdown}
+                    onPress={() =>
+                      setShowDifficultyOptions(!showDifficultyOptions)
+                    }
+                  >
+                    <Text style={styles.dropdownText}>
+                      {difficulty || "Select"}
+                    </Text>
+                  </TouchableOpacity>
+                  {showDifficultyOptions && (
+                    <View style={styles.dropdownOptions}>
+                      {["Easy", "Intermediate", "Advanced"].map((level) => (
+                        <TouchableOpacity
+                          key={level}
+                          style={styles.dropdownOption}
+                          onPress={() => {
+                            setDifficulty(level);
+                            setShowDifficultyOptions(false);
+                          }}
+                        >
+                          <Text style={styles.dropdownOptionText}>{level}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                </View>
+                {/* Actions */}
+                <View style={styles.actionButtons}>
+                  <TouchableOpacity
+                    style={styles.generateButton}
+                    onPress={() => setFlashcardModalVisible(false)}
+                  >
+                    <Text>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.popupbuttonText}>
+                    <Button
+                      title="Generate"
+                      onPress={() => {
+                        handleGenerateFlashcards();
+                        setFlashcardModalVisible(false);
+                      }}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
-            {/* Actions */}
-            <View style={styles.actionButtons}>
-              <TouchableOpacity
-                style={styles.generateButton}
-                onPress={() => setFlashcardModalVisible(false)}
-              >
-                <Text>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.popupbuttonText}>
-                <Button
-                  title="Generate"
-                  onPress={() => {
-                    handleGenerateFlashcards();
-                    setFlashcardModalVisible(false);
-                  }}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+          </Modal>
         </View>
       );
     }
@@ -880,15 +956,16 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
             >
               <Text style={styles.buttonText}>Generate</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={()=>
-            { 
-              router.replace({
-              //pathname: /Flashcards/ManualFlashcard,
-                pathname: `/KeyTerms/ManualKeyTerm`,
-                params: { passedFileId},
-              });        
-            }           
-            }>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => {
+                router.replace({
+                  //pathname: /Flashcards/ManualFlashcard,
+                  pathname: `/KeyTerms/ManualKeyTerm`,
+                  params: { passedFileId },
+                });
+              }}
+            >
               <Text style={styles.buttonText}>Manual</Text>
             </TouchableOpacity>
           </View>
@@ -923,46 +1000,51 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
                     />
                   </TouchableOpacity> */}
                   {/* Difficulty Selector */}
-                              {/* Flashcard Range Selector */}
-            <View style={styles.option}>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <TouchableOpacity
-              style={[styles.checkbox, isAllPages && styles.checkedCheckbox]}
-              onPress={() => setIsAllPages(!isAllPages)}
-            />
-            <Text style={styles.optionLabel}>All Pages</Text>
-          </View>
-              {!isAllPages && (
-                <View style={styles.pageRangeContainer}>
-                  <View style={styles.pageInputContainer}>
-                    <Text style={styles.optionLabel}>Start Page:</Text>
-                    <TextInput
-                    style={styles.pageInput}
-                    keyboardType="numeric"
-                    placeholder="Enter start page"
-                    placeholderTextColor="#A9A9A9"
-                    onChangeText={handleStartPage}
-                    onBlur={handleDismissKeyboard} 
-                    returnKeyType="done"
-                    onSubmitEditing={handleDismissKeyboard}
-                    />
+                  {/* Flashcard Range Selector */}
+                  <View style={styles.option}>
+                    <View
+                      style={{ flexDirection: "row", alignItems: "center" }}
+                    >
+                      <TouchableOpacity
+                        style={[
+                          styles.checkbox,
+                          isAllPages && styles.checkedCheckbox,
+                        ]}
+                        onPress={() => setIsAllPages(!isAllPages)}
+                      />
+                      <Text style={styles.optionLabel}>All Pages</Text>
+                    </View>
+                    {!isAllPages && (
+                      <View style={styles.pageRangeContainer}>
+                        <View style={styles.pageInputContainer}>
+                          <Text style={styles.optionLabel}>Start Page:</Text>
+                          <TextInput
+                            style={styles.pageInput}
+                            keyboardType="numeric"
+                            placeholder="Enter start page"
+                            placeholderTextColor="#A9A9A9"
+                            onChangeText={handleStartPage}
+                            onBlur={handleDismissKeyboard}
+                            returnKeyType="done"
+                            onSubmitEditing={handleDismissKeyboard}
+                          />
+                        </View>
+                        <View style={styles.pageInputContainer}>
+                          <Text style={styles.optionLabel}>End Page:</Text>
+                          <TextInput
+                            style={styles.pageInput}
+                            keyboardType="numeric"
+                            placeholder={`Enter end page (Max: ${numberOfPages})`}
+                            placeholderTextColor="#A9A9A9"
+                            onChangeText={handleEndPageInput}
+                            onBlur={handleDismissKeyboard}
+                            returnKeyType="done"
+                            onSubmitEditing={handleDismissKeyboard}
+                          />
+                        </View>
+                      </View>
+                    )}
                   </View>
-                  <View style={styles.pageInputContainer}>
-                    <Text style={styles.optionLabel}>End Page:</Text>
-                    <TextInput
-                    style={styles.pageInput}
-                    keyboardType="numeric"
-                    placeholder={`Enter end page (Max: ${numberOfPages})`}
-                    placeholderTextColor="#A9A9A9"
-                    onChangeText={handleEndPageInput}
-                    onBlur={handleDismissKeyboard}
-                    returnKeyType="done" 
-                    onSubmitEditing={handleDismissKeyboard}
-                    />
-                  </View>
-                </View>
-              )}
-            </View>
 
                   <View style={styles.option}>
                     <Text style={styles.optionLabel}>Length:</Text>
@@ -1038,7 +1120,10 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
                   <TouchableOpacity style={styles.popupbuttonText}>
                     <Button
                       title="Generate"
-                      onPress={() => {handleGenerateKeyTerms(); setKeytermModalVisible(false);}}
+                      onPress={() => {
+                        handleGenerateKeyTerms();
+                        setKeytermModalVisible(false);
+                      }}
                     />
                   </TouchableOpacity>
                 </View>
@@ -1061,7 +1146,9 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
                       style={[styles.modalInput, { minHeight: 50 }]} // Adjusted for multiline
                       value={currentKeyterm.term}
                       onChangeText={(text) =>
-                        setCurrentKeyterm((prev) => (prev ? { ...prev, term: text } : null))
+                        setCurrentKeyterm((prev) =>
+                          prev ? { ...prev, term: text } : null
+                        )
                       }
                       placeholder="Edit Term"
                       multiline={true} // Enable multiline
@@ -1071,17 +1158,25 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
                       style={[styles.modalInput, { minHeight: 100 }]} // Larger for the definition
                       value={currentKeyterm.definition}
                       onChangeText={(text) =>
-                        setCurrentKeyterm((prev) => (prev ? { ...prev, definition: text } : null))
+                        setCurrentKeyterm((prev) =>
+                          prev ? { ...prev, definition: text } : null
+                        )
                       }
                       placeholder="Edit Definition"
                       multiline={true} // Enable multiline
                       textAlignVertical="top" // Align text to the top
                     />
                     <View style={styles.modalActions}>
-                      <TouchableOpacity style={styles.saveButton} onPress={handleSaveKeyterm}>
+                      <TouchableOpacity
+                        style={styles.saveButton}
+                        onPress={handleSaveKeyterm}
+                      >
                         <Text style={styles.actionText}>Save</Text>
                       </TouchableOpacity>
-                      <TouchableOpacity style={styles.cancelButton} onPress={handleCancelEdit}>
+                      <TouchableOpacity
+                        style={styles.cancelButton}
+                        onPress={handleCancelEdit}
+                      >
                         <Text style={styles.actionText}>Cancel</Text>
                       </TouchableOpacity>
                     </View>
@@ -1125,26 +1220,42 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
                     style={styles.actionButton}
                     onPress={() => handleDeleteKeyTerm(item.id)} // Pass the specific flashcard ID
                   >
-                    <FlashcardIcon name="trash-outline" size={20} color="#F44336" />
+                    <FlashcardIcon
+                      name="trash-outline"
+                      size={20}
+                      color="#F44336"
+                    />
                   </TouchableOpacity>
                   {item.type === 1 && (
-                    <TouchableOpacity 
-                        style={styles.actionButton} 
-                        onPress={() => handleGoToPage(item.term, item.definition, item.page , 'K')}
+                    <TouchableOpacity
+                      style={styles.actionButton}
+                      onPress={() =>
+                        handleGoToPage(
+                          item.term,
+                          item.definition,
+                          item.page,
+                          "K"
+                        )
+                      }
                     >
-                        <Icon name="create-outline" size={20} color="#11ad0c"/>
-                        {item.page}
+                      <Icon name="create-outline" size={20} color="#11ad0c" />
+                      {item.page}
                     </TouchableOpacity>
                   )}
                   <TouchableOpacity
                     style={styles.actionButton}
                     onPress={() => handleEditKeyterm(item)}
                   >
-                    <FlashcardIcon name="create-outline" size={20} color="#F44336" />
+                    <FlashcardIcon
+                      name="create-outline"
+                      size={20}
+                      color="#F44336"
+                    />
                   </TouchableOpacity>
-
                 </TouchableOpacity>
-                {activeKey === parseInt(item.id) && <Text>{item.definition}</Text>}
+                {activeKey === parseInt(item.id) && (
+                  <Text>{item.definition}</Text>
+                )}
               </View>
             )}
           />
@@ -1624,7 +1735,7 @@ const styles = StyleSheet.create({
   },
   dropdownOptionText: {
     fontSize: 16,
-  },  
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
@@ -1647,7 +1758,7 @@ const styles = StyleSheet.create({
     minHeight: 50, // Minimum height for the input field
     textAlignVertical: "top", // Ensures text starts at the top
   },
-    saveButton: {
+  saveButton: {
     backgroundColor: "#4CAF50",
     padding: 10,
     borderRadius: 5,
@@ -1680,38 +1791,36 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-    pageRangeContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginVertical: 10,
-      width: '100%',
-    },
-    pageInputContainer: {
-      flex: 1,
-      marginHorizontal: 5,
-    },
-    pageInput: {
-      borderWidth: 1,
-      borderColor: '#ccc',
-      borderRadius: 5,
-      padding: 10,
-      fontSize: 14,
-      backgroundColor: '#f9f9f9',
-      color: '#333',
-    },
-    checkbox: {
-      width: 20,
-      height: 20,
-      borderWidth: 2,
-      borderColor: '#333',
-      marginRight: 10,
-    },
-    checkedCheckbox: {
-      backgroundColor: '#333',
-    },
-    
+  pageRangeContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginVertical: 10,
+    width: "100%",
+  },
+  pageInputContainer: {
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  pageInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    fontSize: 14,
+    backgroundColor: "#f9f9f9",
+    color: "#333",
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderColor: "#333",
+    marginRight: 10,
+  },
+  checkedCheckbox: {
+    backgroundColor: "#333",
+  },
 });
 
 export default PdfViewer;
-

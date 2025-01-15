@@ -5,6 +5,7 @@ import {OpenAIPromptHandling } from '../functions/openAIPromptHandling.js';
 import {createJSONFlashcard} from '../functions/createJsonObject.js'
 import {isArrayOfJSONObjects} from '../functions/validateFormat.js'
 
+const myPath = "C:\\Users\\rshha\\Documents\\VSCode\\projects\\Graduation-v7\\Learnify\\Server\\TempPDFs\\";
 export const flashcardController = {
     async generateSmartFlashcard(req, res) {
         try {
@@ -42,9 +43,9 @@ export const flashcardController = {
             The format should strictly be: [{"Q": "What is today?", "A": "Tuesday", "page": 1}, ...]. 
             Do not add any additional text, comments, quotes, or formatting outside the JSON array.`+"and without ```json";
             //console.log(prompt);
-            const fullPath = process.env.SAVE_PATH+filename;
+            const fullPath = myPath+filename;
             //download pdf, send to openAI, delete pdf
-            await downloadPDF(fileurl , process.env.SAVE_PATH ,filename);//url, savePath, filename
+            await downloadPDF(fileurl , myPath ,filename);//url, savePath, filename
             const response = await OpenAIPromptHandling(fullPath,prompt);//filename,prompt
             await deletePDF(fullPath);
             //parse the response to deal with it as json

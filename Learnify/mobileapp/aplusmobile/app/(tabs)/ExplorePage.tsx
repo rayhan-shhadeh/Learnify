@@ -56,38 +56,41 @@ const historyRandomGradient = (): [string, string, ...string[]] => {
 
 interface CardProps {
   searchTopic: string;
-  userId: string
+  userId: string;
   setLoadingFlashcards: React.Dispatch<React.SetStateAction<boolean>>;
-
 }
 
-const Card: React.FC<CardProps> = ({ searchTopic,userId,setLoadingFlashcards }) => {
+const Card: React.FC<CardProps> = ({
+  searchTopic,
+  userId,
+  setLoadingFlashcards,
+}) => {
   const gradientColors = randomGradient();
   const router = useRouter();
   const handleCardPress = async () => {
     try {
       setLoadingFlashcards(true);
       const requestBody = {
-        level:"Medium",
-        userId: userId 
+        level: "Medium",
+        userId: userId,
       };
-      const level = "Medium";//to pass it to TopicScreen (from card)
+      const level = "Medium"; //to pass it to TopicScreen (from card)
       const response = await API.post(
         `/api/exploreflashcards/searchTopic/${searchTopic}`,
         requestBody
       );
       if (response.data && Array.isArray(response.data)) {
-      const topicData = response.data;
-      setLoadingFlashcards(false);
-      router.push({
-        pathname: "/(tabs)/TopicScreen",
-        params: {
-          userId,
-          searchTopic,
-          level,
-          exploreFlashcards: JSON.stringify(topicData),
-        }
-       });
+        const topicData = response.data;
+        setLoadingFlashcards(false);
+        router.push({
+          pathname: "/(tabs)/TopicScreen",
+          params: {
+            userId,
+            searchTopic,
+            level,
+            exploreFlashcards: JSON.stringify(topicData),
+          },
+        });
       }
       setLoadingFlashcards(false);
     } catch (error) {
@@ -105,29 +108,35 @@ const Card: React.FC<CardProps> = ({ searchTopic,userId,setLoadingFlashcards }) 
 
 interface HistoryCardProps {
   searchTopic: string;
-  id : string;
-  level:string;
-  userId :string;
+  id: string;
+  level: string;
+  userId: string;
   setHistoryTopics: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-const HistoryCard: React.FC<HistoryCardProps> = ({ searchTopic,id, level,setHistoryTopics, userId }) => {
+const HistoryCard: React.FC<HistoryCardProps> = ({
+  searchTopic,
+  id,
+  level,
+  setHistoryTopics,
+  userId,
+}) => {
   const router = useRouter();
   const gradientColors = historyRandomGradient();
   const handleCardPress = async () => {
     try {
       const response = await API.get(`/api/expoloreflashcards/${id}`);
       if (response.data && Array.isArray(response.data)) {
-      const topicData = response.data;
-      router.push({
-        pathname: "/(tabs)/TopicScreen",
-        params: {
-          userId,
-          searchTopic,
-          level,
-          exploreFlashcards: JSON.stringify(topicData),
-        }
-       });
+        const topicData = response.data;
+        router.push({
+          pathname: "/(tabs)/TopicScreen",
+          params: {
+            userId,
+            searchTopic,
+            level,
+            exploreFlashcards: JSON.stringify(topicData),
+          },
+        });
       }
     } catch (error) {
       console.error("Error fetching topic details:", error);
@@ -147,13 +156,10 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ searchTopic,id, level,setHist
 
   return (
     <>
-      <TouchableOpacity style={styles.trashIcon} onPress={handleDelete} >
+      <TouchableOpacity style={styles.trashIcon} onPress={handleDelete}>
         <Icon name="trash-o" size={20} color="#fff" />
       </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.card}
-        onPress={handleCardPress}
-      >
+      <TouchableOpacity style={styles.card} onPress={handleCardPress}>
         <LinearGradient colors={gradientColors} style={styles.gradienthistory}>
           <Text style={styles.cardText}>{searchTopic}</Text>
           <Text style={styles.ratingContainer}>
@@ -168,7 +174,7 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ searchTopic,id, level,setHist
         </LinearGradient>
       </TouchableOpacity>
     </>
-   );
+  );
 };
 
 const ExploreScreen = () => {
@@ -178,10 +184,10 @@ const ExploreScreen = () => {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<any>();
   const [showDropdown, setShowDropdown] = useState(false);
-  const [level, setLevel]=useState<String>();
-  const [searchTopic, setSearchTopic]=useState<string>();
+  const [level, setLevel] = useState<String>();
+  const [searchTopic, setSearchTopic] = useState<string>();
   const router = useRouter();
-  const [isPremium,setIsPremium]=useState<boolean>();
+  const [isPremium, setIsPremium] = useState<boolean>();
   const [historyTopics, setHistoryTopics] = useState<string[]>([]);
   const [loadingFlashcards, setLoadingFlashcards] = useState<boolean>(false);
 
@@ -212,11 +218,16 @@ const ExploreScreen = () => {
         const userData = await API.get(`/api/users/getme/${id}`);
         const majorName = userData.data.major;
         const userFlag = userData.data.flag;
-        userFlag ===2 ? setIsPremium(true) :setIsPremium(false);      
-        
-        const exploreHistory = await API.get(`/api/exploreflashcards/exploreHistory/${id}`);
+        userFlag === 2 ? setIsPremium(true) : setIsPremium(false);
+
+        const exploreHistory = await API.get(
+          `/api/exploreflashcards/exploreHistory/${id}`
+        );
         const exploreHistoryData = exploreHistory.data;
-        if (exploreHistoryData.length>0 && Array.isArray(exploreHistoryData) ){
+        if (
+          exploreHistoryData.length > 0 &&
+          Array.isArray(exploreHistoryData)
+        ) {
           setHistoryTopics(exploreHistoryData);
         }
         console.log(exploreHistoryData);
@@ -259,7 +270,7 @@ const ExploreScreen = () => {
     setLevel(level);
     setShowDropdown(false);
   };
-  
+
   const handleSearch = async () => {
     if (!searchTopic) {
       Alert.alert("Error", "Please enter a topic to search");
@@ -280,7 +291,7 @@ const ExploreScreen = () => {
           },
           body: JSON.stringify({
             level,
-            userId 
+            userId,
           }),
         }
       );
@@ -317,16 +328,16 @@ const ExploreScreen = () => {
         Explore
       </Text>
       <View style={styles.searchBarContainer}>
-      <View style={styles.searchBar}>
-      <TextInput
-        placeholder="Search for a new topic"
-        style={styles.searchText}
-        value={searchTopic}
-        onChangeText={(text) => setSearchTopic(text)}
-        onSubmitEditing={handleSearch}
-        returnKeyType="search"
-      />
-    </View>
+        <View style={styles.searchBar}>
+          <TextInput
+            placeholder="Search for a new topic"
+            style={styles.searchText}
+            value={searchTopic}
+            onChangeText={(text) => setSearchTopic(text)}
+            onSubmitEditing={handleSearch}
+            returnKeyType="search"
+          />
+        </View>
         <TouchableOpacity
           style={styles.filterIcon}
           onPress={() => setShowDropdown(!showDropdown)}
@@ -362,8 +373,16 @@ const ExploreScreen = () => {
         <FlatList
           horizontal
           data={historyTopics}
-          renderItem={({ item }) => <HistoryCard searchTopic={item.topic} id={item.topiclevelId} userId={userId} level={item.level} setHistoryTopics={setHistoryTopics} />}
-          keyExtractor={(item) =>item.topiclevelId}
+          renderItem={({ item }) => (
+            <HistoryCard
+              searchTopic={item.topic}
+              id={item.topiclevelId}
+              userId={userId}
+              level={item.level}
+              setHistoryTopics={setHistoryTopics}
+            />
+          )}
+          keyExtractor={(item) => item.topiclevelId}
         />
       </View>
       {/* Suggested Topics */}
@@ -372,7 +391,13 @@ const ExploreScreen = () => {
         <FlatList
           horizontal
           data={suggestedTopics}
-          renderItem={({ item }) => <Card searchTopic={item} userId={userId} setLoadingFlashcards={setLoadingFlashcards}/>}
+          renderItem={({ item }) => (
+            <Card
+              searchTopic={item}
+              userId={userId}
+              setLoadingFlashcards={setLoadingFlashcards}
+            />
+          )}
           keyExtractor={(item, index) => `suggested-${index}`}
         />
       </View>
@@ -383,7 +408,13 @@ const ExploreScreen = () => {
         <FlatList
           horizontal
           data={relatedTopics}
-          renderItem={({ item }) => <Card searchTopic={item} userId={userId} setLoadingFlashcards={setLoadingFlashcards}/>}
+          renderItem={({ item }) => (
+            <Card
+              searchTopic={item}
+              userId={userId}
+              setLoadingFlashcards={setLoadingFlashcards}
+            />
+          )}
           keyExtractor={(item, index) => `related-${index}`}
         />
       </View>
@@ -394,7 +425,13 @@ const ExploreScreen = () => {
         <FlatList
           horizontal
           data={popularTopics}
-          renderItem={({ item }) => <Card searchTopic={item} userId={userId} setLoadingFlashcards={setLoadingFlashcards} />}
+          renderItem={({ item }) => (
+            <Card
+              searchTopic={item}
+              userId={userId}
+              setLoadingFlashcards={setLoadingFlashcards}
+            />
+          )}
           keyExtractor={(item, index) => `popular-${index}`}
         />
       </View>
@@ -405,9 +442,9 @@ const ExploreScreen = () => {
 
 const styles = StyleSheet.create({
   nextButton: {
-    alignSelf: 'center',
+    alignSelf: "center",
     padding: 10,
-    backgroundColor: '#007bff',
+    backgroundColor: "#007bff",
     borderRadius: 50,
   },
   container: {

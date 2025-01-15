@@ -4,6 +4,7 @@ import {downloadPDF,deletePDF} from '../functions/pdfHandling.js';
 import {OpenAIPromptHandling}  from '../functions/openAIPromptHandling.js';
 import {createJSONkeyterm} from '../functions/createJsonObject.js'
 import {isArrayOfJSONObjects} from '../functions/validateFormat.js'
+const myPath = "C:\\Users\\rshha\\Documents\\VSCode\\projects\\Graduation-v7\\Learnify\\Server\\TempPDFs\\";
 
 export const keytermController = {
     async generateSmartKeyterms(req, res) {
@@ -39,9 +40,9 @@ export const keytermController = {
             Use this format: [{"key": "Replication", "def": "it is a key concept in cloud computing ....", "page": 1}, ...]
             Without any additional text, comments, quotes, before or after the JSON object, no formatting, quotes, only the JSON array between [].`+"and without ```json";
             console.log(prompt);
-            const fullPath = process.env.SAVE_PATH+filename;
+            const fullPath = myPath+filename;
             //download pdf, send to openAI, delete pdf 
-            await downloadPDF(fileurl , process.env.SAVE_PATH ,filename);//url, savePath, filename
+            await downloadPDF(fileurl , myPath,filename);//url, savePath, filename
             const response = await OpenAIPromptHandling(fullPath,prompt); //filename,prompt
             await deletePDF(fullPath);
             //parse response to deal with it as json
