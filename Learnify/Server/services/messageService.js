@@ -14,16 +14,8 @@ export const messageService = {
 async  getMessages(id) {
     const  groupId  =id;
   
-    const messages = await prisma.message.findMany({
-        where: { groupId: parseInt(groupId) },
-        include: {
-          sender: true, // Include sender details
-          group: true,  // Include group details
-        },
-        orderBy: {
-          timestamp: 'asc',
-        },
-      });
+    const messages = await prisma.message.findMany()
+    return messages;
     },
 
 };

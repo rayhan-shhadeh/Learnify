@@ -16,6 +16,7 @@ import CheckBox from "react-native-check-box";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { StreakProvider, useStreak } from "../../(tabs)/hooks/StreakContext";
 import StreakFire from "../streak/StreakFire";
+import CalendarPicker from "react-native-calendar-picker";
 interface Habit {
   habitId: string;
   habitName: string;
@@ -68,6 +69,34 @@ const Habits = () => {
   //   incrementStreak();
   //   setVisible(true);
   // };
+  const handleCompleteHabit = async (habitId: string) => {
+    try {
+      // Add your logic to handle completing a habit
+      const response = API.put(`/api/trackHabit/isComplete/${habitId}`, {
+        trackDate: new Date().toISOString(),
+        isCompleted: true,
+      });
+      console.log(`Habit ${habitId} completed`);
+      Alert.alert("Habit Completed", "Good job! Keep it up!");
+    } catch (error) {
+      console.error("Error completing habit:", error);
+    }
+  };
+
+  const handleUncompleteHabit = async (habitId: string) => {
+    try {
+      // Add your logic to handle uncompleting a habit
+      const response = API.put(`/api/trackHabit/isComplete/${habitId}`, {
+        trackDate: new Date().toISOString(),
+        isCompleted: false,
+      });
+      Alert.alert("Habit Uncompleted", "Don't worry, you got this!");
+      console.log(`Habit ${habitId} uncompleted`);
+    } catch (error) {
+      console.error("Error uncompleting habit:", error);
+    }
+  };
+
   const toggleCheckbox = (habitId: string) => {
     setCheckedHabits((prev) =>
       prev.includes(habitId)
@@ -75,9 +104,15 @@ const Habits = () => {
         : [...prev, habitId]
     );
     const index = checkedHabits.indexOf(habitId);
-    const response = API.put(`/api/habit/${habitId}`, {
-      isCompleted: index === -1 ? true : false,
-    });
+    try {
+      if (index === -1) {
+        handleCompleteHabit(habitId);
+      } else {
+        handleUncompleteHabit(habitId);
+      }
+    } catch (error) {
+      console.error("Error completing habit:", error);
+    }
     // handleCompleteHabit();
   };
 
@@ -120,6 +155,23 @@ const Habits = () => {
   return (
     // <StreakProvider>
     <View style={styles.container}>
+      <View style={{ marginVertical: 5 }}>
+        <CalendarPicker
+          onDateChange={(date) => console.log(date)}
+          textStyle={{ color: "black" }}
+          todayBackgroundColor="#f2e6ff"
+          selectedDayColor="#7300e6"
+          selectedDayTextColor="#FFFFFF"
+          scaleFactor={375}
+          startFromMonday={true}
+          minDate={new Date()}
+          restrictMonthNavigation
+          previousTitle="Previous"
+          nextTitle="Next"
+          selectedStartDate={new Date()}
+          selectedEndDate={new Date()}
+        />
+      </View>
       <ScrollView>
         {habits.map((habit, index) => (
           <Animatable.View

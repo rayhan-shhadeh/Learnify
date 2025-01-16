@@ -33,6 +33,28 @@ export default function HabitsScreen() {
   const [habitStatus, setHabitStatus] = useState(false);
   const [createdAt, setCreatedAt] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+  const today = new Date();
+  const [date, setDate] = useState(today);
+  const [mode, setMode] = useState("date");
+
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const customDatesStyles = [];
+  let day = new Date(startOfMonth);
+  while (day.getMonth() === today.getMonth()) {
+    customDatesStyles.push({
+      date: new Date(day),
+      // Random colors
+      style: {
+        backgroundColor:
+          "#" +
+          ("00000" + ((Math.random() * (1 << 24)) | 0).toString(16)).slice(-6),
+      },
+      textStyle: { color: "black" }, // sets the font color
+      containerStyle: [], // extra styling for day container
+      allowDisabled: true, // allow custom style to apply to disabled dates
+    });
+    day.setDate(day.getDate() + 1);
+  }
   useEffect(() => {
     if (userId) fetchHabits();
   }, [userId]);
@@ -162,12 +184,7 @@ export default function HabitsScreen() {
 
       <View style={styles.container}>
         <Text style={styles.header}>Habits</Text>
-        <View style={{ marginVertical: 5 }}>
-          <CalendarPicker
-            onDateChange={(date) => console.log(date)}
-            textStyle={{ color: "black" }}
-          />
-        </View>
+
         {/* <FlatList
           style={[styles.myhabit]}
           data={habits}
@@ -217,7 +234,7 @@ export default function HabitsScreen() {
               <DateTimePicker
                 testID="dateTimePicker"
                 value={reminderTime ? new Date(reminderTime) : new Date()}
-                mode="datetime"
+                mode="time"
                 display="default"
                 onChange={(event, selectedDate) => {
                   setReminderTime(selectedDate?.toISOString() || "");
@@ -307,8 +324,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#1CA7EC",
     padding: 12,
     borderRadius: 8,
-    marginVertical: 5,
-    marginBottom: 40,
+    marginVertical: 15,
+    marginBottom: 50,
     width: "80%",
     alignSelf: "center",
     alignContent: "center",
