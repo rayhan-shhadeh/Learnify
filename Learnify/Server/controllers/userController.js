@@ -136,7 +136,31 @@ async updateMe (req, res, next) {
         message: "Failed to get user data",
       });
     }
-  }
+  },
+  // get user Id based on username
+  async getUserIdByUsername(req, res, next) {
+    try {
+      const userId = await userService.getUserIdByUsername(req.params.username);
+      if (!userId) {
+        return res.status(404).json({
+          status: "fail",
+          message: "User not found",
+        });
+      }
+
+      res.status(200).json({
+        status: "success",
+        data: userId,
+      });
+    }
+    catch (err) {
+      console.error("Error getting user data:", err);
+      res.status(500).json({
+        status: "error",
+        message: "Failed to get user data",
+      });
+    }
+  },
   
 };
 

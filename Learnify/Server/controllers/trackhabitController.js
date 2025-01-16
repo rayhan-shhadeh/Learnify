@@ -14,7 +14,7 @@ export const trackHabitController={
             const isComplete = true ;
             //format json data
             const newCompletionJSONData = createJSONCompletion(habitId,trackDate,isComplete);
-            //create new record 
+            //create new record
             const newCompletion = await trackHabitService.markHabitAsComplete(newCompletionJSONData);
             //streak table
             const streak = await streakService.getStreakByHabitId(habitId);
