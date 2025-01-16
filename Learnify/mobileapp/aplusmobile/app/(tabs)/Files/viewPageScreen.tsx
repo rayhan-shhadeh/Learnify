@@ -62,12 +62,12 @@ const viewPageScreen = () => {
   const AnswerORdefinition = answerORdefinition || "No answer available.";
   const PdfUrl = pdfUrl?.toString();
   const Page = page ? page.toString() :'1' ;
-  const activeTab = (KF=='F')? 'Flashcard':'KeyTerms';
+  const activeTab = (KF=='F')? 'Flashcards':'KeyTerms';
   const router = useRouter();
 
   const handleButtonPress = () => {
     router.replace({
-      pathname: `/`,
+      pathname: `/(tabs)/Files/PdfScreen`,
       params: {passedFileId,activeTab},
     });
   };
