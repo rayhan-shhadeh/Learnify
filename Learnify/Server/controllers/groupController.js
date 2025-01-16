@@ -183,7 +183,36 @@ export const groupController = {
             console.error('Error in getGroupsByAdminId:', error);
             res.status(500).json({ error: error.message || 'Internal server error' });
         }
-    }
+    },
+    async getUsernamesForUsersInGroup(req, res) {
+        try {
+            const usernames = await groupService.getUsernamesInGroup(req.params.id);
+            res.status(200).json({
+                status: 'success',
+                data: usernames,
+            });
+        }
+        catch (error) {
+            console.error('Error in getUsernamesForUsersInGroup:', error);
+            res.status(500).json({ error: error.message || 'Internal server error' });
+        }
+        },
+        async addUsersToGroupByUsernames(req, res) {
+            try {
+                const group = req.params.id;
+                const usernames = req.body.usernames;
+                const newGroup = await groupService.addUsersToGroupByUsernames(group, usernames);
+                res.status(200).json({
+                    status: 'success',
+                    
+                });
+            }
+            catch (error) {
+                console.error('Error in addUsersToGroupByUsernames:', error);
+                res.status(500).json({ error: error.message || 'Internal server error' });
+            }
+            },
+
     
 
 };

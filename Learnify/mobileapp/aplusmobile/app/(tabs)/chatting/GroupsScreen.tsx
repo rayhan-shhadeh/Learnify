@@ -17,6 +17,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import Back from "../Back";
 import { useRouter } from "expo-router";
 import API from "../../../api/axois";
+import { Circle, Svg, Text as SvgText } from "react-native-svg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { io } from "socket.io-client";
 import Header from "../header/Header";
@@ -65,38 +66,97 @@ export default function GroupsScreen() {
     });
   };
 
+  const GroupAvatar = (name: { name: string }) => {
+    // Generate a random color
+    // this is the first way  to generate random color
+    // const randomColor = `#${Math.floor(Math.random() * 16777215)
+    //   .toString(16)
+    //   .padStart(6, "0")}`;
+
+    // this is the second way to generate random color
+
+    // const randomColor = () => {
+    //   const hue = Math.floor(Math.random() * 360); // Full range of hues (0–360 degrees)
+    //   const saturation = 70 + Math.random() * 30; // High saturation (70–100%)
+    //   const lightness = 50 + Math.random() * 20; // Moderate brightness (50–70%)
+    //   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    // };
+    // this is the third way to generate random color
+    const colorPalette = [
+      "#FF6F61", // Coral
+      "#6B5B95", // Deep Purple
+      "#88B04B", // Greenery
+      "#F7CAC9", // Rose Quartz
+      "#92A8D1", // Serenity
+      "#955251", // Marsala
+      "#B565A7", // Radiant Orchid
+      "#009B77", // Emerald
+      // "#FF4500", // Vibrant Red-Orange
+      // "#1E90FF", // Dodger Blue
+      // "#32CD32", // Lime Green
+      // "#FFD700", // Golden Yellow
+      // "#FF1493", // Deep Pink
+      // "#8A2BE2", // Blue Violet
+      // "#00CED1", // Dark Turquoise
+      // "#FF6347", // Tomato Red
+      // "#40E0D0", // Turquoise
+    ];
+
+    const randomColorFromPalette =
+      colorPalette[Math.floor(Math.random() * colorPalette.length)];
+
+    return (
+      <Svg height="50" width="50" viewBox="0 0 50 50" style={styles.avatar}>
+        {/* Background Circle */}
+        <Circle cx="25" cy="25" r="25" fill={randomColorFromPalette} />
+        {/* First Letter */}
+        <SvgText
+          x="25"
+          y="30"
+          textAnchor="middle"
+          fontSize="20"
+          fill="white"
+          fontWeight="bold"
+        >
+          {name.name.charAt(0).toUpperCase()}
+        </SvgText>
+      </Svg>
+    );
+  };
+
   useEffect(() => {
     const fetchGroups = async () => {
       try {
         const userId = await AsyncStorage.getItem("currentUserId");
-        const response = await API.get(`/api/group/getgroupforuser/${userId}`);
+        const response = await API.get(`/api/group/getgroupforadmin/${userId}`);
         if (userId) {
           setCurrentUserId(userId);
         }
         console.log("Full response:", response); // Log the full response for debugging
 
         // Access the array inside response.data.data
-        if (Array.isArray(response.data.data)) {
+        if (response.data.data && Array.isArray(response.data.data)) {
           const transformedGroups = response.data.data.map((item: any) => ({
-            id: item.group_.groupId.toString(),
-            name: item.group_.name,
-            role: item.group_.adminId === userId ? "Admin" : "Member", // check if the user is an admin
-            message: item.group_.description || "No recent messages",
+            id: item.groupId.toString(),
+            name: item.name,
+            role: item.adminId === userId ? "Admin" : "Member", // check if the user is an admin
+            message: item.description || "No recent messages",
             date: "Today",
-            avatar: {
-              uri: `https://via.placeholder.com/50/${Math.floor(
-                Math.random() * 16777215
-              )
-                .toString(16)
-                .padStart(6, "0")}/FFFFFF?text=${encodeURIComponent(
-                item.group_.name.charAt(0)
-              )}`,
-            }, // Dynamically generate avatar color
+            avatar: "",
+            //{
+            //   uri: `https://via.placeholder.com/50/${Math.floor(
+            //     Math.random() * 16777215
+            //   )
+            //     .toString(16)
+            //     .padStart(6, "0")}/FFFFFF?text=${encodeURIComponent(
+            //     item.name.charAt(0)
+            //   )}`,
+            // }, // Dynamically generate avatar color
           }));
 
           setGroups(transformedGroups);
           console.log(transformedGroups);
-          Alert.alert("Groups fetched successfully");
+          // Alert.alert("Groups fetched successfully");
         } else {
           console.error("Response data is not an array:", response.data.data);
           Alert.alert("No groups found or data format issue");
@@ -127,12 +187,22 @@ export default function GroupsScreen() {
   // Handle search term change
   const handleSearch = (term: string) => {
     setSearchTerm(term);
-
+    // check if the search term is empty
+    if (term.length === 0) {
+      setFilteredUsers(users);
+      return;
+    }
+    // check if the seachTerm already exists in the users array don't add it again to the array and send alert
+    if (users.find((user) => user.username === term)) {
+      Alert.alert("User already exists in the group");
+      return;
+    }
     // Check if `users` is an array before filtering
     if (Array.isArray(users)) {
       const filtered = users.filter((user) =>
         user.username.toLowerCase().includes(term.toLowerCase())
       );
+      //
       const userIds = users.map((user) => user.id);
       setFilteredUsers(filtered);
       setUserIds(userIds);
@@ -140,12 +210,30 @@ export default function GroupsScreen() {
       console.error("Users data is not an array");
     }
   };
-
+  const [usernames, setUsernames] = useState<string[]>([]);
   // Handle selecting a user to add to the group
   const handleSelectUser = (user: User) => {
     // Add logic to add user to the group
     Alert.alert("User Selected", `You have selected ${user.username}`);
+
+    setUsernames((prevUsernames) => [...prevUsernames, user.username]);
+    {
+      /* view the added users in the group below the search bar */
+    }
+    <View style={styles.userContainer}>
+      {usernames.map((username, index) => (
+        <View key={index} style={styles.userItem}>
+          <Text>{username}</Text>
+        </View>
+      ))}
+    </View>;
   };
+  const [searchGroupTerm, setSearchGroupTerm] = useState("");
+  // search the groups by name
+  const handleSearchGroups = () => {
+    // setSearchGroupTerm(searchTerm);
+  };
+
   const handleGroupGeneration = () => {
     socket.emit("join", {
       groupId: currentGroupId?.groupId,
@@ -167,12 +255,25 @@ export default function GroupsScreen() {
       console.log("Group created successfully:", response);
       setGroupName(response.data.name);
       setGroupModalVisible(false);
+      router.replace("/(tabs)/chatting/GroupsScreen");
     } catch (error) {
       console.error("Error creating group:", error);
       Alert.alert("Failed to create group");
     }
   };
-
+  const handleDeleteGroup = async (passGroupId: string) => {
+    try {
+      const response = await API.delete(`/api/delete-group/${passGroupId}`);
+      if (response.status !== 200) {
+        Alert.alert("Error", "Failed to delete group");
+        return;
+      }
+      Alert.alert("Success", "Group deleted successfully");
+      router.replace("/(tabs)/chatting/GroupsScreen");
+    } catch (error) {
+      Alert.alert("Error", "An error occurred while deleting group");
+    }
+  };
   const renderGroupItem = ({
     item,
   }: {
@@ -189,7 +290,9 @@ export default function GroupsScreen() {
       style={styles.groupItem}
       onPress={() => handleGroupRender(item.id)}
     >
-      <Image source={item.avatar} style={styles.avatar} />
+      <View style={styles.avatarContainer}>
+        <GroupAvatar name={item.name} />
+      </View>
       <View style={styles.textContainer}>
         <View style={styles.nameRow}>
           <Text style={styles.name}>{item.name}</Text>
@@ -197,6 +300,12 @@ export default function GroupsScreen() {
         </View>
         <Text style={styles.message}>{item.message}</Text>
         <Text style={styles.date}>{item.date}</Text>
+        <TouchableOpacity
+          style={styles.deleteIcon}
+          onPress={() => handleDeleteGroup(item.id)}
+        >
+          <Icon name="logout" size={24} color="red" />
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -259,6 +368,45 @@ export default function GroupsScreen() {
                 <Text>No users found</Text>
               ))}
           </View>
+          <Text
+            style={{ marginVertical: 10, fontWeight: "bold", fontSize: 16 }}
+          >
+            {" "}
+            Group Members:
+          </Text>
+          <FlatList
+            data={usernames}
+            keyExtractor={(item) => item}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={{
+                  padding: 5,
+                  borderBottomWidth: 1,
+                  borderBottomColor: "#ccc",
+                  borderRadius: 5,
+                  flexDirection: "row",
+                }}
+                onPress={() => {
+                  setUserIds((prevUserIds) => [...prevUserIds, item.id]);
+                  setSearchTerm("");
+                }}
+              >
+                <Text style={styles.userItem}>{item}</Text>
+                <Icon
+                  name="close"
+                  size={24}
+                  color="red"
+                  style={styles.deleteIcon}
+                  onPress={() => {
+                    setUsernames((prevUsernames) =>
+                      prevUsernames.filter((username) => username !== item)
+                    );
+                  }}
+                />
+              </TouchableOpacity>
+            )}
+          />
+
           <Text style={styles.name}> Group Description: </Text>
           <TextInput
             style={styles.input}
@@ -325,19 +473,18 @@ export default function GroupsScreen() {
               style={styles.newGroup}
             />
           </TouchableOpacity>
-        </View>
-        {renderGroupeModal()}
-
-        {/* Search Bar */}
-        <View style={{ padding: 20 }}>
+          {/* </View> */}
+          {renderGroupeModal()}
+          {/* Search Bar */}
+          {/* <View style={{ padding: 20 }}>
           <TextInput
             style={styles.searchBar}
-            placeholder="Search for a user by username"
-            value={searchTerm}
-            onChangeText={handleSearch}
+            placeholder="Search for a group by name"
+            value={searchGroupTerm}
+            onChangeText={handleSearchGroups}
             placeholderTextColor="#A7A7A7"
-          />
-          {searchTerm.length > 0 &&
+          /> */}
+          {/* {searchTerm.length > 0 &&
             (filteredUsers.length > 0 ? (
               <FlatList
                 data={filteredUsers}
@@ -350,23 +497,29 @@ export default function GroupsScreen() {
                       borderBottomColor: "#ccc",
                       borderRadius: 5,
                     }}
-                    onPress={() => handleSelectUser(item)}
-                  >
-                    <Text>{item.username}</Text>
+                    onPress={() => handleSelectUser(item)} 
+          > */}
+          {/* view the added users in the group below the search bar */}
+          {/* <View style={styles.userContainer}>
+                      {usernames.map((username, index) => (
+                        <View key={index} style={styles.userItem}>
+                          <Text>{username}</Text>
+                        </View>
+                      ))}
+                    </View> */}
+          {/* <Text>{item.username}</Text>
                   </TouchableOpacity>
-                )}
+                )} 
               />
             ) : (
               <Text>No users found</Text>
-            ))}
+            ))} */}
         </View>
-
         {/* Tabs */}
         <View style={styles.tabs}>
           <Text style={[styles.tab, styles.activeTab]}>Active</Text>
           {/* <Text style={styles.tab}>Archived</Text> */}
         </View>
-
         {groups.length === 0 ? (
           <Text style={styles.noGroups}>No groups found</Text>
         ) : (
@@ -447,7 +600,13 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    marginRight: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: "#f6f6f6",
   },
   textContainer: {
     flex: 1,
@@ -461,6 +620,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#333",
+    marginTop: 5,
   },
   roleBadge: {
     backgroundColor: "#E7F6FF",
@@ -559,5 +719,37 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 10,
     color: "#fff",
+  },
+  deleteIcon: {
+    alignSelf: "flex-end",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 5,
+    backgroundColor: "#E7F6FF",
+    padding: 5,
+    borderRadius: 5,
+    margin: 5,
+  },
+  avatarContainer: {
+    marginRight: 20,
+  },
+  userContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginVertical: 10,
+    zIndex: 1,
+  },
+  userItem: {
+    backgroundColor: "#E7F6FF",
+    padding: 5,
+    borderRadius: 5,
+    margin: 5,
+    width: 100,
+    zIndex: 1,
+  },
+  avatarText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#FFF",
   },
 });

@@ -30,6 +30,10 @@ const socket = io(SOCKET_URL, {
 });
 
 export default function Chatting() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [userIds, setUserIds] = useState<number[]>([]);
+  const [usernames, setUsernames] = useState<string[]>([]);
   const { passGroupId } = useLocalSearchParams();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<
@@ -43,7 +47,9 @@ export default function Chatting() {
   >([]);
   const [userId, setUserId] = useState("");
   const [userData, setUserData] = useState<any>();
+  const [users, setUsers] = useState<{ id: number; username: string }[]>([]);
   const [userPhoto, setUserPhoto] = useState("");
+  const [newMembers, setNewMembers] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const router = useRouter();
@@ -85,11 +91,44 @@ export default function Chatting() {
     };
 
     fetchUserData();
+    handleGetUsersInGroup();
   }, []);
+
+  const handleSearch = async (term: string) => {
+    setSearchTerm(term);
+    const fetchUsers = async () => {
+      try {
+        const response = await API.get("/api/getallusers").then((response) => {
+          const users = response.data.data;
+          setUsers(users);
+          setFilteredUsers(users);
+        });
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        Alert.alert("Failed to fetch users");
+      }
+    };
+
+    fetchUsers();
+    setUsernames((prevUsernames) => [
+      ...prevUsernames,
+      ...users.map((user) => user.username),
+    ]);
+    setUserIds((prevUserIds) => [
+      ...prevUserIds,
+      ...users.map((user) => user.id),
+    ]);
+    setSearchTerm("");
+    setFilteredUsers([]);
+  };
+
   const handleAddFriend = async (friendId: string) => {
     try {
+      // the current user is the one adding the friend
+      const selectedUser = users.find((user) => user.username === friendId);
+      Alert.alert("friendId", friendId.toString());
       const response = await API.post(`/api/group/${passGroupId}/add-user`, {
-        userIds: [parseInt(friendId)],
+        userIds: [4],
       });
       if (response.status !== 200) {
         Alert.alert("Error", "Failed to add user to group");
@@ -128,12 +167,20 @@ export default function Chatting() {
   };
   const handleGetUsersInGroup = async () => {
     try {
-      const response = await API.get(`/api/group/${passGroupId}/users`);
+      const response = await API.get(`/api/group/${passGroupId}/usernames`);
       if (response.status !== 200) {
         Alert.alert("Error", "Failed to get users in group");
         return;
       }
-      Alert.alert("Success", "Fetched users in group successfully");
+      Alert.alert(
+        "Fetched users in group successfully",
+        response.data.data.toString()
+      );
+      //setUserIds(response.data.data);
+      // view usernames of users in the group based on userData and userIds
+      const usersInGroup = response.data.data;
+
+      setUsernames(response.data.data);
     } catch (error) {
       Alert.alert("Error", "An error occurred while fetching users in group");
     }
@@ -299,22 +346,19 @@ export default function Chatting() {
             <Text style={styles.modalTitle}>Group Options</Text>
             <TouchableOpacity
               style={styles.modalButton}
-              onPress={() => {
-                // Handle add user
-                Alert.prompt(
-                  "Add User",
-                  "Enter the user ID to add:",
-                  [
-                    {
-                      text: "Cancel",
-                      style: "cancel",
-                    },
-                    {
-                      text: "Add",
-                      onPress: (userId) => handleAddFriend(userId || "1"),
-                    },
-                  ],
-                  "plain-text"
+              onPress={async () => {
+                // Fetch users if not already fetched
+                if (users.length === 0) {
+                  await handleSearch("");
+                }
+                // Show list of users to select from
+                Alert.alert(
+                  "Select User",
+                  "Choose a user to add:",
+                  users.map((user) => ({
+                    text: user.username,
+                    onPress: () => handleAddFriend(user.username),
+                  }))
                 );
               }}
             >
@@ -367,6 +411,31 @@ export default function Chatting() {
               <Icon name="trash" size={20} color="#4A90E2" />
               <Text style={styles.modalButtonText}>Delete Group</Text>
             </TouchableOpacity>
+            {/* try to get users in group */}
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={handleGetUsersInGroup}
+            >
+              <Icon name="users" size={20} color="#4A90E2" />
+              <Text style={styles.modalButtonText}>Current Group Users</Text>
+            </TouchableOpacity>
+            <FlatList
+              data={usernames}
+              keyExtractor={(item) => item.toString()}
+              renderItem={({ item }) => (
+                <View style={styles.userItemContainer}>
+                  <Text style={styles.userItem}>{item}</Text>
+                </View>
+              )}
+              numColumns={2}
+              // columnWrapperStyle={styles.row}
+              style={{
+                marginBottom: 20,
+                marginTop: 10,
+                width: "100%",
+                zIndex: 1,
+              }}
+            />
             <TouchableOpacity
               style={styles.modalCloseButton}
               onPress={closeModal}
@@ -502,5 +571,22 @@ const styles = StyleSheet.create({
     color: "#666",
     marginBottom: 10,
     alignSelf: "flex-end",
+  },
+  userItem: {
+    backgroundColor: "#E7F6FF",
+    padding: 5,
+    borderRadius: 5,
+    margin: 5,
+    width: 100,
+    zIndex: 1,
+  },
+  userItemContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 });

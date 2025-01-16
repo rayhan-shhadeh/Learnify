@@ -33,6 +33,21 @@ export const groupService = {
         });
         return usersInGroup.map(user => user.userId);
     },
+    async getUsernamesInGroup(id) {
+        const usersInGroup = await prisma.group_users.findMany({
+            where: { groupId: parseInt(id) },
+            select: { userId: true }
+        });
+
+        const userIds = usersInGroup.map(user_ => user_.userId);
+
+        const users = await prisma.user_.findMany({
+            where: { userId: { in: userIds } },
+            select: { username: true }
+        });
+
+        return users.map(user => user.username);
+    },
     /**
      * Adds users to a group.
      * @param {number} id - The ID of the group.
@@ -81,6 +96,42 @@ export const groupService = {
         return await prisma.group_.findMany({
             where: { adminId: parseInt(userId) }
         });
-    }
+    },
+    async addUsersToGroupByUsernames(groupId, username) {
     
+        
+          const users = await Promise.all([
+              (async () => {
+                  const user = await prisma.user_.findFirst({
+                    where: { username },
+                  });
+                  if (!user) {
+                    throw new Error(`User with username ${username} not found`);
+                  }
+                  return user;
+              })()
+          ]);
+        
+         // return user id from username
+            const userId = users[0].userId;
+        
+          await prisma.group_users.update({
+            where: { id: parseInt(groupId), 
+                AND: { userId: parseInt(userId) }
+            },
+            data: {
+              userId: parseInt(userId),
+              groupId: parseInt(groupId)
+            // userId: parseInt(userId),
+            }
+            // update: {},
+            // create: {
+            //   userId: parseInt(userId),
+            //   groupId: parseInt(groupId),
+            // },
+
+            });
+       
+          return { message: 'Users added to group successfully' };
+    }    
 };

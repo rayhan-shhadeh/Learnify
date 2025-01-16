@@ -81,7 +81,7 @@ const HomePage = () => {
           color="#1ca7ec"
         />
       </TouchableOpacity>
-      <Text style={styles.aiText}>This app contains AI Generated contents</Text>
+      <Text style={styles.aiText}>This App contains AI Generated contents</Text>
       {/* How to Use Modal */}
       <Modal
         animationType="slide"
