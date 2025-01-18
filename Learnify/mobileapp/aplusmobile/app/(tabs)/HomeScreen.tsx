@@ -5,18 +5,36 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Image,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
 import { useRouter } from "expo-router";
 import NavBar from "./NavBar";
 import { LinearGradient } from "expo-linear-gradient";
-import { SafeAreaView } from "react-native-safe-area-context";
+import  { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { jwtDecode } from "jwt-decode";
+import API from "../../api/axois";
 
 const HomePage = () => {
   const router = useRouter();
-
+  const [isPremium, setIsPremium] = useState<boolean>();
+  useEffect(() => {
+    const initialize = async () => {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        router.push("/(tabs)/auth/signin");
+        return;
+      }
+      const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
+      console.log(decoded?.id);
+      //preimium flag
+      const userData = await API.get(`/api/users/getme/${decoded?.id}`);
+      const userFlag = userData.data.data.flag;
+      userFlag === 1 ? setIsPremium(true) : setIsPremium(false);
+    };
+    initialize();
+  }, []);
   return (
     <LinearGradient
       colors={["#ddf3f5", "#f7f7f7", "#fbfbfb", "#9ad9ea"]}
@@ -35,7 +53,6 @@ const HomePage = () => {
             />
           </View>
         </View>
-
         {/* Main Grid Section */}
         <View style={styles.grid}>
           {cardData.map((item, index) => (
@@ -65,16 +82,21 @@ const HomePage = () => {
           ))}
         </View>
       </ScrollView>
-
-      <TouchableOpacity style={styles.floatingButton}>
+      {!isPremium&&
+      (
+      <TouchableOpacity style={styles.floatingButtonLeft} onPress={()=>{router.push('/(tabs)/Payment/PremiumScreen')}}>
         <MaterialCommunityIcons name="plus-circle" size={60} color="#1ca7ec" />
       </TouchableOpacity>
-
+      )
+    }
+        <TouchableOpacity style={styles.floatingButton} >
+          <MaterialCommunityIcons name="plus-circle" size={60} color="#1ca7ec" />
+        </TouchableOpacity>
+      
       <NavBar />
     </LinearGradient>
   );
 };
-
 type RouteType =
   | "/(tabs)/quiz/QuizMainScreen"
   | "/(tabs)/MultiFilePracticeScreen"
@@ -188,6 +210,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 6,
   },
+  floatingButtonLeft: {
+    position: "absolute",
+    left: 20,
+    bottom: 90,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+  },
+
   icons: {
     color: "#fff",
   },
