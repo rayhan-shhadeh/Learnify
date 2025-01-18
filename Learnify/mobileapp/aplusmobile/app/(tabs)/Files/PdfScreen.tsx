@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {View, ActivityIndicator, StyleSheet, Text, TouchableOpacity, Modal, FlatList, TextInput, Button} from "react-native";
+import {Alert,View, ActivityIndicator, StyleSheet, Text, TouchableOpacity, Modal, FlatList, TextInput, Button} from "react-native";
 import { WebView } from "react-native-webview";
 import API, { LOCALHOST } from "../../../api/axois";
 import Icon from "react-native-vector-icons/AntDesign";
@@ -7,6 +7,8 @@ import FlashcardIcon from "react-native-vector-icons/Ionicons";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useLocalSearchParams } from "expo-router";
 import {Keyboard } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { jwtDecode } from 'jwt-decode';
 
 interface PdfViewerProps {
   fileId: string;
@@ -56,7 +58,26 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
   const [endPage,setEndPage]=useState<number>(1);
   const [isAllPages,setIsAllPages]=useState<boolean>(true);
   const [numberOfPages,setNumberOfPages]=useState<number>(1);
+  const [isPremium,setIsPremium]= useState<boolean>();
+  const [userId,setUserId]= useState<string>();
     useEffect(() => {
+  
+    const initialize = async () => {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        Alert.alert("Error", "Token not found");
+        router.push("/(tabs)/auth/signin");
+        return;
+      }
+      const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
+      console.log(decoded?.id);
+      setUserId(decoded?.id);
+      //preimium flag
+      const userData = await API.get(`/api/users/getme/${decoded?.id}`);
+      const userFlag = userData.data.data.flag;
+      userFlag === 1 ? setIsPremium(true) : setIsPremium(false);
+    };
+    
     const fetchPdfUrl = async () => {
       fileId = passedFileId.toString();
       try {
@@ -66,7 +87,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
         setNumberOfPages(response.data.numberOfPages);
         setStartPage(1);
         setEndPage(numberOfPages);
-        //setPdfUrl("https://astudy.s3.eu-north-1.amazonaws.com/pdfs/5-Virtualization.pdf");
       } catch (err) {
         console.error("Error fetching PDF URL:", err);
         setError("Failed to load the PDF. Please try again.");
@@ -113,6 +133,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
         console.error("Error fetching flashcards:", error);
       }
     };
+    initialize();
     fetchPdfUrl();
     fetchFlashcards();
     fetchKeyterms();
@@ -516,12 +537,42 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
     }
   };    
 
-  const handleFlashcardGenerateClick = () => {
-    setFlashcardModalVisible(true);
+  const handleFlashcardGenerateClick = async() => {
+    if(!isPremium){
+      const response = await fetch(`http://${LOCALHOST}:8080/api/payment/reachLimit/${userId}`);
+      if (!response.ok) {
+        throw new Error(`Failed to check limit: ${response.statusText}`);
+      }
+      const data = await response.json();
+      if (data === true) {
+        // If the user has reached the limit, redirect to the Premium screen
+        router.push("/(tabs)/Payment/PremiumScreen");
+      } else {
+        setFlashcardModalVisible(true);
+      }
+    }
+    else{
+      setFlashcardModalVisible(true);
+    }
   };
 
-  const handleKeytermGenerateClick = () => {
+  const handleKeytermGenerateClick = async() => {
+    if(!isPremium){
+      const response = await fetch(`http://${LOCALHOST}:8080/api/payment/reachLimit/${userId}`);
+      if (!response.ok) {
+        throw new Error(`Failed to check limit: ${response.statusText}`);
+      }
+      const data = await response.json();
+      if (data === true) {
+        // If the user has reached the limit, redirect to the Premium screen
+        router.push("/(tabs)/Payment/PremiumScreen");
+      } else {
+        setFlashcardModalVisible(true);
+      }
+    }
+    else{
     setKeytermModalVisible(true);
+    }
   };
 
   const handleGoToPage =(questionORterm:string,answerORdefinition:string,page:string,KF:string ) =>{
@@ -538,7 +589,7 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
       setEndPage(numberOfPages);
     } else if (end < 1) {
       alert(`End page must be at least 1`);
-      setEndPage(1);
+      setEndPage(numberOfPages);
     }else{
       setEndPage(end);
     }
@@ -582,9 +633,8 @@ const renderFlashcard = ({ item }: { item: Flashcard }) => {
       }
       return pdfUrl ? (
         <WebView 
-          source={{ uri: `${pdfUrl}#page=3` }}
+          source={{ uri: `${pdfUrl}` }}
           style={styles.webview}
-          userAgent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
         />
       ) : null;
     }

@@ -9,12 +9,10 @@ import {
   Image,
   Alert,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
 import API from "../../api/axois";
-import { LOCALHOST } from '@/api/axois';
 
 const TopicScreen = () => {
   const [flippedCards, setFlippedCards] = useState<{ [key: string]: boolean }>(
@@ -25,13 +23,19 @@ const TopicScreen = () => {
   const [isPremium, setIsPremium] = useState<boolean>();
 
   useEffect(() => {
-    console.log("level in topic sreen is :"+level );
     const initialize = async () => {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        Alert.alert("Error", "Token not found");
+        router.push("/(tabs)/auth/signin");
+        return;
+      }
+      const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
+      console.log(decoded?.id);
       //preimium flag
-      const userData = await API.get(`/api/users/getme/${userId}`);
-      const userFlag = userData.data.flag;
-      userFlag === 2 ? setIsPremium(true) : setIsPremium(false);
-      setIsPremium(true);
+      const userData = await API.get(`/api/users/getme/${decoded?.id}`);
+      const userFlag = userData.data.data.flag;
+      userFlag === 1 ? setIsPremium(true) : setIsPremium(false);
     };
     initialize();
   }, []);
@@ -90,8 +94,7 @@ const TopicScreen = () => {
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 20 }}
       />
-      {
-        isPremium?(
+      {isPremium?(
           <TouchableOpacity 
           onPress={() => router.push(
             {pathname:"/(tabs)/LinkListScreen",params: {searchTopic,level}})}>
@@ -100,7 +103,14 @@ const TopicScreen = () => {
           </Text>
         </TouchableOpacity>
         ):
-        (<Text>upgrade to premium</Text>)
+        (<TouchableOpacity 
+          onPress={() => router.push(
+            {pathname:"/(tabs)/Payment/PremiumScreen"})}>
+          <Text style={styles.nextButton}>
+            Unlock?
+          </Text>
+        </TouchableOpacity>
+      )
       }
     </View>
   );

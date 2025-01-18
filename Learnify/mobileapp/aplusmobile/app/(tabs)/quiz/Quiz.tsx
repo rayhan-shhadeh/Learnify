@@ -11,8 +11,10 @@ import {
 } from "react-native";
 import { ProgressBar } from "react-native-paper";
 import { useRouter } from "expo-router";
-import API from "../../../api/axois";
+import API, { LOCALHOST } from "../../../api/axois";
 import { useLocalSearchParams } from "expo-router";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { jwtDecode } from 'jwt-decode';
 
 // Define types for quiz, question, and choices
 interface Choice {
@@ -50,7 +52,7 @@ const Quiz = () => {
     number | null
   >(null);
   const [showDropdown, setShowDropdown] = useState(false);
-
+  const [isPremium,setIsPremium] =useState(false);
   const difficultyOptions = [
     { label: "Easy", value: "easy" },
     { label: "Medium", value: "medium" },
@@ -72,9 +74,106 @@ const Quiz = () => {
       console.error("Error fetching quiz ID:", err);
     }
   };
+/*
+const generateQuiz = async () => {
+  const token = await AsyncStorage.getItem("token");
+  if (!token) {
+    Alert.alert("Error", "Token not found");
+    router.push("/(tabs)/auth/signin");
+    return;
+  }
 
+  const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
+  console.log(decoded?.id);
+
+  try {
+    // Fetch user data to check premium status
+    const userData = await API.get(`/api/users/getme/${decoded?.id}`);
+    const userFlag = userData.data.data.flag;
+    const isPremiumUser = userFlag === 1;
+    setIsPremium(isPremiumUser);
+
+    // Check if user has reached their limit
+    if (!isPremiumUser) {
+      const reachLimitResponse = await API.get(
+        `http://localhost:8080/api/payment/reachLimit/${decoded?.id}`
+      );
+      const hasReachedLimit = reachLimitResponse.data;
+
+      if (hasReachedLimit) {
+        Alert.alert(
+          "Limit Reached",
+          "You have reached your limit of quiz generations. Upgrade to premium to generate more quizzes."
+        );
+        return;
+      }
+    }
+
+    // Generate the quiz
+    await getId();
+    const response = await API.post(
+      `/api/file/generateQuiz/${passedFileId}`,
+      {
+        numQuestions,
+        difficulty,
+      }
+    );
+
+    // Process API response
+    if (
+      response.data &&
+      response.data.title &&
+      Array.isArray(response.data.questions)
+    ) {
+      const Quiz: Quiz = {
+        title: response.data.title,
+        description: response.data.description || "No description provided",
+        questions: response.data.questions.map((q: any) => ({
+          question: q.questionText || "No question text",
+          questionId: q.questionId,
+          choices: q.choices.map((choice: string, index: number) => ({
+            text: choice,
+            isCorrect: String.fromCharCode(65 + index) === q.correctAnswer,
+          })),
+        })),
+      };
+      setQuiz(Quiz);
+    } else {
+      throw new Error("Invalid API response structure");
+    }
+  } catch (err) {
+    setError(true);
+    console.error("Error generating quiz:", err);
+  }
+};
+);*/
   const generateQuiz = async () => {
-    try {
+    const token = await AsyncStorage.getItem("token");
+    if (!token) {
+      Alert.alert("Error", "Token not found");
+      router.push("/(tabs)/auth/signin");
+      return;
+    }
+    const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
+    console.log(decoded?.id);
+    //preimium flag
+    const userData = await API.get(`/api/users/getme/${decoded?.id}`);
+    const userFlag = userData.data.data.flag;
+    const isPremiumUser = userFlag === 1;
+    setIsPremium(isPremiumUser);
+    // Check if user has reached their limit
+    if (!isPremiumUser) {
+      const reachLimitResponse = await API.get(
+        `http://${LOCALHOST}:8080/api/payment/reachLimit/${decoded?.id}`
+      );
+      const hasReachedLimit = reachLimitResponse.data;
+
+      if (hasReachedLimit) {
+        router.replace("/(tabs)/Payment/PremiumScreen");
+        return;
+      }
+    }
+    try{
       await getId();
       const response = await API.post(
         `/api/file/generateQuiz/${passedFileId}`,
@@ -83,12 +182,11 @@ const Quiz = () => {
           difficulty,
         }
       );
-
       if (
         response.data &&
         response.data.title &&
         Array.isArray(response.data.questions)
-      ) {
+      ){
         const Quiz: Quiz = {
           title: response.data.title,
           description: response.data.description || "No description provided",
