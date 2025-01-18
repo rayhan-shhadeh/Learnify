@@ -11,12 +11,15 @@ import {
   TouchableOpacity,
 } from "react-native";
 import * as Animatable from "react-native-animatable";
-import API from "../../../api/axois";
+import API, { LOCALHOST } from "../../../api/axois";
 import CheckBox from "react-native-check-box";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { StreakProvider, useStreak } from "../hooks/StreakContext";
 import StreakFire from "../streak/StreakFire";
 import CalendarPicker from "react-native-calendar-picker";
+import { Calendar } from "react-native-calendars";
+import { useRouter } from "expo-router";
+
 interface Habit {
   habitId: string;
   habitName: string;
@@ -26,7 +29,6 @@ interface Habit {
 
 const Habits = () => {
   const [markedDates, setMarkedDates] = useState<{ [key: string]: any }>({});
-
   const [habits, setHabits] = useState<Habit[]>([]);
   const [userId, setUserId] = useState<string>("");
   const [checkedHabits, setCheckedHabits] = useState<string[]>([]);
@@ -38,6 +40,35 @@ const Habits = () => {
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
   const [year, setHabitYear] = useState("");
   const [month, setMonth] = useState("");
+  const [habitName, setHabitName] = useState("");
+  const router = useRouter();
+  const fetchHabitData = async (habitId: string) => {
+    try {
+      const response = await fetch(
+        `http://${LOCALHOST}:8080/api/trackHabit/monthlyTracker/${habitId}?year=2025&month=1`
+      );
+      const data = await response.json();
+
+      // Transform API response into markedDates format
+      const dates: { [key: string]: any } = {};
+      data.forEach((item: { trackDate: string; completeStatus: number }) => {
+        const date = item.trackDate.split("T")[0]; // Get YYYY-MM-DD
+        dates[date] = {
+          startingDay: true,
+          endingDay: true,
+          color: item.completeStatus === 1 ? "#1fd655" : "#e0e0e0",
+          textColor: item.completeStatus === 1 ? "white" : "#757575",
+        };
+      });
+
+      setMarkedDates(dates);
+    } catch (error) {
+      console.error("Error fetching habit data:", error);
+    }
+  };
+
+  //fetchHabitData();
+
   const fetchHabits = async () => {
     try {
       const storedUserId = await AsyncStorage.getItem("currentUserId");
@@ -54,7 +85,7 @@ const Habits = () => {
     const fetchHabitData = async () => {
       try {
         const response = await fetch(
-          "http://192.168.68.61:8080/api/trackHabit/monthlyTracker/3?year=2025&month=1"
+          `http://${LOCALHOST}:8080/api/trackHabit/monthlyTracker/3?year=2025&month=1`
         );
         const data = await response.json();
 
@@ -65,7 +96,7 @@ const Habits = () => {
           dates[date] = {
             startingDay: true,
             endingDay: true,
-            color: item.completeStatus === 1 ? "#4caf50" : "#e0e0e0",
+            color: item.completeStatus === 1 ? "#1fd655" : "#e0e0e0",
             textColor: item.completeStatus === 1 ? "white" : "#757575",
           };
         });
@@ -105,13 +136,19 @@ const Habits = () => {
   const handleCompleteHabit = async (habitId: string) => {
     try {
       // Add your logic to handle completing a habit
-      const response = API.put(`/api/trackHabit/isComplete/${habitId}`, {
+      const response = API.post(`/api/trackHabit/isComplete/${habitId}`, {
         trackDate: new Date().toISOString(),
         isCompleted: true,
       });
       setMonth(new Date().getMonth().toString());
+      setHabitYear(new Date().getFullYear().toString());
       console.log(`Habit ${habitId} completed`);
-      Alert.alert("Habit Completed", "Good job! Keep it up!");
+      Alert.alert(
+        "Habit Completed",
+        "Good job! Keep it up!",
+        (await response).data.trackDate
+      );
+      fetchHabitData(habitId);
     } catch (error) {
       console.error("Error completing habit:", error);
     }
@@ -120,12 +157,17 @@ const Habits = () => {
   const handleUncompleteHabit = async (habitId: string) => {
     try {
       // Add your logic to handle uncompleting a habit
-      const response = API.put(`/api/trackHabit/isComplete/${habitId}`, {
+      const response = API.post(`/api/trackHabit/isComplete/${habitId}`, {
         trackDate: new Date().toISOString(),
         isCompleted: false,
       });
 
-      Alert.alert("Habit Uncompleted", "Don't worry, you got this!");
+      Alert.alert(
+        "Habit Uncompleted",
+        "Don't worry, you got this!",
+        (await response).data.trackDate
+      );
+      fetchHabitData(habitId);
       console.log(`Habit ${habitId} uncompleted`);
     } catch (error) {
       console.error("Error uncompleting habit:", error);
@@ -192,15 +234,15 @@ const Habits = () => {
     const month = 1;
 
     try {
-      const response = await API.get(
-        `/api/trackHabit/monthlyTracker/3?year=2025&month=1`
+      const response = await fetch(
+        `http://${LOCALHOST}:8080/api/trackHabit/monthlyTracker/3?year=2025&month=1`
       );
 
       if (response.status !== 201) {
         throw new Error("Failed to fetch habits data");
       }
 
-      const data = await response.data;
+      const data = await response.json();
       const completedDays = data
         .filter(
           (habit: { completeStatus: number; trackDate: string }) =>
@@ -212,7 +254,7 @@ const Habits = () => {
       setcoloredHabits(completedDays);
 
       console.log(data); // Handle the data as needed
-      Alert.alert("Monthly habits fetched", completedDays.toString());
+      // Alert.alert("Monthly habits fetched", completedDays.toString());
       // days output
       console.log("completed days", completedDays);
     } catch (error) {
@@ -252,7 +294,7 @@ const Habits = () => {
     // <StreakProvider>
     <View style={styles.container}>
       <View style={{ marginVertical: 5 }}>
-        <CalendarPicker
+        {/* <CalendarPicker
           onDateChange={(date) => console.log("Selected date:", date)}
           customDatesStyles={(date) => {
             const dateString = date.toISOString().split("T")[0];
@@ -266,6 +308,35 @@ const Habits = () => {
           selectedDayTextColor="white"
           todayBackgroundColor="#f2e6ff"
           todayTextStyle={{ color: "black" }}
+        /> */}
+        <Calendar
+          markingType={"period"}
+          markedDates={markedDates}
+          theme={{
+            calendarBackground: "#f5f5f5",
+            textSectionTitleColor: "#2e7d32",
+            dayTextColor: "#000000",
+            textDisabledColor: "#d9e1e8",
+            arrowColor: "#2e7d32",
+            todayTextColor: "#ff5722",
+            textDayFontWeight: "300",
+            textMonthFontWeight: "500",
+            textDayHeaderFontWeight: "500",
+            textMonthFontSize: 10,
+            textDayHeaderFontSize: 8,
+            radius: 50,
+            selectedDayBackgroundColor: "#2e7d32",
+            selectedDayTextColor: "#ffffff",
+            textDayStyle: { margin: 5 },
+            textDayFontSize: 10,
+          }}
+          style={{
+            borderRadius: 50,
+            padding: -50,
+            margin: -8,
+            transform: [{ scale: 1 }],
+            width: "100%",
+          }} // Zoom out the calendar}}
         />
       </View>
       <ScrollView>
@@ -286,14 +357,24 @@ const Habits = () => {
                 }
                 unCheckedImage={<Text>⬜</Text>}
               />
-              <Text
-                style={[
-                  styles.habitName,
-                  checkedHabits.includes(habit.habitId) && styles.strikethrough,
-                ]}
+              <TouchableOpacity
+                style={{ flexDirection: "row", zIndex: 1, flex: 1 }}
+                onPress={() => {
+                  fetchHabitData(habit.habitId);
+                  setHabitName(habit.habitName);
+                }}
               >
-                {habit.habitName}
-              </Text>
+                <Text
+                  style={[
+                    styles.habitName,
+                    checkedHabits.includes(habit.habitId) &&
+                      styles.strikethrough,
+                  ]}
+                >
+                  {habit.habitName}
+                </Text>
+              </TouchableOpacity>
+
               <Text
                 style={styles.editIcon}
                 onPress={() => openEditModal(habit)}
@@ -404,10 +485,12 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 2, height: 3 },
     shadowOpacity: 0.3,
     shadowRadius: 2,
+    height: 150,
   },
   habitRow: {
     flexDirection: "row",
     alignItems: "center",
+    width: "100%",
   },
   habitRowTwo: {
     flexDirection: "row",

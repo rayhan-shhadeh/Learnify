@@ -669,7 +669,7 @@ const FilesScreen = () => {
             <View style={styles.sortContainer}>
               {/* Dropdown Trigger */}
               <TouchableOpacity
-                style={styles.dropdownListText}
+                style={styles.dropdownList}
                 onPress={() => setShowDropdown(!showDropdown)}
               >
                 <Text style={styles.dropdownTriggerText}>
@@ -828,6 +828,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: "bold",
+    marginBottom: 16,
   },
   input: {
     borderWidth: 0.2,
@@ -836,9 +837,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f6f6f6",
     color: "#000",
     padding: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
+    marginBottom: 10,
   },
   headercontainer: {
     flexDirection: "row",
@@ -877,7 +876,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
-    overflow: "hidden",
   },
   selectedText: {
     fontSize: 16,

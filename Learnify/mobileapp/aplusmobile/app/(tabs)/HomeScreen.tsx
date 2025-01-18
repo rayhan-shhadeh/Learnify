@@ -81,7 +81,9 @@ const HomePage = () => {
           color="#1ca7ec"
         />
       </TouchableOpacity>
-      <Text style={styles.aiText}>This App contains AI Generated contents</Text>
+      <Text style={styles.aiText}>
+        This App contains AI{"\n"} Generated contents
+      </Text>
       {/* How to Use Modal */}
       <Modal
         animationType="slide"
@@ -211,11 +213,11 @@ const styles = StyleSheet.create({
     color: "#488db4",
   },
   logoContainer: {
-    marginTop: 10,
+    marginTop: 3,
   },
   logo: {
-    width: 120,
-    height: 120,
+    width: 100,
+    height: 100,
     resizeMode: "contain",
   },
   grid: {

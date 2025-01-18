@@ -15,6 +15,7 @@ import API, { LOCALHOST } from "../../../api/axois";
 import Icon from "react-native-vector-icons/AntDesign";
 import FlashcardIcon from "react-native-vector-icons/Ionicons";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import Octicons from "react-native-vector-icons/Octicons";
 import { useLocalSearchParams } from "expo-router";
 import { Keyboard } from "react-native";
 
@@ -392,7 +393,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                     handleGoToPage(item.question, item.answer, item.page, "F")
                   }
                 >
-                  <Icon name="create-outline" size={20} color="#11ad0c" />
+                  <Octicons name="cross-reference" size={20} color="#11ad0c" />
                   <Text>{item.page}</Text>
                 </TouchableOpacity>
               )}
@@ -754,8 +755,13 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
 
         <View style={styles.flashcardContainer}>
           <View style={{ flexDirection: "row", justifyContent: "center" }}>
-            <Icon name="switcher" size={24} color="#333" />
-            <Text style={styles.flashcardTitle}>Review Flashcards</Text>
+            <Icon
+              name="switcher"
+              size={24}
+              color="#1f93e0"
+              style={{ marginRight: 10 }}
+            />
+            <Text style={styles.title}>Review Flashcards</Text>
           </View>
           {/* Search Bar */}
           <TextInput
@@ -1163,8 +1169,11 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                         )
                       }
                       placeholder="Edit Definition"
-                      multiline={true} // Enable multiline
+                      multiline={false} // Enable multiline
                       textAlignVertical="top" // Align text to the top
+                      // add done button to close keyboard
+                      returnKeyType="done"
+                      onSubmitEditing={handleDismissKeyboard}
                     />
                     <View style={styles.modalActions}>
                       <TouchableOpacity
@@ -1515,6 +1524,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   keyTermText: {
     fontSize: 16,

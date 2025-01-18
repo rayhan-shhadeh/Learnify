@@ -236,10 +236,10 @@ export default function HabitsScreen() {
               <DateTimePicker
                 testID="dateTimePicker"
                 value={reminderTime ? new Date(reminderTime) : new Date()}
-                mode="datetime"
+                mode="time"
                 display="default"
                 onChange={(event, selectedDate) => {
-                  setReminderTime(selectedDate?.toISOString() || "");
+                  setReminderTime(new Date().toISOString() || "");
                 }}
                 style={styles.datetime}
               />
@@ -272,7 +272,9 @@ export default function HabitsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: 10,
+    top: 0,
+    marginTop: -10,
   },
   header: {
     fontSize: 24,

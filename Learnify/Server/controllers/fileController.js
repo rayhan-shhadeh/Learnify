@@ -33,18 +33,18 @@ export const fileController = {
             const command = new PutObjectCommand(params);
             await s3.send(command);
             const pdfDoc = await PDFDocument.load(file.buffer);
-            const numberOfPages = pdfDoc.getPageCount();
-            console.log("Number Of Pages="+numberOfPages);
+            const numbOfPages = pdfDoc.getPageCount();
+            console.log("Number Of Pages="+numbOfPages);
             // Construct the file URL
             const fileURL = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
-            const preparedFile = createJSONFile(fileName,fileDeadline,fileURL,courseId,numberOfPages);
+            const preparedFile = createJSONFile(fileName,fileDeadline,fileURL,courseId,numbOfPages);
             const newFile = await fileService.upload(preparedFile);
             if (newFile){
                 res.status(200).json({
                     message: 'File uploaded successfully',
                     "fileId":  newFile.fileId,
                     "fileUrl" :fileURL ,
-                    "numberOfPages" :numberOfPages
+                    "numOfPages" :numbOfPages
                 });
             }
         } catch (error) {
