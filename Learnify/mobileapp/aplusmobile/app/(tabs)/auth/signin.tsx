@@ -7,9 +7,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  LayoutAnimation,
 } from "react-native";
 import { useRootNavigationState, useRouter } from "expo-router";
-import API from "../../../api/axois";
+import API, { LOCALHOST } from "../../../api/axois";
 import { jwtDecode } from "jwt-decode";
 import LoadingOverlay from "../../../components/ui/LoadingOverlay";
 import { AuthContext } from "../../../components/store/auth-context";
@@ -48,7 +49,7 @@ const SignIn = () => {
       return;
     }
     try {
-      const response = await fetch(`http://192.168.68.59:8080/api/login`, {
+      const response = await fetch(`http://${LOCALHOST}:8080/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -59,7 +60,6 @@ const SignIn = () => {
         }),
       });
       const data = await response.json();
-
       if (response.status === 200) {
         const token = JSON.stringify(data.token);
         authCtx.authenticate(token);
@@ -69,6 +69,33 @@ const SignIn = () => {
         const currentUserId = decoded.id.toString();
         await AsyncStorage.setItem("currentUserId", currentUserId);
         console.log("Current User ID: ", currentUserId);
+        if(data.user.flag===1){
+          const response = await fetch(`http://${LOCALHOST}:8080/api/user/transactions/${currentUserId}`,{ method:"GET"});
+          const transaction = await response.json();
+          if (transaction) {
+            const transactionId= transaction.transactionId;
+            const endsAtDate = new Date(transaction.endsAt);
+            const today = new Date();
+            if (endsAtDate < today) {
+              console.log('Subscription expired. Updating premium status...');
+              const updateResponse = await fetch(`http://${LOCALHOST}:8080/api/updatePremiumStatus/${currentUserId}`, {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ flag: 0 })
+              });
+              if (updateResponse.ok) {
+                console.log('User premium status updated successfully.');
+                await fetch(`http://${LOCALHOST}:8080/api/transaction/${transactionId}`,{ method:"DELETE"});
+              } else {
+                console.error('Failed to update premium status:', await updateResponse.text());
+              }
+            } else {
+              console.log('Subscription is still active.');
+            }
+          } 
+        }
         router.push("/(tabs)/HomeScreen");
       } else {
         Alert.alert("Error", `Please enter valid credentials: ${data.message}`);
