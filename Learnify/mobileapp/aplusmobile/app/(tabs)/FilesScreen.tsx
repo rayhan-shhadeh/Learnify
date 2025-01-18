@@ -482,15 +482,25 @@ const FilesScreen = () => {
     return (
       <LinearGradient colors={["#1CA7EC", "#1CA7EC"]} style={styles.card}>
         <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle} onPress={() => handleFileView(fileId)}>
-            {title}
-          </Text>
-          <Text style={styles.cardTitle}>
-            {new Date(fileDeadline).toISOString().split("T")[0]}
-          </Text>
+          <View style={styles.filerow}>
+            <Text
+              style={styles.cardTitle}
+              onPress={() => handleFileView(fileId)}
+            >
+              {title}
+            </Text>
+            <Text style={styles.deadline}>
+              {new Date(fileDeadline).toISOString().split("T")[0]}
+            </Text>
+          </View>
           <View style={styles.iconContainer}>
             <TouchableOpacity onPress={() => handleOpenFileChoices(fileId)}>
-              <FontAwesome name="book" size={20} color="url(#grad)" />
+              <FontAwesome
+                name="book"
+                size={20}
+                color="#fff"
+                style={styles.icon}
+              />
             </TouchableOpacity>
             {/*             
             <TouchableOpacity onPress={() => handleFileView(fileId)}>
@@ -498,10 +508,18 @@ const FilesScreen = () => {
             </TouchableOpacity>
             */}
             <TouchableOpacity onPress={() => handlefileDelete(fileId)}>
-              <FontAwesome name="trash" size={20} color="url(#grad)" />
+              <FontAwesome
+                name="trash"
+                size={20}
+                color="#fff"
+                style={styles.icon}
+              />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => openEditModal(fileId)}>
-              <FontAwesome name="edit" size={20} color="#000" />
+            <TouchableOpacity
+              onPress={() => openEditModal(fileId)}
+              style={styles.icon}
+            >
+              <FontAwesome name="edit" size={20} color="#fff" />
             </TouchableOpacity>
           </View>
         </View>
@@ -744,7 +762,7 @@ const FilesScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#fff",
     paddingLeft: 10,
     paddingRight: 10,
     paddingBottom: 10,
@@ -773,7 +791,10 @@ const styles = StyleSheet.create({
   cardHeader: {
     flexDirection: "column",
     justifyContent: "space-between",
-    alignItems: "center",
+  },
+  filerow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   cardTitle: {
     color: "#fff",
@@ -838,6 +859,19 @@ const styles = StyleSheet.create({
     color: "#000",
     padding: 10,
     marginBottom: 10,
+    width: "93%",
+    alignSelf: "center",
+  },
+  deadline: {
+    borderWidth: 0.2,
+    borderColor: "#ddd",
+    borderRadius: 5,
+    backgroundColor: "#f6f6f6",
+    color: "#000",
+    padding: 5,
+    marginBottom: 10,
+
+    justifyContent: "flex-end",
   },
   headercontainer: {
     flexDirection: "row",
@@ -1008,6 +1042,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   choiceButtonText: { color: "white", fontWeight: "bold" },
+  icon: {
+    marginLeft: 10,
+    marginRight: 10,
+  },
 });
 
 export default FilesScreen;
