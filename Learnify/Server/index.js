@@ -29,6 +29,11 @@ import { groupRouter } from './routers/groupRouter.js';
 import { messageRouter } from './routers/messageRouter.js';
 import {practiceRouter} from "./routers/practiceRouter.js";
 import {exploreHistoryRouter} from "./routers/exploreHistoryRouter.js";
+import { statisticsRouter } from './routers/statisticsRouter.js';
+import { paymentRouter } from './routers/paymentRouter.js'
+import { cardRouter } from './routers/cardRouter.js'
+import { transactionRouter } from './routers/transactionRouter.js';
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server,{
@@ -94,6 +99,10 @@ app.use("/api", messageRouter);
 app.use("/api", practiceRouter);
 app.use("/api", exploreHistoryRouter);
 app.use('/uploads', express.static('uploads'));
+app.use("/api",statisticsRouter)
+app.use("/api",paymentRouter);
+app.use("/api",cardRouter);
+app.use("/api",transactionRouter);
 
 app.use(express.json());  // Make sure this is included
 
