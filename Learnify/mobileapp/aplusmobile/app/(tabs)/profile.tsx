@@ -34,6 +34,12 @@ export default function Profile() {
   const [streak, setStreak] = useState(1);
   const [showStreakFire, setShowStreakFire] = useState(false);
   const [successRate,setSuccessRate]= useState<number>(0);
+  const [flashcardsCount,setFlashcardsCount]= useState<number>(0);
+  const [keytermsCount,setKeytermsCount]= useState<number>(0);
+  const [quizzesCount,setQuizzesCount]= useState<number>(0);
+  const [exploreTopicsCount,setExploreTopicsCount]= useState<number>(0);
+  const [habitsDoneTodayCount ,setHabitsDoneTodayCount]= useState<number>(0);
+  const [habitsCount ,setHabitsCount]= useState<number>(0);
 
   const increaseStreak = () => {
     setStreak(streak + 1);
@@ -76,7 +82,28 @@ export default function Profile() {
           console.log(`Average Success Rate: ${averageSuccessRate}`);
         } else {
           console.log("No quizzes available.");
+          setSuccessRate(0);
         }
+        const res = await API.get<{
+            userStatistics: {
+                flashcardsCount: number;
+                keytermsCount: number;
+                quizzesCount: number;
+                exploreTopicsCount: number;
+                habitsDoneTodayCount: number;
+                habitsCount : number
+
+          };
+        }>(`api/profile/statistics/${decoded?.id}`);
+        const userStatistics= res.data.userStatistics;
+
+        setFlashcardsCount(userStatistics.flashcardsCount);
+        setKeytermsCount(userStatistics.keytermsCount);
+        setQuizzesCount(userStatistics.quizzesCount);
+        setExploreTopicsCount(userStatistics.exploreTopicsCount);
+        setHabitsDoneTodayCount(userStatistics.habitsDoneTodayCount);
+        setHabitsCount(userStatistics.habitsCount);
+        console.log(flashcardsCount+","+keytermsCount+","+quizzesCount+","+exploreTopicsCount+","+habitsDoneTodayCount+","+habitsCount);
       } catch (error) { 
         Alert.alert("Error", "An error occurred while fetching user data");
       }
@@ -153,8 +180,8 @@ export default function Profile() {
           </View>
           <View style={styles.streakDetails}>
             <View style={styles.streakDetail}>
-              <Text style={styles.subTextDetail}>Tasks Today</Text>
-              <Text style={styles.detailText}>4/6</Text>
+              <Text style={styles.subTextDetail}>Habits Today</Text>
+              <Text style={styles.detailText}>{habitsDoneTodayCount}/{habitsCount}</Text>
             </View>
             <View style={styles.streakDetail}>
               <Text style={styles.subTextDetail}>Success Rate</Text>
@@ -187,7 +214,7 @@ export default function Profile() {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionButtonOutline}
-            onPress={() => router.push("/(tabs)/Habits/HabitsScreen")}
+            onPress={() => router.push("/(tabs)/calendar/delete")}
           >
             <Icon name="plus" size={16} color="#125488" />
             <Text style={styles.actionTextOutline}>Add Event</Text>

@@ -6,7 +6,6 @@ import {OpenAIPromptHandling}  from '../functions/openAIPromptHandling.js';
 import {createJSONQuiz,createJSONQuestion} from '../functions/createJsonObject.js'
 import {isArrayOfJSONObjects,isJSONObject,isArrayOfStrings} from '../functions/validateFormat.js'
 import { courseService } from '../services/courseService.js';
-const myPath = "C:\\Users\\rshha\\Documents\\VSCode\\projects\\Graduation-v7\\Learnify\\Server\\TempPDFs\\"
 export const quizController = {
     async generateQuiz(req, res) {
         try {
@@ -27,9 +26,9 @@ export const quizController = {
                 '"choices":["Answer A","Answer B","Answer C","Answer D"]},...]}' +
                 ' please make sure that the title, description, and questions are related to the attached file' +
                 ' without any additional text before or after the JSON object and without ```json```.';
-            const fullPath = myPath + filename;
+            const fullPath = process.env.SAVE_PATH + filename;
             // download pdf, send to OpenAI, delete pdf
-            await downloadPDF(fileurl, myPath, filename); // url, savePath, filename
+            await downloadPDF(fileurl, process.env.SAVE_PATH, filename); // url, savePath, filename
             const response = await OpenAIPromptHandling(fullPath, prompt); // filename, prompt
             await deletePDF(fullPath);
             // parse response
@@ -117,7 +116,8 @@ export const quizController = {
             const userId = req.params.userId;
             const userCourses = await courseService.getCoursesByUserId(userId);
             if (!userCourses || userCourses.length === 0) {
-                return res.status(404).json({ message: 'No courses found for the user' });
+                res.status(200).json({ quizzes: [] });
+                return;
             }
     
             let userFiles = [];
@@ -128,7 +128,8 @@ export const quizController = {
                 }
             }
             if (userFiles.length === 0) {
-                return res.status(404).json({ message: 'No files found for the user\'s courses' });
+                res.status(200).json({ quizzes: [] });
+                return;
             }
     
             let quizzes = [];
@@ -146,7 +147,8 @@ export const quizController = {
                 }
             }
             if (quizzes.length === 0) {
-                return res.status(404).json({ message: 'No valid quizzes found' });
+                res.status(200).json({ quizzes: [] });
+                return;
             }
     
             const sortedQuizzes = quizzes.sort((a, b) => b.quizId - a.quizId);
