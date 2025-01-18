@@ -140,7 +140,7 @@ async updateMe (req, res, next) {
   // get user Id based on username
   async getUserIdByUsername(req, res, next) {
     try {
-      const userId = await userService.getUserIdByUsername(req.params.username);
+      const userId = await userService.getUserIdByUsername(req.body.username);
       if (!userId) {
         return res.status(404).json({
           status: "fail",

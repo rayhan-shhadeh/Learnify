@@ -29,8 +29,12 @@ export const userService = {
     // get user Id based on username
     async getUserIdByUsername(username) {
         return await prisma.user_.findFirst({
-            where: { username: username }
-        });
+            where: { username: username },
+            select: { userId: true },
+            data: userId
+        }
+    );
+    
         
     }
 

@@ -19,7 +19,8 @@ import { useLocalSearchParams } from "expo-router";
 import Icon from "react-native-vector-icons/FontAwesome";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
-
+import Header from "../../(tabs)/header/Header";
+import * as Animatable from "react-native-animatable";
 export default function QuizScreen() {
   const router = useRouter();
   const [isCourseModalVisible, setCourseModalVisible] = useState(false);
@@ -91,9 +92,12 @@ export default function QuizScreen() {
     setSelectedFile(selectedFile === fileId ? null : fileId);
   };
 
-  const handleOpenQuiz =(passedQuizId :string)=>{
-    const passedIsFromAllFilesPage = 'history';
-    router.push({"pathname":'/(tabs)/quiz/QuizReviewScreen' ,params:{passedQuizId,passedIsFromAllFilesPage}});
+  const handleOpenQuiz = (passedQuizId: string) => {
+    const passedIsFromAllFilesPage = "history";
+    router.push({
+      pathname: "/(tabs)/quiz/QuizReviewScreen",
+      params: { passedQuizId, passedIsFromAllFilesPage },
+    });
   };
 
   const renderCourseItem = ({
@@ -232,13 +236,20 @@ export default function QuizScreen() {
               setFileModalVisible(false);
             }}
           >
-            <Text style={styles.modalButtonText}>Confirm Selection</Text>
+            <TouchableOpacity
+              style={styles.modalButtonSelect}
+              onPress={() => {
+                handleOpenQuiz(item.id);
+              }}
+            >
+              <Text style={styles.modalButtonText}>Confirm Selection</Text>
+            </TouchableOpacity>
           </TouchableOpacity>
         </View>
       </View>
     </Modal>
   );
-  
+
   const renderQuizItem = ({
     item,
   }: {
@@ -250,7 +261,12 @@ export default function QuizScreen() {
       color: string[];
     };
   }) => (
-    <TouchableOpacity style={styles.card} onPress={()=>{handleOpenQuiz(item.id)}}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => {
+        handleOpenQuiz(item.id);
+      }}
+    >
       <LinearGradient
         colors={[...item.color] as [string, string, ...string[]]}
         style={styles.cardGradient}
@@ -271,14 +287,10 @@ export default function QuizScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient colors={["#1e91cb", "#1CA7EC"]} style={styles.header}>
+        <Header />
         <View style={styles.headerContent}>
-          <Image
-            source={{ uri: "https://i.pravatar.cc/100" }}
-            style={styles.profileImage}
-          />
           <View>
-            <Text style={styles.greeting}>Hello {username}</Text>
-            <Text style={styles.subtitle}>Let's start your quiz now</Text>
+            <Text style={styles.greeting}>Hello {username}!</Text>
           </View>
         </View>
         <View style={styles.recentQuiz}>
@@ -301,7 +313,13 @@ export default function QuizScreen() {
           style={styles.button}
           onPress={() => setCourseModalVisible(true)}
         >
-          <Icon name="plus" size={20} color="white" />
+          <Animatable.Text
+            animation="pulse"
+            easing="ease-out"
+            iterationCount="infinite"
+          >
+            <Icon name="plus-circle" size={20} color="white" />
+          </Animatable.Text>
           <Text style={styles.buttonText}>Start New Quiz?</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.quizhistory}>
@@ -331,21 +349,17 @@ const styles = StyleSheet.create({
     height: 250,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
-    paddingTop: 60,
+    paddingTop: 20,
     paddingHorizontal: 20,
   },
   headerContent: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "flex-start",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 10,
-  },
+
   greeting: {
+    top: -20,
     color: "white",
     fontSize: 20,
     fontWeight: "bold",
@@ -355,10 +369,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   recentQuiz: {
-    marginTop: 20,
+    top: -20,
+    marginTop: 10,
     backgroundColor: "rgba(255, 255, 255, 0.2)",
-    padding: 20,
-    borderRadius: 15,
+    padding: 15,
+    borderRadius: 20,
+    marginHorizontal: 20,
+    marginBottom: 20,
   },
   recentQuizText: {
     color: "white",
@@ -375,7 +392,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   quizList: {
-    paddingVertical: 60,
+    paddingVertical: 15,
     paddingHorizontal: 15,
     marginBottom: 20,
   },
@@ -420,15 +437,13 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   button: {
-    marginBlockEnd: 10,
+    marginBlockEnd: 5,
     backgroundColor: "#1CA7EC",
-    padding: 1,
     borderRadius: 50,
     width: 200,
     height: 50,
     alignItems: "center",
     justifyContent: "center",
-    marginBlock: 20,
     flexDirection: "row",
     position: "relative",
   },
@@ -454,9 +469,9 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     justifyContent: "flex-start",
     alignSelf: "flex-start",
-    marginTop: 10,
-    marginLeft: 10,
-    marginBottom: 70,
+    marginTop: 5,
+    marginLeft: 25,
+    zIndex: 1,
   },
   icon: {
     width: 90,
@@ -469,12 +484,15 @@ const styles = StyleSheet.create({
     paddingLeft: 40,
     marginLeft: 20,
     marginBottom: 10,
+    zIndex: 1,
   },
   modalContainer: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
+    height: "100%",
+    paddingBottom: 50,
   },
   modalContent: {
     width: "80%",
@@ -518,15 +536,29 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     borderRadius: 10,
     alignItems: "center",
+    marginBottom: 20,
   },
   addButton: {
     backgroundColor: "#2196F3",
   },
+  modalButtonSelect: {
+    borderRadius: 10,
+    padding: 5,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "#4fbbda",
+    height: 40,
+    width: 200,
+    alignItems: "center",
+    justifyContent: "center",
+    // backgroundColor: "#1CA7EC",
+    // padding: 10,
+    marginBottom: 20,
+  },
   modalButtonText: {
     color: "#333",
-    fontSize: 30,
+    fontSize: 18,
     fontWeight: "bold",
-    position: "relative",
   },
   courseItem: {
     padding: 15,

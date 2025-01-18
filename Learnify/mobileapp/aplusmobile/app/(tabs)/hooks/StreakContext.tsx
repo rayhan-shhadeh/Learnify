@@ -1,45 +1,27 @@
-import API from "@/api/axois";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useContext, useState } from "react";
+import StreakFire from "../streak/StreakFire";
+import { ReactNode } from "react";
+import { Alert } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+// get current user streak
 
-interface StreakContextProps {
-  streak: number;
-  incrementStreak: () => void;
-}
+const StreakContext = createContext({
+  streak: 0,
+  incrementStreak: () => {
+    // show the streakFire animation
+  },
+});
 
-const StreakContext = createContext<StreakContextProps | undefined>(undefined);
-
-export const StreakProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const StreakProvider = ({ children }: { children: ReactNode }) => {
   const [streak, setStreak] = useState(0);
-
-  const incrementStreak = async () => {
-    setStreak((prevStreak: number) => prevStreak + 1);
-    // here to send the updated streak to the server on streak column in user table
-    try {
-      const storedUserId = await AsyncStorage.getItem("currentUserId");
-      if (!storedUserId) {
-        throw new Error("No user ID found in storage");
-      }
-      const response = await API.post(
-        `/api/users/updateprofile/${storedUserId}`,
-        {
-          streak: streak,
-        }
-      );
-      if (response.status !== 200) {
-        throw new Error(`Failed to update streak: ${response.statusText}`);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error("Error incrementing streak:", error.message);
-      } else {
-        console.error("Unexpected error incrementing streak:", error);
-      }
-    }
+  const [showStreakFire, setShowStreakFire] = useState(false);
+  const incrementStreak = () => {
+    setStreak((prev) => prev + 1);
   };
-
+  const handleAnimationEnd = () => {
+    setShowStreakFire(false);
+  };
+  // render animation
   return (
     <StreakContext.Provider value={{ streak, incrementStreak }}>
       {children}
@@ -48,9 +30,14 @@ export const StreakProvider: React.FC<{ children: React.ReactNode }> = ({
 };
 
 export const useStreak = () => {
-  if (Error instanceof Error) {
-    console.error("Error incrementing streak:", Error.message);
-  } else {
-    console.error("Unexpected error incrementing streak:", Error);
+  const context = useContext(StreakContext);
+  if (!context) {
+    throw new Error("useStreak must be used within a StreakProvider");
   }
+  return context;
 };
+function setShowStreakFire(arg0: boolean) {
+  throw new Error("Function not implemented.");
+  // show the streakFire animation
+  Alert.alert("Streak Fire");
+}

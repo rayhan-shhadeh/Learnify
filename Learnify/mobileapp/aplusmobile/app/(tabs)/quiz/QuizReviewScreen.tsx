@@ -11,6 +11,8 @@ import { Badge } from "react-native-elements";
 import Header from "../header/Header";
 import LottieView from "lottie-react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import * as Animatable from "react-native-animatable";
+
 import API from "@/api/axois";
 
 interface Question {
@@ -30,11 +32,14 @@ interface QuizData {
 
 const QuizReviewScreen: React.FC = () => {
   const router = useRouter();
-  const { passedQuizId,passedIsFromAllFilesPage, passedCourseId} = useLocalSearchParams();
+  const { passedQuizId, passedIsFromAllFilesPage, passedCourseId } =
+    useLocalSearchParams();
   const [quizData, setQuizData] = useState<QuizData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const [expandedQuestionIndex, setExpandedQuestionIndex] = useState<number | null>(null);
+  const [expandedQuestionIndex, setExpandedQuestionIndex] = useState<
+    number | null
+  >(null);
   const handleFinishReview = async () => {
     if (passedIsFromAllFilesPage === "all") {
       router.push("/(tabs)/FilesScreen");
@@ -43,7 +48,7 @@ const QuizReviewScreen: React.FC = () => {
       const title = data.data.courseName;
       router.push({
         pathname: "/(tabs)/CourseFilesScreen",
-        params: { title, passedCourseId }
+        params: { title, passedCourseId },
       });
     } else if (passedIsFromAllFilesPage === "home") {
       router.push("/(tabs)/HomeScreen");
@@ -64,7 +69,9 @@ const QuizReviewScreen: React.FC = () => {
         const quiz = quizResponse.data;
 
         // Fetch questions for the quiz
-        const questionsResponse = await API.get(`api/quiz/questions/${passedQuizId}`);
+        const questionsResponse = await API.get(
+          `api/quiz/questions/${passedQuizId}`
+        );
         const questions = questionsResponse.data;
 
         console.log("Fetched questions:", questions); // Debug log
@@ -74,7 +81,10 @@ const QuizReviewScreen: React.FC = () => {
           API.get(`/api/quiz/question/answer/${question.questionId}`)
             .then((res) => res.data)
             .catch((err) => {
-              console.warn(`Failed to fetch answers for questionId ${question.questionId}:`, err.message);
+              console.warn(
+                `Failed to fetch answers for questionId ${question.questionId}:`,
+                err.message
+              );
               return null;
             })
         );
@@ -82,23 +92,24 @@ const QuizReviewScreen: React.FC = () => {
         const answersArray = await Promise.all(answersPromises);
 
         // Format questions with parsed `choices` and user's answers
-        const formattedQuestions: Question[] = questions.map((question: any, index: number) => {
-          const answer = answersArray[index];
-          return {
-            questionId: question.questionId,
-            questionText: question.questionText,
-            correctAnswer: question.correctAnswer,
-            selectedAnswer: answer ? answer.chosenAnswer : "",
-            choices: 
-            question.choices.includes(",")
-            ? question.choices
-                .replace(/"/g, "") // Remove double quotes
-                .split(",") // Split by ","
-                .map((choice: string) => choice.trim()) // Trim each choice
-            : JSON.parse(question.choices), // Fallback for JSON
-          };
-        });
-    
+        const formattedQuestions: Question[] = questions.map(
+          (question: any, index: number) => {
+            const answer = answersArray[index];
+            return {
+              questionId: question.questionId,
+              questionText: question.questionText,
+              correctAnswer: question.correctAnswer,
+              selectedAnswer: answer ? answer.chosenAnswer : "",
+              choices: question.choices.includes(",")
+                ? question.choices
+                    .replace(/"/g, "") // Remove double quotes
+                    .split(",") // Split by ","
+                    .map((choice: string) => choice.trim()) // Trim each choice
+                : JSON.parse(question.choices), // Fallback for JSON
+            };
+          }
+        );
+
         // Set quiz data state
         setQuizData({
           title: quiz.quizTitle,
@@ -118,10 +129,16 @@ const QuizReviewScreen: React.FC = () => {
     }
   }, [passedQuizId]);
 
-  const renderQuestion = ({ item, index }: { item: Question; index: number }) => {
+  const renderQuestion = ({
+    item,
+    index,
+  }: {
+    item: Question;
+    index: number;
+  }) => {
     const isExpanded = expandedQuestionIndex === index;
     const isCorrect = item.selectedAnswer === item.correctAnswer;
-  
+
     return (
       <View style={styles.reviewItem}>
         {/* Question */}
@@ -151,7 +168,7 @@ const QuizReviewScreen: React.FC = () => {
             {index + 1}. {item.questionText}
           </Text>
         </TouchableOpacity>
-  
+
         {/* Choices */}
         {isExpanded && (
           <FlatList
@@ -160,7 +177,7 @@ const QuizReviewScreen: React.FC = () => {
             renderItem={({ item: choice }) => {
               const isUserChoice = choice === item.selectedAnswer;
               const isCorrectChoice = choice === item.correctAnswer;
-  
+
               return (
                 <View
                   style={[
@@ -176,11 +193,12 @@ const QuizReviewScreen: React.FC = () => {
                     style={[
                       styles.choiceText,
                       {
-                        color: isUserChoice && !isCorrectChoice
-                          ? "red"
-                          : isCorrectChoice
-                          ? "green"
-                          : "#111",
+                        color:
+                          isUserChoice && !isCorrectChoice
+                            ? "red"
+                            : isCorrectChoice
+                            ? "green"
+                            : "#111",
                       },
                     ]}
                   >
@@ -200,7 +218,7 @@ const QuizReviewScreen: React.FC = () => {
       </View>
     );
   };
-      
+
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
@@ -220,7 +238,12 @@ const QuizReviewScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Header />
-      <View style={styles.header}>
+      <Animatable.View
+        animation="fadeIn"
+        duration={1000}
+        easing={"ease-in-out"}
+        style={styles.header}
+      >
         <Text style={styles.title}>{quizData.title}</Text>
         <Text style={styles.fileName}>{quizData.description}</Text>
         <LottieView
@@ -230,26 +253,31 @@ const QuizReviewScreen: React.FC = () => {
           speed={1}
           style={styles.fire}
         />
-        <Badge
-          value={`Score: ${quizData.score} / 100`}
-          status="success"
-          badgeStyle={styles.badge}
-          textStyle={styles.badgeText}
-        />
-      </View>
+
+        <Animatable.View
+          style={styles.badge}
+          animation="pulse"
+          easing="ease-out"
+          iterationCount="infinite"
+          duration={1000}
+        >
+          <Text style={styles.badgeText}>
+            {`Score: ${quizData.score} / 100`}
+          </Text>
+        </Animatable.View>
+      </Animatable.View>
       <FlatList
         data={quizData.questions}
         renderItem={renderQuestion}
         keyExtractor={(item) => item.questionId.toString()}
         contentContainerStyle={styles.questionsList}
       />
-              <TouchableOpacity
-            style={styles.finishButton}
-            onPress={handleFinishReview}
-        >
-          <Text style={styles.buttonText}>Finish Review</Text>
-        </TouchableOpacity>
-
+      <TouchableOpacity
+        style={styles.finishButton}
+        onPress={handleFinishReview}
+      >
+        <Text style={styles.buttonText}>Finish Review</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -264,9 +292,14 @@ const styles = StyleSheet.create({
   header: {
     alignItems: "center",
     marginBottom: 20,
-    backgroundColor: "#92e1ff",
-    padding: 20,
+    backgroundColor: "#d1e8fc",
+    padding: 10,
     borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 4, height: 7 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   title: {
     fontSize: 20,
@@ -284,10 +317,20 @@ const styles = StyleSheet.create({
     padding: 10,
     height: 50,
     width: 200,
+    borderRadius: 10,
+    alignContent: "center",
+    justifyContent: "center",
+    marginTop: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   badgeText: {
-    color: "#fff",
+    color: "#333",
     fontSize: 16,
+    fontWeight: "bold",
+    alignSelf: "center",
   },
   questionsList: {
     paddingBottom: 20,
@@ -349,21 +392,23 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 16,
     color: "#ff0000",
-  }
-  ,  finishButton: {
+  },
+  finishButton: {
     backgroundColor: "#1CA7EC",
     padding: 12,
-    borderRadius: 5,
+    borderRadius: 15,
     alignItems: "center",
+    alignSelf: "center",
     marginTop: 20,
+    marginBottom: 10,
+    width: 200,
+    height: 50,
   },
   buttonText: {
     color: "white",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 20,
   },
-
-
 });
 
 export default QuizReviewScreen;

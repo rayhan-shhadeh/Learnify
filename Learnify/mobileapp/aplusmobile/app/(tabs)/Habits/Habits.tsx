@@ -14,7 +14,7 @@ import * as Animatable from "react-native-animatable";
 import API from "../../../api/axois";
 import CheckBox from "react-native-check-box";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { StreakProvider, useStreak } from "../../(tabs)/hooks/StreakContext";
+import { StreakProvider, useStreak } from "../hooks/StreakContext";
 import StreakFire from "../streak/StreakFire";
 import CalendarPicker from "react-native-calendar-picker";
 interface Habit {
@@ -25,15 +25,19 @@ interface Habit {
 }
 
 const Habits = () => {
+  const [markedDates, setMarkedDates] = useState<{ [key: string]: any }>({});
+
   const [habits, setHabits] = useState<Habit[]>([]);
   const [userId, setUserId] = useState<string>("");
   const [checkedHabits, setCheckedHabits] = useState<string[]>([]);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [updatedDescription, setUpdatedDescription] = useState("");
   const [updatedName, setUpdatedName] = useState("");
+  const [coloredHabits, setcoloredHabits] = useState([]);
   const [updatedReminderTime, setUpdatedReminderTime] = useState("");
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
-
+  const [year, setHabitYear] = useState("");
+  const [month, setMonth] = useState("");
   const fetchHabits = async () => {
     try {
       const storedUserId = await AsyncStorage.getItem("currentUserId");
@@ -47,7 +51,36 @@ const Habits = () => {
   };
 
   useEffect(() => {
+    const fetchHabitData = async () => {
+      try {
+        const response = await fetch(
+          "http://192.168.68.61:8080/api/trackHabit/monthlyTracker/3?year=2025&month=1"
+        );
+        const data = await response.json();
+
+        // Transform API response into markedDates format
+        const dates: { [key: string]: any } = {};
+        data.forEach((item: { trackDate: string; completeStatus: number }) => {
+          const date = item.trackDate.split("T")[0]; // Get YYYY-MM-DD
+          dates[date] = {
+            startingDay: true,
+            endingDay: true,
+            color: item.completeStatus === 1 ? "#4caf50" : "#e0e0e0",
+            textColor: item.completeStatus === 1 ? "white" : "#757575",
+          };
+        });
+
+        setMarkedDates(dates);
+      } catch (error) {
+        console.error("Error fetching habit data:", error);
+      }
+    };
+
+    fetchHabitData();
+  }, []);
+  useEffect(() => {
     fetchHabits();
+    fetchMonthlyHabits();
   }, []); // Fetch habits once when component mounts
 
   // Delete a habit
@@ -76,6 +109,7 @@ const Habits = () => {
         trackDate: new Date().toISOString(),
         isCompleted: true,
       });
+      setMonth(new Date().getMonth().toString());
       console.log(`Habit ${habitId} completed`);
       Alert.alert("Habit Completed", "Good job! Keep it up!");
     } catch (error) {
@@ -90,6 +124,7 @@ const Habits = () => {
         trackDate: new Date().toISOString(),
         isCompleted: false,
       });
+
       Alert.alert("Habit Uncompleted", "Don't worry, you got this!");
       console.log(`Habit ${habitId} uncompleted`);
     } catch (error) {
@@ -151,28 +186,90 @@ const Habits = () => {
       }
     }
   };
+  const fetchMonthlyHabits = async () => {
+    const habitId = 3; // Replace with the actual user ID
+    const year = 2025;
+    const month = 1;
 
+    try {
+      const response = await API.get(
+        `/api/trackHabit/monthlyTracker/3?year=2025&month=1`
+      );
+
+      if (response.status !== 201) {
+        throw new Error("Failed to fetch habits data");
+      }
+
+      const data = await response.data;
+      const completedDays = data
+        .filter(
+          (habit: { completeStatus: number; trackDate: string }) =>
+            habit.completeStatus === 1
+        )
+        .map((habit: { trackDate: string }) =>
+          new Date(habit.trackDate).getDate()
+        );
+      setcoloredHabits(completedDays);
+
+      console.log(data); // Handle the data as needed
+      Alert.alert("Monthly habits fetched", completedDays.toString());
+      // days output
+      console.log("completed days", completedDays);
+    } catch (error) {
+      console.error("Error fetching habits:", error);
+    }
+  };
+  // const getCustomDateStyles = (date: Date) => {
+  //   if (date.getDay() === 0) {
+  //     // Sunday
+  //     return {
+  //       date,
+  //       style: { backgroundColor: "red", borderRadius: 20 },
+  //       textStyle: { color: "white" },
+  //     };
+  //   }
+  //   return {
+  //     date,
+  //     style: { backgroundColor: "red", color: "green", borderRadius: 20 },
+  //     textStyle: {},
+  //   };
+  // };
+  // const customDatesStyles = (date: Date) => {
+  //   if (date.toISOString() === "2025-01-15") {
+  //     return {
+  //       date,
+  //       style: { backgroundColor: "blue" },
+  //       textStyle: { color: "white" },
+  //     }; // Styling for a specific date
+  //   }
+  //   return {
+  //     date,
+  //     style: {},
+  //     textStyle: {},
+  //   }; // No styles for other dates
+  //};
   return (
     // <StreakProvider>
     <View style={styles.container}>
       <View style={{ marginVertical: 5 }}>
         <CalendarPicker
-          onDateChange={(date) => console.log(date)}
-          textStyle={{ color: "black" }}
+          onDateChange={(date) => console.log("Selected date:", date)}
+          customDatesStyles={(date) => {
+            const dateString = date.toISOString().split("T")[0];
+            return markedDates[dateString]
+              ? markedDates[dateString]
+              : {
+                  date,
+                };
+          }}
+          selectedDayStyle={{ backgroundColor: "green" }}
+          selectedDayTextColor="white"
           todayBackgroundColor="#f2e6ff"
-          selectedDayColor="#7300e6"
-          selectedDayTextColor="#FFFFFF"
-          scaleFactor={375}
-          startFromMonday={true}
-          minDate={new Date()}
-          restrictMonthNavigation
-          previousTitle="Previous"
-          nextTitle="Next"
-          selectedStartDate={new Date()}
-          selectedEndDate={new Date()}
+          todayTextStyle={{ color: "black" }}
         />
       </View>
       <ScrollView>
+        {/* Monthly habits will be fetched in useEffect */}
         {habits.map((habit, index) => (
           <Animatable.View
             key={habit.habitId}
@@ -212,11 +309,17 @@ const Habits = () => {
                 <Text style={{ color: "#4a90e2" }}>🗑️</Text>
               </Animatable.Text>
             </View>
-            <Text style={styles.habitDescription}>
-              {habit.habitDescription}
+            <Text style={styles.habitRowTwo}>
+              <Text style={styles.habitDescription}>
+                {habit.habitDescription}
+              </Text>
             </Text>
             <Text style={styles.reminderTime}>
-              Reminder: {new Date(habit.reminderTime).toLocaleString()}
+              Reminder: {/*  view only the reminder hour not all date */}
+              {new Date(habit.reminderTime)
+                .toLocaleString()
+                .slice(11)
+                .slice(1, 7)}
             </Text>
           </Animatable.View>
         ))}
@@ -290,25 +393,32 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "transparent",
-    paddingLeft: 20,
-    paddingRight: 20,
   },
   habitCard: {
-    backgroundColor: "#fff",
+    backgroundColor: "#e0f3f7",
     padding: 20,
     marginBottom: 15,
-    borderRadius: 10,
+    borderRadius: 20,
     elevation: 3,
+    shadowColor: "#333",
+    shadowOffset: { width: 2, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
   },
   habitRow: {
     flexDirection: "row",
     alignItems: "center",
   },
+  habitRowTwo: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
   habitName: {
     fontSize: 18,
     fontWeight: "bold",
     flex: 1,
-    marginLeft: 10,
+    marginLeft: 5,
     color: "#333",
   },
   strikethrough: {
@@ -324,10 +434,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     marginVertical: 5,
+    justifyContent: "space-between",
+    alignContent: "space-between",
   },
   reminderTime: {
     fontSize: 12,
     color: "#999",
+    justifyContent: "flex-end",
+    textAlign: "right",
+    right: 0,
   },
   modalContainer: {
     flex: 1,
@@ -337,7 +452,7 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: "#fff",
     marginHorizontal: 20,
-    borderRadius: 10,
+    borderRadius: 20,
     padding: 20,
   },
   modalTitle: {

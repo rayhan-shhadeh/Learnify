@@ -19,27 +19,27 @@ const StreakFire: React.FC<StreakFireProps> = ({
   const celebrate = useRef<LottieView>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [currentUserId, setCurrentUserId] = useState<string>("");
-  useEffect(() => {
-    // update the streak on the server
-    const updateStreak = async () => {
-      try {
-        const userId = await AsyncStorage.getItem("currentUserId");
-        setCurrentUserId(userId || "2");
-        const response = await API.post(
-          `/api/users/updateprofile/${currentUserId}`,
-          {
-            streak: streak,
-          }
-        );
-        if (response.status !== 200) {
-          console.error("Failed to update streak");
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    updateStreak();
-  }, [streak]);
+  // useEffect(() => {
+  //   // update the streak on the server
+  //   const updateStreak = async () => {
+  //     try {
+  //       const userId = await AsyncStorage.getItem("currentUserId");
+  //       setCurrentUserId(userId || "2");
+  //       const response = await API.post(
+  //         `/api/users/updateprofile/${currentUserId}`,
+  //         {
+  //           streak: streak,
+  //         }
+  //       );
+  //       if (response.status !== 200) {
+  //         console.error("Failed to update streak");
+  //       }
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
+  //   updateStreak();
+  // }, [streak]);
 
   useEffect(() => {
     if (visible) {

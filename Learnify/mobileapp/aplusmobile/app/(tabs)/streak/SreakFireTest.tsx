@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { View, Button } from "react-native";
 import StreakFire from "./StreakFire";
+import { useStreak } from "../hooks/StreakContext";
 
 const StreakFireTest = () => {
-  const [streak, setStreak] = useState(1);
+  const { streak, incrementStreak } = useStreak();
   const [showStreakFire, setShowStreakFire] = useState(false);
+  const [visible, setVisible] = useState(false);
   const increaseStreak = () => {
-    setStreak(streak + 1);
-    setShowStreakFire(true);
+    incrementStreak();
+    setVisible(true);
   };
   const handleAnimationEnd = () => {
     setShowStreakFire(false);
@@ -17,11 +19,11 @@ const StreakFireTest = () => {
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <StreakFire
         streak={streak}
-        visible={true}
+        visible={visible}
         onFinish={handleAnimationEnd}
       />
       ;
-      <Button title="Increase Streak" onPress={increaseStreak} />
+      <Button title="Increase Streak" onPress={incrementStreak} />
     </View>
   );
 };

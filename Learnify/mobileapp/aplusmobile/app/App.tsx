@@ -5,39 +5,45 @@ import IndexScreen from "./index"; // Your IndexScreen component
 import FilesScreen from "./(tabs)/FilesScreen";
 import PdfScreen from "./(tabs)/Files/PdfScreen";
 import Habits from "./(tabs)/Habits/Habits";
-import { CoursesProvider } from "./(tabs)/hooks/CoursesContext";
 import { StreakProvider } from "./(tabs)/hooks/StreakContext";
+import HabitsScreen from "./(tabs)/Habits/HabitsScreen";
+import StreakFireTest from "./(tabs)/streak/SreakFireTest";
+import TestComponent from "./(tabs)/TestComponent";
+
 const Stack = createStackNavigator();
+
 const App = () => {
   return (
     <StreakProvider>
-      <CoursesProvider>
-        <NavigationContainer>
-          {" "}
-          {/* Keep NavigationContainer here */}
-          <Stack.Navigator initialRouteName="IndexScreen">
-            <Stack.Screen
-              name="IndexScreen"
-              component={IndexScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="FilesScreen"
-              component={FilesScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="HabitsScreen"
-              component={() => (
-                <StreakProvider>
-                  <Habits />
-                </StreakProvider>
-              )}
-              options={{ headerShown: false }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </CoursesProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="IndexScreen">
+          <Stack.Screen
+            name="IndexScreen"
+            component={IndexScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="FilesScreen"
+            component={FilesScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="HabitsScreen"
+            component={HabitsScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="StrakFireTest"
+            component={StreakFireTest}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="TestComponent"
+            component={TestComponent}
+            options={{ headerShown: false }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
     </StreakProvider>
   );
 };

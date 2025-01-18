@@ -53,8 +53,12 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     borderWidth: 2,
     borderColor: "white",
-    marginBottom: 50,
+    marginBottom: 200,
     elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3.84,
   },
   buttonText: {
     color: "white",

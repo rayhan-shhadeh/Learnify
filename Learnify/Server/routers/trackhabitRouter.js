@@ -6,5 +6,5 @@ export const trackHabitRouter = express.Router();
 
 trackHabitRouter.post('/trackHabit/isComplete/:habitId', trackHabitController.markHabitAsComplete);
 trackHabitRouter.get('/trackHabit/weeklyTracker/:habitId', trackHabitController.weeklyTracker);
-trackHabitRouter.get('/trackHabit/monthlyTracker/:habitId', trackHabitController.monthlyTracker);
+trackHabitRouter.get('/trackHabit/monthlyTracker/:habitId/', trackHabitController.monthlyTracker);
 trackHabitRouter.post('/trackHabit/allHabit/:userId', trackHabitController.allHabitsTracker);

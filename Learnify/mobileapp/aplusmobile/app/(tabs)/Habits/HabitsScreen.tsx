@@ -19,6 +19,7 @@ import API from "../../../api/axois";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Habits from "./Habits";
+import LottieView from "lottie-react-native";
 
 export default function HabitsScreen() {
   const [habits, setHabits] = useState<
@@ -210,11 +211,12 @@ export default function HabitsScreen() {
         >
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <Image
+              <LottieView
                 style={styles.logo}
-                source={require("../../../assets/images/punctual.png")}
+                source={require("../../../assets/brain.json")}
+                autoPlay
+                loop
               />
-              <Text style={styles.modalHeader}>New Habit</Text>
               <Text style={styles.habitText}> Habit name:</Text>
               <TextInput
                 style={styles.input}
@@ -234,7 +236,7 @@ export default function HabitsScreen() {
               <DateTimePicker
                 testID="dateTimePicker"
                 value={reminderTime ? new Date(reminderTime) : new Date()}
-                mode="time"
+                mode="datetime"
                 display="default"
                 onChange={(event, selectedDate) => {
                   setReminderTime(selectedDate?.toISOString() || "");
@@ -274,7 +276,6 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: 24,
-    fontWeight: "bold",
     textAlign: "center",
   },
   habitContainer: {
@@ -282,13 +283,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     padding: 15,
-    marginVertical: 8,
+    marginTop: 10,
+    marginBottom: 10,
     backgroundColor: "transparent",
     borderRadius: 10,
     elevation: 2,
   },
   habitText: {
     fontSize: 18,
+    fontWeight: "bold",
   },
   completedHabit: {
     textDecorationLine: "line-through",
@@ -304,7 +307,7 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 1,
     borderColor: "#ccc",
-    color: "black",
+    color: "#333",
     height: 60,
     padding: 20,
     borderRadius: 8,
@@ -385,10 +388,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   logo: {
-    width: 40,
-    height: 40,
+    width: 200,
+    height: 200,
     alignSelf: "center",
-    marginBottom: 20,
+    marginBottom: 10,
+    top: -20,
   },
   datetime: {
     width: "100%",

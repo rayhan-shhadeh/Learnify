@@ -23,12 +23,12 @@ import { Platform } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
-import { useCourses } from "./hooks/CoursesContext";
 import API from "../../api/axois";
 import * as DocumentPicker from "expo-document-picker";
 import { Picker } from "@react-native-picker/picker";
 import { useLocalSearchParams } from "expo-router";
 import axios from "axios";
+import Header from "./header/Header";
 
 const FilesScreen = () => {
   const router = useRouter();
@@ -38,7 +38,6 @@ const FilesScreen = () => {
   const [fileDeadline, setFileDeadline] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-  const { mycourses } = useCourses();
   const [files, setFiles] = useState<any[]>([]);
   const [courses, setmyCourses] = useState<any[]>([]);
   const [courseId, setCourseId] = useState(46);
@@ -176,11 +175,11 @@ const FilesScreen = () => {
     }
   };
   const handleFileView = (fileId: string) => {
-    const activeTab:string ="PDF"//"PDF" | "Flashcards" | "KeyTerms"
+    const activeTab: string = "PDF"; //"PDF" | "Flashcards" | "KeyTerms"
     const passedFileId = fileId;
     router.push({
       pathname: `/Files/PdfScreen`,
-      params: { passedFileId ,activeTab},
+      params: { passedFileId, activeTab },
     });
   };
 
@@ -547,7 +546,9 @@ const FilesScreen = () => {
             {/* Course Dropdown */}
             <Picker
               selectedValue={courseId}
-              onValueChange={(itemValue, itemIndex) => setCourseId(itemValue)}
+              onValueChange={(itemValue, itemIndex) => {
+                setCourseId(itemValue);
+              }}
               style={styles.picker}
             >
               {coursesArray.map((course) => (
@@ -558,8 +559,8 @@ const FilesScreen = () => {
                 />
               ))}
             </Picker>
-            <Button
-              title="Upload File"
+            <TouchableOpacity
+              style={styles.addFileButton}
               onPress={() =>
                 handleUploadFile(
                   courseId.toLocaleString(),
@@ -568,7 +569,9 @@ const FilesScreen = () => {
                   setNewFile
                 )
               }
-            />
+            >
+              <Text style={styles.addButtonText}>Upload File</Text>
+            </TouchableOpacity>
             {/* Save Button (Conditional) */}
             <Button
               title="Save"
@@ -640,107 +643,99 @@ const FilesScreen = () => {
 
   return (
     <>
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#f5f5f5" }}>
-        <LinearGradient colors={["#f7f7f7", "#fbfbfb", "#9ad9ea"]}>
-          <TouchableOpacity style={styles.notificationButton}>
-            <MaterialCommunityIcons
-              name="bell-outline"
-              size={24}
-              color="#111517"
-            />
-          </TouchableOpacity>
-          <View style={styles.container}>
-            <View style={styles.headercontainer}>
-              <Back title={""} onBackPress={() => {}} />
-              <Icon name="folder" size={27} color="#778899" />
-              <Text style={styles.header}> My files</Text>
-            </View>
-            <TextInput
-              style={styles.input}
-              value={searchQuery}
-              onChangeText={(value) => {
-                setSearchQuery(value);
-                handleInputChange(value);
-              }}
-              placeholder="Search for files"
-              returnKeyType="search"
-              onSubmitEditing={() => {
-                handleSearch();
-              }}
-            />
-            <View style={styles.container}>
-              <View style={styles.sortContainer}>
-                {/* Dropdown Trigger */}
-                <TouchableOpacity
-                  style={styles.dropdownList}
-                  onPress={() => setShowDropdown(!showDropdown)}
-                >
-                  <Text style={styles.dropdownTriggerText}>
-                    {sortCriteria
-                      ? sortOptions.find(
-                          (option) => option.value === sortCriteria
-                        )?.label
-                      : "Sort By"}
-                  </Text>
-                </TouchableOpacity>
-
-                {showDropdown && (
-                  <View style={styles.dropdownList}>
-                    {sortOptions.map((option) => (
-                      <TouchableOpacity
-                        key={option.value}
-                        style={styles.dropdownItem}
-                        onPress={() => {
-                          setSortCriteria(option.value);
-                          setShowDropdown(false); // Close dropdown after selection
-                        }}
-                      >
-                        <Text style={styles.dropdownItemText}>
-                          {option.label}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
-
-                {/* Sort Button */}
-                <Button
-                  title="Sort"
-                  onPress={() => handleSort(sortCriteria)}
-                  disabled={!sortCriteria} // Disable button if no criteria is selected
-                />
-              </View>
-            </View>
-            <TouchableOpacity
-              style={styles.addButton}
-              onPress={() => setModalVisible(true)}
-            >
-              <Text style={styles.addButtonText}>Add File</Text>
-            </TouchableOpacity>
-            {renderAddFileModal()}
-
-            <Animatable.View animation="fadeInUp" delay={200} duration={800}>
-              <View>
-                <FlatList
-                  style={styles.fileList}
-                  data={files} // Adjust this based on the course structure
-                  renderItem={({ item }) => (
-                    <FileCard
-                      fileId={item.fileId}
-                      title={item.fileName}
-                      uri={item.fileURL}
-                      fileDeadline={item.fileDeadline}
-                    />
-                  )}
-                  keyExtractor={(item, index) => index.toString()}
-                  contentContainerStyle={styles.fileList}
-                />
-              </View>
-            </Animatable.View>
+      <View style={styles.header}>
+        <Header />
+      </View>
+      <LinearGradient colors={["#f7f7f7", "#fbfbfb", "#9ad9ea"]}>
+        <View style={styles.container}>
+          <View style={styles.headercontainer}>
+            <Icon name="folder" size={27} color="#778899" />
+            <Text style={styles.header}> My files</Text>
           </View>
-        </LinearGradient>
-        <NavBar />
-      </SafeAreaView>
+          <TextInput
+            style={styles.input}
+            value={searchQuery}
+            onChangeText={(value) => {
+              setSearchQuery(value);
+              handleInputChange(value);
+            }}
+            placeholder="Search for files"
+            returnKeyType="search"
+            onSubmitEditing={() => {
+              handleSearch();
+            }}
+          />
+          <View style={styles.container}>
+            <View style={styles.sortContainer}>
+              {/* Dropdown Trigger */}
+              <TouchableOpacity
+                style={styles.dropdownListText}
+                onPress={() => setShowDropdown(!showDropdown)}
+              >
+                <Text style={styles.dropdownTriggerText}>
+                  {sortCriteria
+                    ? sortOptions.find(
+                        (option) => option.value === sortCriteria
+                      )?.label
+                    : "Sort By"}
+                </Text>
+              </TouchableOpacity>
+
+              {showDropdown && (
+                <View style={styles.dropdownList}>
+                  {sortOptions.map((option) => (
+                    <TouchableOpacity
+                      key={option.value}
+                      style={styles.dropdownItem}
+                      onPress={() => {
+                        setSortCriteria(option.value);
+                        setShowDropdown(false); // Close dropdown after selection
+                      }}
+                    >
+                      <Text style={styles.dropdownItemText}>
+                        {option.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+
+              {/* Sort Button */}
+              <Button
+                title="Sort"
+                onPress={() => handleSort(sortCriteria)}
+                disabled={!sortCriteria} // Disable button if no criteria is selected
+              />
+            </View>
+          </View>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => setModalVisible(true)}
+          >
+            <Text style={styles.addButtonText}>Add File</Text>
+          </TouchableOpacity>
+          {renderAddFileModal()}
+          <Animatable.View animation="fadeInUp" delay={200} duration={800}>
+            <View>
+              <FlatList
+                style={styles.fileList}
+                data={files} // Adjust this based on the course structure
+                renderItem={({ item }) => (
+                  <FileCard
+                    fileId={item.fileId}
+                    title={item.fileName}
+                    uri={item.fileURL}
+                    fileDeadline={item.fileDeadline}
+                  />
+                )}
+                keyExtractor={(item, index) => index.toString()}
+                contentContainerStyle={styles.fileList}
+              />
+            </View>
+          </Animatable.View>
+        </View>
+      </LinearGradient>
+      <NavBar />
       {isEditModalVisible && renderEditFileModal()}
       {fileChoicesVisible && renderChoicesModal()}
     </>
@@ -750,12 +745,14 @@ const FilesScreen = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#f5f5f5",
-    padding: 20,
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingBottom: 10,
   },
   header: {
     fontSize: 24,
     fontWeight: "bold",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     paddingLeft: 10,
   },
   fileList: {
@@ -798,6 +795,16 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingEnd: 10,
   },
+  addFileButton: {
+    backgroundColor: "#778899",
+    padding: 15,
+    borderRadius: 18,
+    alignItems: "center",
+    marginBottom: 10,
+    paddingEnd: 10,
+    marginTop: 100,
+  },
+
   addButtonText: {
     color: "#fff",
     fontSize: 18,
@@ -826,7 +833,12 @@ const styles = StyleSheet.create({
     borderWidth: 0.2,
     borderColor: "#ddd",
     borderRadius: 5,
+    backgroundColor: "#f6f6f6",
     color: "#000",
+    padding: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
   },
   headercontainer: {
     flexDirection: "row",
@@ -856,19 +868,22 @@ const styles = StyleSheet.create({
   dateText: {
     color: "#647987",
     fontSize: 14,
+    marginVertical: 10,
+    marginTop: 10,
   },
   picker: {
-    width: 200,
+    width: "100%",
     height: 50,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
-    marginBottom: 5,
+    overflow: "hidden",
   },
   selectedText: {
     fontSize: 16,
     marginTop: 20,
     color: "#333",
+    marginBottom: 10,
   },
   modalInput: {
     width: "100%",
@@ -884,23 +899,29 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   sortContainer: {
-    flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     margin: 10,
     paddingHorizontal: 20,
+    overflow: "hidden",
+    zIndex: 1,
+    position: "relative",
   },
   dropdownTrigger: {
     width: "100%",
     height: 50,
     borderColor: "gray",
-    borderWidth: 1,
-    borderRadius: 5,
+    borderWidth: 0.3,
+    borderRadius: 20,
     justifyContent: "center",
     paddingHorizontal: 10,
     marginBottom: 10,
   },
   dropdownTriggerText: {
+    fontSize: 16,
+    color: "black",
+  },
+  dropdownListText: {
     fontSize: 16,
     color: "black",
   },
@@ -911,6 +932,7 @@ const styles = StyleSheet.create({
     borderColor: "gray",
     borderRadius: 5,
     marginBottom: 10,
+    padding: 5,
   },
   dropdownItem: {
     padding: 10,

@@ -121,12 +121,32 @@ export default function Chatting() {
     setSearchTerm("");
     setFilteredUsers([]);
   };
+  const getUserIdBasedOnUsername = async (username: string) => {
+    try {
+      const response = await API.get(`/api/users/getid/${username}`);
+      if (response.status !== 200) {
+        Alert.alert("Error", "Failed to get user id");
+        return;
+      }
+      Alert.alert("Success", "Fetched user id successfully");
+      return response.data.data.userId;
+    } catch (error) {
+      Alert.alert("Error", "An error occurred while fetching user id");
+    }
+  };
 
   const handleAddFriend = async (friendId: string) => {
     try {
       // the current user is the one adding the friend
       const selectedUser = users.find((user) => user.username === friendId);
       Alert.alert("friendId", friendId.toString());
+      if (!selectedUser) {
+        Alert.alert("Error", "User not found");
+        return;
+      }
+
+      const addedUserId = getUserIdBasedOnUsername(friendId);
+
       const response = await API.post(`/api/group/${passGroupId}/add-user`, {
         userIds: [4],
       });

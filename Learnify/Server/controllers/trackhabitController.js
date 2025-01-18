@@ -82,8 +82,8 @@ export const trackHabitController={
         try {
             //get year,month from request body
             const habitId = parseInt(req.params.habitId);
-            const year = parseInt(req.body.year);
-            const month = parseInt(req.body.month);
+            const year = parseInt(req.query.year);
+            const month = parseInt(req.query.month);
             let jsonArray = [];
             //get first and last day in month
             const startDate = new Date(Date.UTC(year, month - 1, 1));

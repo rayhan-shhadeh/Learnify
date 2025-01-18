@@ -207,10 +207,10 @@ model topiclevel {
 
 model trackhabit {
   habitid     Int
-  trackDate   DateTime @db.Date
-  trackId     Int      @id @default(autoincrement())
-  isCompleted Boolean? @default(false)
-  habit       habit    @relation(fields: [habitid], references: [habitId], onDelete: Cascade, map: "trackhabit_habit")
+  trackDate   DateTime? @db.Date
+  trackId     Int       @id @default(autoincrement())
+  isCompleted Boolean?  @default(false)
+  habit       habit     @relation(fields: [habitid], references: [habitId], onDelete: Cascade, map: "trackhabit_habit")
 
   @@unique([habitid, trackDate], map: "unique_habit_per_day")
 }

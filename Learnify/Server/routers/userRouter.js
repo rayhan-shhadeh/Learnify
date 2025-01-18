@@ -20,7 +20,7 @@ userRouter.delete('/users/deleteme', userController.deleteMe);//return an email 
 userRouter.patch('/users/updateprofile/:id', userController.updateUserData);//return an email to return password
 userRouter.get('/users/getme/:id',userController.getUserData);
 userRouter.patch('/users/updateprofile', userController.updateUserData);
-
+userRouter.patch('/users/username/:username',userController.getUserIdByUsername);
 
 // Google Login Route
 userRouter.get('/auth/google', passport.authenticate('google', {

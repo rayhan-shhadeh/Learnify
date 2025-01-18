@@ -48,17 +48,11 @@ const SignIn = () => {
       return;
     }
     try {
-      const response = await fetch(`http://192.168.68.59:8080/api/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
+      const response = await API.post(`http://192.168.68.61:8080/api/login`, {
+        email: email,
+        password: password,
       });
-      const data = await response.json();
+      const data = await response.data;
 
       if (response.status === 200) {
         const token = JSON.stringify(data.token);
@@ -112,7 +106,7 @@ const SignIn = () => {
         />
       </View>
 
-      <TouchableOpacity onPress={() => router.push("/TestAPI")}>
+      <TouchableOpacity onPress={() => router.push("/(tabs)/TestComponent")}>
         <Text style={styles.forgotPassword}>Forgot password?</Text>
       </TouchableOpacity>
 

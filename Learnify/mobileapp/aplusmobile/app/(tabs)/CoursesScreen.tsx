@@ -25,7 +25,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
 import API from "../../api/axois";
 import { useLocalSearchParams } from "expo-router";
-import { useCourses } from "./hooks/CoursesContext";
 const randomGradient = (): [string, string, ...string[]] => {
   const colors: [string, string, ...string[]][] = [
     ["#4c669f", "#3b5998", "#192f6a"],
@@ -41,8 +40,8 @@ const randomGradient = (): [string, string, ...string[]] => {
 };
 
 const CoursesScreen = () => {
-  const { mycourses, setmyCourses, selectedCourseId, setSelectedCourseId } =
-    useCourses();
+  const [mycourses, setmyCourses] = useState<any[]>([]);
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const router = useRouter();
   const [dateofbirth, setDateOfBirth] = useState<Date | undefined>(undefined);
   const [modalVisible, setModalVisible] = useState(false);

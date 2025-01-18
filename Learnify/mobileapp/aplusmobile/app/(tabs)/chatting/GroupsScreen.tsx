@@ -464,7 +464,7 @@ export default function GroupsScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Icon name="message" size={28} color="#6B6B6B" />
-          <Text style={styles.headerTitle}>Message</Text>
+          <Text style={styles.headerTitle}>Groups</Text>
           <TouchableOpacity onPress={() => setGroupModalVisible(true)}>
             <Icon
               name="add"
