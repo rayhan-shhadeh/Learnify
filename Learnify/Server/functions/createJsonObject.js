@@ -193,3 +193,40 @@ export function createJSONStatistics(falshcardsCount,keytermsCount,quizzesCount,
     };
     return jsonObject;
 }
+
+export function createJSONCard(cardNumber,cardholderName,cvv,expirationMonth,expirationYear,cardType,userId){
+    const jsonObject = {
+        "cardNumber":cardNumber,
+        "cardHolderName":cardholderName,
+        "cvc":cvv,
+        "expirationMonth":expirationMonth,
+        "expirationYear":expirationYear,
+        "cardType":cardType,
+        "user_": {
+            "connect": {
+             "userId": userId
+            }
+        },
+    };
+    return jsonObject;
+}
+
+export function createJSONTransaction(transactionId,userId,cardId,amount,createdAt,endsAt){
+    const jsonObject = {
+        "transactionId":transactionId,
+        "user_": {
+            "connect": {
+             "userId": userId
+            }
+        },
+        "card": {
+            "connect": {
+              "cardId": cardId
+            }
+        },
+        "amount":amount,
+        "createdAt":createdAt,
+        "endsAt":endsAt
+    };
+    return jsonObject;
+}
