@@ -15,9 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {jwtDecode} from 'jwt-decode';
 import API from '../../api/axois';
 import * as DocumentPicker from 'expo-document-picker';
-import { Picker } from '@react-native-picker/picker';
 import { useLocalSearchParams } from 'expo-router';
-import axios from 'axios';
 
 const CourseFilesScreen = () => {
   const router = useRouter();
@@ -29,8 +27,7 @@ const CourseFilesScreen = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [files, setFiles] = useState<any[]>([]);
   const [courses, setmyCourses] = useState<any[]>([]);
-  const [courseId,setCourseId] = useState(46);
-  const [newFile, setNewFile] = useState();
+  const [newFile, setNewFile] = useState<FileObject>();
   const [initialDeadline,setInitialDeadline] = useState(new Date(new Date().setDate(new Date().getDate() + 14)));
   const [uploadStatus,setUploadStatus]=useState(false);
   const [coursesArray,setCoursesArray]=useState([{id:1,name:'tala'}]);
@@ -120,7 +117,7 @@ const CourseFilesScreen = () => {
       }
     };
     initialize();
-  }, [courseId]);
+  }, [passedCourseId]);
     
   const handlefileDelete = async (fileId: string) => {
   try {
@@ -155,15 +152,14 @@ interface FileObject {
 }
 
 const handleUploadFile = async (
-  courseId: string,
   fileDeadline: string,
   setFiles: React.Dispatch<React.SetStateAction<FileObject[]>>,
-  setNewFile: React.Dispatch<React.SetStateAction<FileObject | null>>,
+  setNewFile: React.Dispatch<React.SetStateAction<FileObject |undefined>>,
 ): Promise<void> => {
   try {
     // Step 1: Pick a file
     const pickedFile = await DocumentPicker.getDocumentAsync({
-      type: 'application/pdf', // Restrict to PDF files
+      type: 'application/pdf', 
     });
     console.log(pickedFile);
     // Check if the user canceled file selection
@@ -222,7 +218,7 @@ const handleUploadFile = async (
     // Update state with the new file
     setFiles((prevFiles) => [...prevFiles, newFile]);
     setNewFile(newFile);
-    setSelectedFileId(newFile.id);
+    setSelectedFileId(newFile.id.toString());
     setFileDeadline(fileDeadline);
     console.log(selectedFileId);
     if(!fileName){
@@ -451,18 +447,7 @@ const handleSort = (criteria:string) => {
               )}
             </Animatable.View>
           {/* Course Dropdown */}
-          <Picker
-            selectedValue={courseId}
-            onValueChange={(itemValue, itemIndex) => setCourseId(itemValue)}
-            style={styles.picker}
-          >
-            {
-            coursesArray.map((course) => (
-              <Picker.Item key={course.id} label={course.name} value={course.id} />
-            ))
-            }
-          </Picker>
-            <Button title="Upload File" onPress={() => handleUploadFile(courseId,new Date(displayDate).toISOString(),setFiles, setNewFile )} />
+            <Button title="Upload File" onPress={() => handleUploadFile(new Date(displayDate).toISOString(),setFiles, setNewFile )} />
           {/* Save Button (Conditional) */}
           <Button
             title="Save"
