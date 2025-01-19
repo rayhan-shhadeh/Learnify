@@ -8,20 +8,36 @@ import {
   TouchableOpacity,
   Alert,
   Button,
+  Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
-import Back from "./Back";
-import NavBar from "./NavBar";
+import Back from "../Back";
+import NavBar from "../NavBar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import API from "../../api/axois";
+import API from "../../../api/axois";
 import { jwtDecode } from "jwt-decode";
 //import Lottie from "lottie-react";
-import fireAnimation from "../../assets/fire.json";
-import welcome from "../../assets/welcome.json";
-import StreakFire from "../(tabs)/streak/StreakFire";
+import fireAnimation from "../../../assets/fire.json";
+import welcome from "../../../assets/welcome.json";
+import StreakFire from "../streak/StreakFire";
 import { router, useRouter } from "expo-router";
-import Header from "./header/Header";
+import Header from "../header/Header";
 import LottieView from "lottie-react-native";
+import { BarChart, PieChart, LineChart } from "react-native-chart-kit";
+import Animated from "react-native-reanimated";
+const screenWidth = Dimensions.get("window").width;
+
+const chartConfig = {
+  backgroundGradientFrom: "#1CA7EC",
+  backgroundGradientTo: "#005f99",
+  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+  labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+  strokeWidth: 2,
+  barPercentage: 0.5,
+  useShadowColorFromDataset: false,
+  borderRadius: 16,
+};
 
 export default function Profile() {
   const router = useRouter();
@@ -33,14 +49,43 @@ export default function Profile() {
   const [profileImage, setProfileImage] = React.useState<string | null>(null);
   const [streak, setStreak] = useState(1);
   const [showStreakFire, setShowStreakFire] = useState(false);
-  const [successRate,setSuccessRate]= useState<number>(0);
-  const [flashcardsCount,setFlashcardsCount]= useState<number>(0);
-  const [keytermsCount,setKeytermsCount]= useState<number>(0);
-  const [quizzesCount,setQuizzesCount]= useState<number>(0);
-  const [exploreTopicsCount,setExploreTopicsCount]= useState<number>(0);
-  const [habitsDoneTodayCount ,setHabitsDoneTodayCount]= useState<number>(0);
-  const [habitsCount ,setHabitsCount]= useState<number>(0);
+  const [successRate, setSuccessRate] = useState<number>(0);
+  const [falshcardsCount, setFlashcardsCount] = useState<number>(0);
+  const [keytermsCount, setKeytermsCount] = useState<number>(0);
+  const [quizzesCount, setQuizzesCount] = useState<number>(0);
+  const [exploreTopicsCount, setExploreTopicsCount] = useState<number>(0);
+  const [habitsDoneTodayCount, setHabitsDoneTodayCount] = useState<number>(0);
+  const [habitsCount, setHabitsCount] = useState<number>(0);
+  const [data, setData] = useState<{
+    flashcardsCount: number;
+    keytermsCount: number;
+    quizzesCount: number;
+    exploreTopicsCount: number;
+    habitsDoneTodayCount: number;
+    habitsCount: number;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const fetchStatistics = async () => {
+      try {
+        const response = await API.get("/api/profile/statistics/1");
+        setData(response.data.userStatistics);
+        setFlashcardsCount(response.data.flashcardsCount);
+        setKeytermsCount(response.data.keytermsCount);
+        setQuizzesCount(response.data.quizzesCount);
+        setExploreTopicsCount(response.data.exploreTopicsCount);
+        setHabitsDoneTodayCount(response.data.habitsDoneTodayCount);
+        setHabitsCount(response.data.habitsCount);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStatistics();
+  }, []);
   const increaseStreak = () => {
     setStreak(streak + 1);
     setShowStreakFire(true);
@@ -69,7 +114,9 @@ export default function Profile() {
         setUserData(data);
         setProfileImage(data.photo);
         // Alert.alert(data.photo || "no image");
-        const userQuizzes = await API.get<{ quizzes: { score: number }[] }>(`api/quiz/history/${decoded?.id}`);
+        const userQuizzes = await API.get<{ quizzes: { score: number }[] }>(
+          `api/quiz/history/${decoded?.id}`
+        );
         const quizzes = userQuizzes.data.quizzes;
         const quizzesLength = quizzes.length;
         let totalScore = 0;
@@ -85,31 +132,97 @@ export default function Profile() {
           setSuccessRate(0);
         }
         const res = await API.get<{
-            userStatistics: {
-                flashcardsCount: number;
-                keytermsCount: number;
-                quizzesCount: number;
-                exploreTopicsCount: number;
-                habitsDoneTodayCount: number;
-                habitsCount : number
-
+          userStatistics: {
+            falshcardsCount: number;
+            keytermsCount: number;
+            quizzesCount: number;
+            exploreTopicsCount: number;
+            habitsDoneTodayCount: number;
+            habitsCount: number;
           };
         }>(`api/profile/statistics/${decoded?.id}`);
-        const userStatistics= res.data.userStatistics;
+        const userStatistics = res.data.userStatistics;
 
-        setFlashcardsCount(userStatistics.flashcardsCount);
+        setFlashcardsCount(userStatistics.falshcardsCount);
         setKeytermsCount(userStatistics.keytermsCount);
         setQuizzesCount(userStatistics.quizzesCount);
         setExploreTopicsCount(userStatistics.exploreTopicsCount);
         setHabitsDoneTodayCount(userStatistics.habitsDoneTodayCount);
         setHabitsCount(userStatistics.habitsCount);
-        console.log(flashcardsCount+","+keytermsCount+","+quizzesCount+","+exploreTopicsCount+","+habitsDoneTodayCount+","+habitsCount);
-      } catch (error) { 
+        console.log(
+          falshcardsCount +
+            "," +
+            keytermsCount +
+            "," +
+            quizzesCount +
+            "," +
+            exploreTopicsCount +
+            "," +
+            habitsDoneTodayCount +
+            "," +
+            habitsCount
+        );
+      } catch (error) {
         Alert.alert("Error", "An error occurred while fetching user data");
       }
     };
     fetchUserData();
   }, []);
+  // Pie chart data
+  const pieData = data
+    ? [
+        {
+          name: "Flashcards",
+          value: data.falshcardsCount || 0,
+          color: "#4caf50",
+          legendFontColor: "#333",
+          legendFontSize: 15,
+        },
+        {
+          name: "Keyterms",
+          value: data.keytermsCount,
+          color: "#ff9800",
+          legendFontColor: "#333",
+          legendFontSize: 15,
+        },
+        {
+          name: "Quizzes",
+          value: data.quizzesCount,
+          color: "#f44336",
+          legendFontColor: "#333",
+          legendFontSize: 15,
+        },
+        {
+          name: "Explore Topics",
+          value: data.exploreTopicsCount,
+          color: "#2196f3",
+          legendFontColor: "#333",
+          legendFontSize: 15,
+        },
+      ]
+    : [];
+
+  // Line chart data
+  const lineChartData = {
+    labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6"],
+    datasets: [
+      {
+        data: [2, 4, 6, 3, 5, data ? data.habitsDoneTodayCount : 0],
+        color: (opacity = 1) => `rgba(33, 150, 243, ${opacity})`, // Blue color
+        strokeWidth: 2,
+      },
+    ],
+  };
+
+  // Bar chart data
+  const barChartData = {
+    labels: ["Habits Done", "Total Habits"],
+    datasets: [
+      {
+        data: data ? [data.habitsDoneTodayCount, data.habitsCount] : [0, 0],
+      },
+    ],
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -152,7 +265,7 @@ export default function Profile() {
             )}
           </TouchableOpacity>  */}
           <LottieView
-            source={require("../../assets/welcome.json")}
+            source={require("../../../assets/welcome.json")}
             autoPlay
             loop={false}
             speed={1}
@@ -181,7 +294,9 @@ export default function Profile() {
           <View style={styles.streakDetails}>
             <View style={styles.streakDetail}>
               <Text style={styles.subTextDetail}>Habits Today</Text>
-              <Text style={styles.detailText}>{habitsDoneTodayCount}/{habitsCount}</Text>
+              <Text style={styles.detailText}>
+                {habitsDoneTodayCount}/{habitsCount}
+              </Text>
             </View>
             <View style={styles.streakDetail}>
               <Text style={styles.subTextDetail}>Success Rate</Text>
@@ -200,7 +315,7 @@ export default function Profile() {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionButtonOutline}
-            onPress={() => router.push("/(tabs)/quiz/QuizMainScreen")}
+            onPress={() => router.push("/(tabs)/profile/UserProfile")}
           >
             <Icon name="question-circle" size={16} color="#125488" />
             <Text style={styles.actionTextOutline}>Start Quiz</Text>
@@ -236,6 +351,42 @@ export default function Profile() {
             <View style={styles.courseCard}></View>
           </ScrollView>
         </View>
+        {/* Pie Chart */}
+        <Text style={styles.chartTitle}>Task Distribution</Text>
+        <PieChart
+          data={pieData}
+          width={screenWidth - 40}
+          height={220}
+          chartConfig={chartConfig}
+          accessor="value"
+          backgroundColor="transparent"
+          paddingLeft="15"
+          absolute
+        />
+
+        {/* Bar Chart */}
+        <Text style={styles.chartTitle}>Habit Completion</Text>
+        <BarChart
+          data={barChartData}
+          width={screenWidth - 40}
+          height={220}
+          chartConfig={chartConfig}
+          verticalLabelRotation={30}
+          style={styles.chart}
+          yAxisLabel=""
+          yAxisSuffix=""
+        />
+
+        {/* Line Chart */}
+        <Text style={styles.chartTitle}>Habits Done Over Time</Text>
+        <LineChart
+          data={lineChartData}
+          width={screenWidth - 40}
+          height={220}
+          chartConfig={chartConfig}
+          bezier
+          style={styles.chart}
+        />
       </View>
       <NavBar />
     </ScrollView>
@@ -498,5 +649,27 @@ const styles = StyleSheet.create({
   navTextInactive: {
     fontSize: 12,
     color: "#888",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  chartTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginVertical: 10,
+    color: "#005f99",
+  },
+  chart: {
+    marginVertical: 10,
+    marginLeft: 10,
+    marginRight: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 7 },
+    shadowOpacity: 0.6,
+    shadowRadius: 4,
+    elevation: 2,
+    borderRadius: 8,
   },
 });

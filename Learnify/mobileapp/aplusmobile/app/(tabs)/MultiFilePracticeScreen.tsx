@@ -367,11 +367,11 @@ const MultiFilePracticeScreen: React.FC = () => {
                     styles.cardContent,
                     {
                       transform: [{ rotateY: backInterpolate }],
-                      direction: "rtl",
+                      direction: "ltr",
                     },
                   ]}
                 >
-                  <Text style={[styles.cardText]}>
+                  <Text style={[styles.cardText, { textAlign: "left" }]}>
                     {flashcards[currentIndex].answer}
                   </Text>
                 </Animated.View>
@@ -470,21 +470,21 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     shadowOpacity: 0.8,
     textAlign: "left",
-    direction: "rtl",
-    padding: 5,
+    direction: "ltr",
+    padding: 10,
   },
   cardContent: {
     justifyContent: "center",
     alignItems: "center",
     height: "100%",
     width: "100%",
-    direction: "rtl",
+    direction: "ltr",
     textAlign: "left",
   },
   cardText: {
     fontSize: 18,
     textAlign: "left",
-    direction: "rtl",
+    direction: "ltr",
   },
   nextButton: {
     alignSelf: "center",
@@ -560,16 +560,20 @@ const styles = StyleSheet.create({
   },
   practiceButton: {
     padding: 15,
-    backgroundColor: "#007bff",
+    backgroundColor: "#f6f6f6",
     borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   practiceButtonText: {
-    color: "#fff",
+    color: "#333",
     fontWeight: "bold",
     fontSize: 16,
     textAlign: "center",
     textRendering: "optimizeLegibility",
-    backgroundColor: "#007bff",
   },
   modalContainer: {
     flex: 1,
