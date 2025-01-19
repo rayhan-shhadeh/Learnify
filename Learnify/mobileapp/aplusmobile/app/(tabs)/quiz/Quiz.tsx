@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  FlatList,
   TextInput,
   Alert,
   ActivityIndicator,
@@ -74,79 +73,6 @@ const Quiz = () => {
       console.error("Error fetching quiz ID:", err);
     }
   };
-/*
-const generateQuiz = async () => {
-  const token = await AsyncStorage.getItem("token");
-  if (!token) {
-    Alert.alert("Error", "Token not found");
-    router.push("/(tabs)/auth/signin");
-    return;
-  }
-
-  const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
-  console.log(decoded?.id);
-
-  try {
-    // Fetch user data to check premium status
-    const userData = await API.get(`/api/users/getme/${decoded?.id}`);
-    const userFlag = userData.data.data.flag;
-    const isPremiumUser = userFlag === 1;
-    setIsPremium(isPremiumUser);
-
-    // Check if user has reached their limit
-    if (!isPremiumUser) {
-      const reachLimitResponse = await API.get(
-        `http://localhost:8080/api/payment/reachLimit/${decoded?.id}`
-      );
-      const hasReachedLimit = reachLimitResponse.data;
-
-      if (hasReachedLimit) {
-        Alert.alert(
-          "Limit Reached",
-          "You have reached your limit of quiz generations. Upgrade to premium to generate more quizzes."
-        );
-        return;
-      }
-    }
-
-    // Generate the quiz
-    await getId();
-    const response = await API.post(
-      `/api/file/generateQuiz/${passedFileId}`,
-      {
-        numQuestions,
-        difficulty,
-      }
-    );
-
-    // Process API response
-    if (
-      response.data &&
-      response.data.title &&
-      Array.isArray(response.data.questions)
-    ) {
-      const Quiz: Quiz = {
-        title: response.data.title,
-        description: response.data.description || "No description provided",
-        questions: response.data.questions.map((q: any) => ({
-          question: q.questionText || "No question text",
-          questionId: q.questionId,
-          choices: q.choices.map((choice: string, index: number) => ({
-            text: choice,
-            isCorrect: String.fromCharCode(65 + index) === q.correctAnswer,
-          })),
-        })),
-      };
-      setQuiz(Quiz);
-    } else {
-      throw new Error("Invalid API response structure");
-    }
-  } catch (err) {
-    setError(true);
-    console.error("Error generating quiz:", err);
-  }
-};
-);*/
   const generateQuiz = async () => {
     const token = await AsyncStorage.getItem("token");
     if (!token) {
@@ -161,7 +87,6 @@ const generateQuiz = async () => {
     const userFlag = userData.data.data.flag;
     const isPremiumUser = userFlag === 1;
     setIsPremium(isPremiumUser);
-    // Check if user has reached their limit
     if (!isPremiumUser) {
       const reachLimitResponse = await API.get(
         `http://${LOCALHOST}:8080/api/payment/reachLimit/${decoded?.id}`
@@ -272,29 +197,6 @@ const generateQuiz = async () => {
       }
     }
   };
-/*
-  const handleFinishReview = async () => {
-    try {
-      if (passedIsFromAllFilesPage === "all") {
-        router.push("/(tabs)/FilesScreen");
-      } else if (passedIsFromAllFilesPage === "course") {
-        const data = await API.get(`/api/course/${passedCourseId}`);
-        const title = data.data.courseName;
-        router.push({
-          pathname: "/(tabs)/CourseFilesScreen",
-          params: { title, passedCourseId },
-        });
-      } else if (passedIsFromAllFilesPage === "home") {
-        router.push("/(tabs)/HomeScreen");
-      } else {
-        console.error("Invalid navigation parameter");
-      }
-    } catch (err) {
-      console.error("Error during navigation:", err);
-      Alert.alert("Navigation Error", "Unable to navigate back.");
-    }
-  };
-*/
   if (error) {
     return (
       <View style={styles.errorContainer}>
@@ -367,83 +269,7 @@ const generateQuiz = async () => {
     );
   }
   const currentQuestion = quiz.questions[currentQuestionIndex];
-    /*
-    if (review) {
-    return (
-      <View style={styles.reviewContainer}>
-        <Text style={styles.scoreText}>
-          Your Score: {score}/{numQuestions}
-        </Text>
-        <FlatList
-          data={quiz.questions}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item, index }) => {
-            const userAnswer = item.selectedAnswer;
-            const correctChoice = item.choices.find(
-              (choice) => choice.isCorrect
-            );
-            const isExpanded = expandedQuestionIndex === index;
-            return (
-              <View style={styles.reviewItem}>
-                <TouchableOpacity
-                  style={[
-                    styles.questionContainer,
-                    userAnswer === correctChoice?.text
-                      ? styles.correctChoice
-                      : styles.incorrectChoice,
-                  ]}
-                  onPress={() =>
-                    setExpandedQuestionIndex(
-                      index === expandedQuestionIndex ? null : index
-                    )
-                  }
-                >
-                  <Text style={styles.reviewQuestionText}>
-                    {index + 1}. {item.question}
-                  </Text>
-                </TouchableOpacity>
-                {isExpanded && (
-                  <View style={styles.choicesContainer}>
-                    {item.choices.map((choice, choiceIndex) => (
-                      <View
-                        key={choiceIndex}
-                        style={[
-                          styles.choiceContainer,
-                          choice.text === userAnswer
-                            ? choice.isCorrect
-                              ? styles.correctChoice
-                              : styles.incorrectChoice
-                            : choice.isCorrect
-                            ? styles.correctChoice
-                            : null,
-                        ]}
-                      >
-                        <Text style={styles.choiceText}>
-                          {choice.text}
-                          {choice.text === userAnswer &&
-                            !choice.isCorrect &&
-                            " (Your Answer)"}
-                          {choice.isCorrect && " (Correct)"}
-                        </Text>
-                      </View>
-                    ))}
-                  </View>
-                )}
-              </View>
-            );
-          }}
-        />
-        <TouchableOpacity
-          style={styles.finishButton}
-          onPress={handleFinishReview}
-        >
-          <Text style={styles.buttonText}>Finish Review</Text>
-        </TouchableOpacity>
-      </View>
-    );
-}
-    */
-  
+
   return (
     <View style={styles.quizContainer}>
       <View style={styles.questionCountContainer}>

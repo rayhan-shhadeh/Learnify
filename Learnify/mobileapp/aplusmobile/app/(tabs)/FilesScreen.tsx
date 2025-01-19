@@ -27,8 +27,6 @@ import { useCourses } from "./hooks/CoursesContext";
 import API from "../../api/axois";
 import * as DocumentPicker from "expo-document-picker";
 import { Picker } from "@react-native-picker/picker";
-import { useLocalSearchParams } from "expo-router";
-import axios from "axios";
 
 const FilesScreen = () => {
   const router = useRouter();
