@@ -240,7 +240,7 @@ const MultiFilePracticeScreen: React.FC = () => {
   if (finish) {
     return (
       <LinearGradient
-        colors={["#e8dcf4", "#dbd1e9", "#989eeb", "#989bbe"]}
+        colors={["#CA7EC", "#f6f6f6", "#fff"]}
         style={styles.container}
       >
         <View style={styles.celebrationContainer}>
@@ -268,6 +268,17 @@ const MultiFilePracticeScreen: React.FC = () => {
           style={styles.practiceButton}
           onPress={() => setCourseModalVisible(true)}
         >
+          <LottieView
+            source={require("../../../aplusmobile/assets/practice.json")}
+            autoPlay
+            loop={true}
+            style={{
+              width: 200,
+              height: 200,
+              alignSelf: "center",
+              marginBottom: 20,
+            }}
+          />
           <Text style={styles.practiceButtonText}>Practice Now</Text>
         </TouchableOpacity>
       )}
@@ -341,10 +352,12 @@ const MultiFilePracticeScreen: React.FC = () => {
                 <Animated.View
                   style={[
                     styles.cardContent,
-                    { transform: [{ rotateY: frontInterpolate }] },
+                    {
+                      transform: [{ rotateY: frontInterpolate }],
+                    },
                   ]}
                 >
-                  <Text style={styles.cardText}>
+                  <Text style={[styles.cardText, { textAlign: "left" }]}>
                     {flashcards[currentIndex].question}
                   </Text>
                 </Animated.View>
@@ -352,10 +365,13 @@ const MultiFilePracticeScreen: React.FC = () => {
                 <Animated.View
                   style={[
                     styles.cardContent,
-                    { transform: [{ rotateY: backInterpolate }] },
+                    {
+                      transform: [{ rotateY: backInterpolate }],
+                      direction: "rtl",
+                    },
                   ]}
                 >
-                  <Text style={styles.cardText}>
+                  <Text style={[styles.cardText]}>
                     {flashcards[currentIndex].answer}
                   </Text>
                 </Animated.View>
@@ -365,11 +381,26 @@ const MultiFilePracticeScreen: React.FC = () => {
           {/* Rating */}
           <View style={styles.ratingContainer}>
             {[
-              { emoji: "😡", label: "Very Hard" },
-              { emoji: "😞", label: "Hard" },
-              { emoji: "😐", label: "Okay" },
-              { emoji: "🙂", label: "Easy" },
-              { emoji: "😀", label: "Very Easy" },
+              {
+                emoji: require("../../../aplusmobile/assets/angry.json"),
+                label: "Very Hard",
+              },
+              {
+                emoji: require("../../../aplusmobile/assets/emojiconfused.json"),
+                label: "Hard",
+              },
+              {
+                emoji: require("../../../aplusmobile/assets/okay1.json"),
+                label: "Okay",
+              },
+              {
+                emoji: require("../../../aplusmobile/assets/good.json"),
+                label: "Easy",
+              },
+              {
+                emoji: require("../../../aplusmobile/assets/celebrateemoji.json"),
+                label: "Very Easy",
+              },
             ].map((rating, index) => (
               <TouchableOpacity
                 key={index}
@@ -379,8 +410,15 @@ const MultiFilePracticeScreen: React.FC = () => {
                 ]}
                 onPress={() => handleRating(index + 1)}
               >
-                <Text style={styles.emoji}>{rating.emoji}</Text>
-                <Text style={styles.label}>{rating.label}</Text>
+                <LottieView
+                  source={rating.emoji}
+                  autoPlay
+                  loop={true}
+                  style={styles.lottieRating}
+                />
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.label}>{rating.label}</Text>
+                </View>
               </TouchableOpacity>
             ))}
           </View>
@@ -424,22 +462,36 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 10,
     marginBottom: 20,
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: "#000",
+    shadowColor: "#c1c1c1",
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 5,
+    shadowOpacity: 0.8,
+    textAlign: "left",
+    direction: "rtl",
+    padding: 5,
   },
   cardContent: {
     justifyContent: "center",
     alignItems: "center",
     height: "100%",
     width: "100%",
+    direction: "rtl",
+    textAlign: "left",
   },
   cardText: {
     fontSize: 18,
-    textAlign: "center",
+    textAlign: "left",
+    direction: "rtl",
   },
   nextButton: {
     alignSelf: "center",
     padding: 10,
     backgroundColor: "#007bff",
     borderRadius: 50,
+    marginBottom: 50,
   },
   centered: {
     flex: 1,
@@ -457,22 +509,22 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   ratingContent: {
-    flexDirection: "row", // Arrange emoji and label horizontally
-    alignItems: "center", // Ensure emoji and text are vertically aligned
+    flexDirection: "row",
+    alignItems: "center",
   },
   ratingContainer: {
-    flexDirection: "column", // Stack buttons vertically
-    justifyContent: "center", // Center-align the stack
-    alignItems: "center", // Center-align the buttons horizontally
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     marginVertical: 20,
   },
   ratingButton: {
-    flexDirection: "row", // Keep emoji and label side-by-side
-    alignItems: "center", // Vertically align emoji and label
-    justifyContent: "center", // Center-align content
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
     padding: 10,
-    marginVertical: 5, // Add spacing between buttons
-    width: "80%", // Make buttons take up 80% of the container width
+    marginVertical: 5,
+    width: "20%",
     borderRadius: 5,
     backgroundColor: "#f0f0f0",
   },
@@ -516,6 +568,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
     textAlign: "center",
+    textRendering: "optimizeLegibility",
+    backgroundColor: "#007bff",
   },
   modalContainer: {
     flex: 1,
@@ -578,6 +632,11 @@ const styles = StyleSheet.create({
   },
   flashcardContainer: {
     marginTop: 20,
+  },
+  lottieRating: {
+    width: 50,
+    height: 50,
+    justifyContent: "space-between",
   },
 });
 

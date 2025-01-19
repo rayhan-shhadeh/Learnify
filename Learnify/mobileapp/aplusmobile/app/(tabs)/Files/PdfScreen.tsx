@@ -98,7 +98,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
       try {
         // const response = await API.get(`/api/file/${fileId}`);
         const response = await API.get(`/api/file/flashcards/${fileId}`);
-        const data = response.data.map((flashcard) => ({
+        const data = response.data.map((flashcard: any) => ({
           id: flashcard.flashcardId,
           question: flashcard.flashcardQ || "",
           answer: flashcard.flashcardA || "",
@@ -124,7 +124,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
     const fetchKeyterms = async () => {
       try {
         const response = await API.get(`/api/file/keyterms/${fileId}`);
-        const data = response.data.map((keyterm) => ({
+        const data = response.data.map((keyterm: any) => ({
           id: keyterm.keytermId,
           term: keyterm.keytermText,
           definition: keyterm.keytermDef || "",
@@ -149,7 +149,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
   const fetchFlashcards = async () => {
     try {
       const response = await API.get(`/api/file/flashcards/${passedFileId}`);
-      const data = response.data.map((flashcard) => ({
+      const data = response.data.map((flashcard: any) => ({
         id: flashcard.flashcardId,
         question: flashcard.flashcardQ || "",
         answer: flashcard.flashcardA || "",
@@ -520,7 +520,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
         setLoading(false);
         return;
       }
-      const fetchedKeyTerms = data.map((keyTerm) => ({
+      const fetchedKeyTerms = data.map((keyTerm: any) => ({
         id: keyTerm.keytermId,
         term: keyTerm.keytermText || "",
         definition: keyTerm.keytermDef || "",
@@ -1226,7 +1226,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                 >
                   <Text style={styles.keyTermText}>{item.term}</Text>
                   <TouchableOpacity
-                    style={styles.actionButton}
+                    style={styles.actionButtons}
                     onPress={() => handleDeleteKeyTerm(item.id)} // Pass the specific flashcard ID
                   >
                     <FlashcardIcon
@@ -1237,7 +1237,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                   </TouchableOpacity>
                   {item.type === 1 && (
                     <TouchableOpacity
-                      style={styles.actionButton}
+                      style={styles.actionButtons}
                       onPress={() =>
                         handleGoToPage(
                           item.term,
@@ -1247,12 +1247,16 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                         )
                       }
                     >
-                      <Icon name="create-outline" size={20} color="#11ad0c" />
+                      <Octicons
+                        name="cross-reference"
+                        size={20}
+                        color="#11ad0c"
+                      />
                       {item.page}
                     </TouchableOpacity>
                   )}
                   <TouchableOpacity
-                    style={styles.actionButton}
+                    style={styles.actionButtons}
                     onPress={() => handleEditKeyterm(item)}
                   >
                     <FlashcardIcon
@@ -1556,7 +1560,7 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-end",
     padding: 8,
   },
   actionText: {
