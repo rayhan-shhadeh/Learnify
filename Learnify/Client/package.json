@@ -15,37 +15,32 @@
     "@fullcalendar/core": "^6.1.15",
     "@fullcalendar/daygrid": "^6.1.15",
     "@fullcalendar/interaction": "^6.1.15",
+    "@fullcalendar/list": "^6.1.15",
     "@fullcalendar/react": "^6.1.15",
-<<<<<<< HEAD
+    "@fullcalendar/timegrid": "^6.1.15",
     "@lottiefiles/dotlottie-react": "^0.12.1",
     "@mui/icons-material": "^6.1.9",
     "@mui/lab": "^6.0.0-beta.17",
     "@mui/material": "^6.1.9",
-    "@tabler/icons-react": "^3.23.0",
-    "apexcharts": "^4.1.0",
-    "axios": "^0.21.4",
-=======
-    "@fullcalendar/timegrid": "^6.1.15",
-    "@mui/icons-material": "^6.1.10",
-    "@mui/lab": "^6.0.0-beta.18",
-    "@mui/material": "^6.2.1",
+    "@mui/x-data-grid": "^7.24.0",
+    "@nivo/bar": "^0.88.0",
+    "@nivo/line": "^0.88.0",
+    "@nivo/pie": "^0.88.0",
+    "@nivo/stream": "^0.88.0",
     "@tabler/icons-react": "^3.24.0",
     "apexcharts": "^4.3.0",
     "axios": "^1.7.9",
->>>>>>> 8f89ecee6c2097dcecc479cb001f3ab2500e8ffc
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
+    "formik": "^2.4.6",
     "framer-motion": "^11.15.0",
     "helmet": "^8.0.0",
     "html-react-parser": "^5.1.18",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
-<<<<<<< HEAD
-    "motion": "^11.17.0",
-=======
     "lottie-web": "^5.12.2",
+    "motion": "^11.17.0",
     "pdfjs-dist": "^4.10.38",
->>>>>>> 8f89ecee6c2097dcecc479cb001f3ab2500e8ffc
     "react": "^18.3.1",
     "react-apexcharts": "^1.7.0",
     "react-dom": "^18.3.1",
@@ -57,7 +52,8 @@
     "react-pro-sidebar": "^1.1.0",
     "react-router-dom": "^7.0.1",
     "react-slick": "^0.30.2",
-    "slick-carousel": "^1.8.1"
+    "slick-carousel": "^1.8.1",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
     "@babel/core": "^7.4.0",
