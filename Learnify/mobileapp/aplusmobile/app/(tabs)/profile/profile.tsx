@@ -173,7 +173,7 @@ export default function Profile() {
     ? [
         {
           name: "Flashcards",
-          value: data.falshcardsCount || 0,
+          value: data.falshcardsCount,
           color: "#4caf50",
           legendFontColor: "#333",
           legendFontSize: 15,
