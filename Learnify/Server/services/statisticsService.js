@@ -68,6 +68,15 @@ export const statisticsService = {
             }
         });
     },
+    async getGroupsCreatedCount(userId) {
+        return await prisma.group_.count({
+            where: {
+                user_:{
+                    userId:  parseInt(userId)
+                }
+            }
+        });
+    }
 
 };
 
