@@ -29,6 +29,7 @@ import { groupRouter } from './routers/groupRouter.js';
 import { messageRouter } from './routers/messageRouter.js';
 import {practiceRouter} from "./routers/practiceRouter.js";
 import {exploreHistoryRouter} from "./routers/exploreHistoryRouter.js";
+import { statisticsRouter } from './routers/statisticsRouter.js';
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server,{
@@ -96,6 +97,7 @@ app.use("/api", messageRouter);
 app.use("/api", practiceRouter);
 app.use("/api", exploreHistoryRouter);
 app.use('/uploads', express.static('uploads'));
+app.use('/api', statisticsRouter);
 
 app.use(express.json());  // Make sure this is included
 
@@ -130,7 +132,7 @@ io.on("connection", (socket) => {
   socket.on("sendMessage",  async (messageData) => {
     const { text, senderId, groupId } = messageData;
     try {
-      const response = await fetch('http://192.168.68.59:8080/api/messages/savemessage',
+      const response = await fetch('http://192.168.68.61:8080/api/messages/savemessage',
         {
           method: 'POST',
           headers: {
