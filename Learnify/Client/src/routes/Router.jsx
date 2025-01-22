@@ -53,6 +53,33 @@ const Router = [
     ],
   },
   {
+    path: '/',
+    element: <FullLayout />,
+    children: [
+      { path: '/dashboard', exact: true, element: <Dashboard1 /> },
+    ],
+  },
+  {
+    path: '/courses',
+    element: <CoursesPage />,
+  },
+  {
+    path: '/files',
+    element: <CourseFilesPage />,
+  },
+  {
+    path: '/files/fileStudy',
+    element: <FileStudyPage />,
+  },
+  {
+    path: '/files/fileQuiz',
+    element: <QuizPage />,
+  },
+  {
+    path: '/files/filePractice',
+    element: <FilePracticePage />,
+  },
+  {
     path: "/dash",
     element: <Dashboard />,
     children: [
@@ -101,33 +128,6 @@ const Router = [
         element: <FAQ />,
       },
     ],
-  },
-  {
-    path: '/',
-    element: <FullLayout />,
-    children: [
-      { path: '/dashboard', exact: true, element: <Dashboard1 /> },
-    ],
-  },
-  {
-    path: '/courses',
-    element: <CoursesPage />,
-  },
-  {
-    path: '/files',
-    element: <CourseFilesPage />,
-  },
-  {
-    path: '/files/fileStudy',
-    element: <FileStudyPage />,
-  },
-  {
-    path: '/files/fileQuiz',
-    element: <QuizPage />,
-  },
-  {
-    path: '/files/filePractice',
-    element: <FilePracticePage />,
   },
 ];
 

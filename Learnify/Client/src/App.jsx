@@ -7,7 +7,7 @@ import { baselightTheme } from './theme/DefaultColors'; // Import the template t
 
 function App() {
   const routing = useRoutes(Router); // Use the template's routing system
-  const theme = baselightTheme;
+  const theme = baselightTheme; // Use the template's theme
 
   return (
     <ThemeProvider theme={theme}>
