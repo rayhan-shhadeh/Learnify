@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,148 +8,191 @@ import {
   Image,
   Pressable,
   Modal,
+  Alert,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
 import { useRouter } from "expo-router";
 import NavBar from "./NavBar";
 import { LinearGradient } from "expo-linear-gradient";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { jwtDecode } from "jwt-decode";
+import API from "../../api/axois";
+
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Icon } from "react-native-paper";
 import Header from "../(tabs)/header/Header";
 const HomePage = () => {
   const router = useRouter();
+  const [isPremium, setIsPremium] = useState<boolean>();
+  useEffect(() => {
+    const initialize = async () => {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        router.push("/(tabs)/auth/signin");
+        return;
+      }
+      const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
+      console.log(decoded?.id);
+      //preimium flag
+      const userData = await API.get(`/api/users/getme/${decoded?.id}`);
+      const userFlag = userData.data.data.flag;
+      userFlag === 1 ? setIsPremium(true) : setIsPremium(false);
+    };
+    initialize();
+  }, []);
   const [isModalVisible, setModalVisible] = useState(false);
 
   const toggleModal = () => setModalVisible(!isModalVisible);
 
   return (
-    <LinearGradient
-      colors={["#ddf3f5", "#f7f7f7", "#fbfbfb", "#9ad9ea"]}
-      style={styles.container}
-    >
-      <Header />
-      <SafeAreaView style={styles.scrollContainer}>
-        {/* Header Section */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Welcome to</Text>
-          <View style={styles.logoContainer}>
-            <Animatable.Image
-              animation="zoomIn"
-              delay={500}
-              source={require("../../assets/images/a-plus-4.gif")}
-              style={styles.logo}
-            />
-          </View>
-        </View>
-
-        {/* Main Grid Section */}
-        <View style={styles.grid}>
-          {cardData.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => router.push(item.route)}
-              style={styles.card}
-              activeOpacity={0.9}
-            >
-              <Animatable.View
-                animation="bounceIn"
-                delay={item.delay}
-                duration={800}
-                style={styles.cardContent}
-              >
-                <MaterialCommunityIcons
-                  name={item.icon as any}
-                  style={styles.icons}
-                  size={40}
-                />
-                <View style={styles.cardTextContainer}>
-                  <Text style={styles.cardTitle}>{item.title}</Text>
-                  <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
-                </View>
-              </Animatable.View>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </SafeAreaView>
-
-      <TouchableOpacity style={styles.floatingButton}>
-        <MaterialCommunityIcons
-          onPress={toggleModal}
-          name="progress-question"
-          size={60}
-          color="#1ca7ec"
-        />
-      </TouchableOpacity>
-      <Text style={styles.aiText}>
-        This App contains AI{"\n"} Generated contents
-      </Text>
-      {/* How to Use Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isModalVisible}
-        onRequestClose={toggleModal}
+    <>
+      <LinearGradient
+        colors={["#ddf3f5", "#f7f7f7", "#fbfbfb", "#9ad9ea"]}
+        style={styles.container}
       >
-        <View style={styles.modalOverlay}>
-          <Animatable.View
-            animation="fadeInUp"
-            duration={500}
-            style={styles.modalContent}
+        <Header />
+        <SafeAreaView style={styles.scrollContainer}>
+          {/* Header Section */}
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Welcome to</Text>
+            <View style={styles.logoContainer}>
+              <Animatable.Image
+                animation="zoomIn"
+                delay={500}
+                source={require("../../assets/images/a-plus-4.gif")}
+                style={styles.logo}
+              />
+            </View>
+          </View>
+          {/* Main Grid Section */}
+          <View style={styles.grid}>
+            {cardData.map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => router.push(item.route)}
+                style={styles.card}
+                activeOpacity={0.9}
+              >
+                <Animatable.View
+                  animation="bounceIn"
+                  delay={item.delay}
+                  duration={800}
+                  style={styles.cardContent}
+                >
+                  <MaterialCommunityIcons
+                    name={item.icon as any}
+                    style={styles.icons}
+                    size={40}
+                  />
+                  <View style={styles.cardTextContainer}>
+                    <Text style={styles.cardTitle}>{item.title}</Text>
+                    <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
+                  </View>
+                </Animatable.View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </SafeAreaView>
+        {!isPremium && (
+          <TouchableOpacity
+            style={styles.floatingButtonLeft}
+            onPress={() => {
+              router.push("/(tabs)/Payment/PremiumScreen");
+            }}
           >
-            <Text style={styles.modalTitle}>How to Use?</Text>
-            <Text style={styles.modalText}>
-              <MaterialCommunityIcons
-                name="file-upload"
-                size={20}
-                color="#1ca7ec"
-              />
-              Upload your study materials in the <Text>Learn</Text> section.
-            </Text>
-            <Text style={styles.modalText}>
-              <MaterialCommunityIcons
-                name="file-eye"
-                size={20}
-                color="#1ca7ec"
-              />{" "}
-              Click on File name to view the contents.
-            </Text>
-            <Text style={styles.modalText}>
-              <MaterialCommunityIcons
-                name="file-check-outline"
-                size={20}
-                color="#1ca7ec"
-              />{" "}
-              Generate Flashcards, Quizzes, and Key terms to start learning.
-            </Text>
-            <Text style={styles.modalText}>
-              <MaterialCommunityIcons
-                name="file-document"
-                size={20}
-                color="#1ca7ec"
-              />{" "}
-              Use the <Text>Practice</Text> section to reinforce learning.
-            </Text>
-            <Text style={styles.modalText}>
-              <MaterialCommunityIcons
-                name="search-web"
-                size={20}
-                color="#1ca7ec"
-              />
-              Explore or Learn new decks for more resources.
-            </Text>
+            <MaterialCommunityIcons
+              name="plus-circle"
+              size={60}
+              color="#1ca7ec"
+            />
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity style={styles.floatingButton}>
+          <MaterialCommunityIcons
+            name="plus-circle"
+            size={60}
+            color="#1ca7ec"
+          />
+        </TouchableOpacity>
 
-            <Pressable style={styles.closeButton} onPress={toggleModal}>
-              <Text style={styles.closeButtonText}>Close</Text>
-            </Pressable>
-          </Animatable.View>
-        </View>
-      </Modal>
-      <NavBar />
-    </LinearGradient>
+        <TouchableOpacity style={styles.floatingButton}>
+          <MaterialCommunityIcons
+            onPress={toggleModal}
+            name="progress-question"
+            size={60}
+            color="#1ca7ec"
+          />
+        </TouchableOpacity>
+        <Text style={styles.aiText}>
+          This App contains AI{"\n"} Generated contents
+        </Text>
+        {/* How to Use Modal */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={isModalVisible}
+          onRequestClose={toggleModal}
+        >
+          <View style={styles.modalOverlay}>
+            <Animatable.View
+              animation="fadeInUp"
+              duration={500}
+              style={styles.modalContent}
+            >
+              <Text style={styles.modalTitle}>How to Use?</Text>
+              <Text style={styles.modalText}>
+                <MaterialCommunityIcons
+                  name="file-upload"
+                  size={20}
+                  color="#1ca7ec"
+                />
+                Upload your study materials in the <Text>Learn</Text> section.
+              </Text>
+              <Text style={styles.modalText}>
+                <MaterialCommunityIcons
+                  name="file-eye"
+                  size={20}
+                  color="#1ca7ec"
+                />{" "}
+                Click on File name to view the contents.
+              </Text>
+              <Text style={styles.modalText}>
+                <MaterialCommunityIcons
+                  name="file-check-outline"
+                  size={20}
+                  color="#1ca7ec"
+                />{" "}
+                Generate Flashcards, Quizzes, and Key terms to start learning.
+              </Text>
+              <Text style={styles.modalText}>
+                <MaterialCommunityIcons
+                  name="file-document"
+                  size={20}
+                  color="#1ca7ec"
+                />{" "}
+                Use the <Text>Practice</Text> section to reinforce learning.
+              </Text>
+              <Text style={styles.modalText}>
+                <MaterialCommunityIcons
+                  name="search-web"
+                  size={20}
+                  color="#1ca7ec"
+                />
+                Explore or Learn new decks for more resources.
+              </Text>
+
+              <Pressable style={styles.closeButton} onPress={toggleModal}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </Pressable>
+            </Animatable.View>
+          </View>
+        </Modal>
+        <NavBar />
+      </LinearGradient>
+    </>
   );
 };
-
 type RouteType =
   | "/(tabs)/quiz/QuizMainScreen"
   | "/(tabs)/MultiFilePracticeScreen"
@@ -264,6 +307,16 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     marginTop: 20,
   },
+  floatingButtonLeft: {
+    position: "absolute",
+    left: 20,
+    bottom: 90,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+  },
+
   icons: {
     color: "#fff",
   },
