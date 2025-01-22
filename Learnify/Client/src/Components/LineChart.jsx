@@ -3,14 +3,52 @@ import { ResponsiveLine } from "@nivo/line";
 import { useTheme } from "@mui/material";
 import { tokens } from "../theme";
 import { mockLineData as data } from "../data/mockData";
-
+import {useEffect, useState} from "react";
 const LineChart = ({ isDashboard = false }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+const [chartData, setChartData] = useState([]);
+useEffect(() => {
+  // Fetch the data from your API
+  const fetchData = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/trackHabit/allHabit/1",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            month: 1,
+            year:2025}
+          ),
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          }
 
+      )
+      const data = await response.json();
+console.log("data from line chart: ",data);
+      const transformedData = [
+        {
+          id: "Habits", // Series name
+          color: "hsl(229, 70%, 50%)", // Optional, for custom colors
+          data: data.map((item) => ({
+            x: item.habit, // X-axis value
+            y: item.count, // Y-axis value
+          })),
+        },
+      ];
+
+      setChartData(transformedData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  fetchData();
+}, []);
   return (
     <ResponsiveLine
-      data={data}
+      data={chartData}
       theme={{
         axis: {
           domain: {
