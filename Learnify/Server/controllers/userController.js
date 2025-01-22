@@ -44,6 +44,41 @@ async updateMe (req, res, next) {
   }
 },
  
+  async updateMe (req, res, next) {
+    try {
+      if (req.body.password || req.body.passwordConfirm) {
+        return res.status(400).json({
+          status: 'fail',
+          message: 'This route is not for password updates. Please use /api/users/updatepassword '
+        });
+
+      }
+      } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+   async updatePremiumStatus(req,res) {
+    try {
+      const { flag } = req.body;
+      const updatedUser = await prisma.user_.update({
+        where: { userId: parseInt(req.params.id, 10) }, 
+        data: { flag },
+      });
+      console.log(`User premium status updated successfully to ${flag===1 ? 'Premium' : 'Non-Premium'}`);
+      res.status(200).json({
+        status: 'success',
+        data: updatedUser,
+        message: `User premium status updated successfully to ${flag===1 ? 'Premium' : 'Non-Premium'}`,
+      });
+    } catch (error) {
+      console.error('Error updating premium status:', error);
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to update premium status',
+      });
+    }
+  },
+
   async deleteMe(req, res, next) {
     try {
       let token;
@@ -163,4 +198,3 @@ async updateMe (req, res, next) {
   },
   
 };
-

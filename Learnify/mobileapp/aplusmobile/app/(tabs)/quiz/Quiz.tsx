@@ -4,15 +4,16 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  FlatList,
   TextInput,
   Alert,
   ActivityIndicator,
 } from "react-native";
 import { ProgressBar } from "react-native-paper";
 import { useRouter } from "expo-router";
-import API from "../../../api/axois";
+import API, { LOCALHOST } from "../../../api/axois";
 import { useLocalSearchParams } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { jwtDecode } from "jwt-decode";
 import LottieView from "lottie-react-native";
 
 // Define types for quiz, question, and choices
@@ -46,12 +47,13 @@ const Quiz = () => {
   const [score, setScore] = useState<number | null>(null);
   const [error, setError] = useState<boolean>(false);
   const router = useRouter();
-  const { passedFileId, passedIsFromAllFilesPage, passedCourseId } = useLocalSearchParams();
+  const { passedFileId, passedIsFromAllFilesPage, passedCourseId } =
+    useLocalSearchParams();
   const [expandedQuestionIndex, setExpandedQuestionIndex] = useState<
     number | null
   >(null);
   const [showDropdown, setShowDropdown] = useState(false);
-
+  const [isPremium, setIsPremium] = useState(false);
   const difficultyOptions = [
     { label: "Easy", value: "easy" },
     { label: "Medium", value: "medium" },
@@ -73,8 +75,31 @@ const Quiz = () => {
       console.error("Error fetching quiz ID:", err);
     }
   };
-
   const generateQuiz = async () => {
+    const token = await AsyncStorage.getItem("token");
+    if (!token) {
+      Alert.alert("Error", "Token not found");
+      router.push("/(tabs)/auth/signin");
+      return;
+    }
+    const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
+    console.log(decoded?.id);
+    //preimium flag
+    const userData = await API.get(`/api/users/getme/${decoded?.id}`);
+    const userFlag = userData.data.data.flag;
+    const isPremiumUser = userFlag === 1;
+    setIsPremium(isPremiumUser);
+    if (!isPremiumUser) {
+      const reachLimitResponse = await API.get(
+        `http://${LOCALHOST}:8080/api/payment/reachLimit/${decoded?.id}`
+      );
+      const hasReachedLimit = reachLimitResponse.data;
+
+      if (hasReachedLimit) {
+        router.replace("/(tabs)/Payment/PremiumScreen");
+        return;
+      }
+    }
     try {
       await getId();
       const response = await API.post(
@@ -84,7 +109,6 @@ const Quiz = () => {
           difficulty,
         }
       );
-
       if (
         response.data &&
         response.data.title &&
@@ -167,7 +191,7 @@ const Quiz = () => {
         }
         await API.patch(`/api/quiz/${quizId}`, {
           numOfQuestions: numQuestions,
-          score: successRate
+          score: successRate,
         });
         setScore(calculatedScore);
       } catch (err) {
@@ -175,29 +199,6 @@ const Quiz = () => {
       }
     }
   };
-/*
-  const handleFinishReview = async () => {
-    try {
-      if (passedIsFromAllFilesPage === "all") {
-        router.push("/(tabs)/FilesScreen");
-      } else if (passedIsFromAllFilesPage === "course") {
-        const data = await API.get(`/api/course/${passedCourseId}`);
-        const title = data.data.courseName;
-        router.push({
-          pathname: "/(tabs)/CourseFilesScreen",
-          params: { title, passedCourseId },
-        });
-      } else if (passedIsFromAllFilesPage === "home") {
-        router.push("/(tabs)/HomeScreen");
-      } else {
-        console.error("Invalid navigation parameter");
-      }
-    } catch (err) {
-      console.error("Error during navigation:", err);
-      Alert.alert("Navigation Error", "Unable to navigate back.");
-    }
-  };
-*/
   if (error) {
     return (
       <View style={styles.errorContainer}>
@@ -276,83 +277,7 @@ const Quiz = () => {
     );
   }
   const currentQuestion = quiz.questions[currentQuestionIndex];
-    /*
-    if (review) {
-    return (
-      <View style={styles.reviewContainer}>
-        <Text style={styles.scoreText}>
-          Your Score: {score}/{numQuestions}
-        </Text>
-        <FlatList
-          data={quiz.questions}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item, index }) => {
-            const userAnswer = item.selectedAnswer;
-            const correctChoice = item.choices.find(
-              (choice) => choice.isCorrect
-            );
-            const isExpanded = expandedQuestionIndex === index;
-            return (
-              <View style={styles.reviewItem}>
-                <TouchableOpacity
-                  style={[
-                    styles.questionContainer,
-                    userAnswer === correctChoice?.text
-                      ? styles.correctChoice
-                      : styles.incorrectChoice,
-                  ]}
-                  onPress={() =>
-                    setExpandedQuestionIndex(
-                      index === expandedQuestionIndex ? null : index
-                    )
-                  }
-                >
-                  <Text style={styles.reviewQuestionText}>
-                    {index + 1}. {item.question}
-                  </Text>
-                </TouchableOpacity>
-                {isExpanded && (
-                  <View style={styles.choicesContainer}>
-                    {item.choices.map((choice, choiceIndex) => (
-                      <View
-                        key={choiceIndex}
-                        style={[
-                          styles.choiceContainer,
-                          choice.text === userAnswer
-                            ? choice.isCorrect
-                              ? styles.correctChoice
-                              : styles.incorrectChoice
-                            : choice.isCorrect
-                            ? styles.correctChoice
-                            : null,
-                        ]}
-                      >
-                        <Text style={styles.choiceText}>
-                          {choice.text}
-                          {choice.text === userAnswer &&
-                            !choice.isCorrect &&
-                            " (Your Answer)"}
-                          {choice.isCorrect && " (Correct)"}
-                        </Text>
-                      </View>
-                    ))}
-                  </View>
-                )}
-              </View>
-            );
-          }}
-        />
-        <TouchableOpacity
-          style={styles.finishButton}
-          onPress={handleFinishReview}
-        >
-          <Text style={styles.buttonText}>Finish Review</Text>
-        </TouchableOpacity>
-      </View>
-    );
-}
-    */
-  
+
   return (
     <View style={styles.quizContainer}>
       <View style={styles.questionCountContainer}>
@@ -400,10 +325,15 @@ const Quiz = () => {
           currentQuestionIndex + 1 === quiz.questions.length
             ? () => {
                 //setReview(true);
-                const passedQuizId= quizId;
+                const passedQuizId = quizId;
                 router.replace({
-                 pathname: "/quiz/QuizReviewScreen", params: {passedQuizId,passedIsFromAllFilesPage,passedCourseId}
-                })             
+                  pathname: "/quiz/QuizReviewScreen",
+                  params: {
+                    passedQuizId,
+                    passedIsFromAllFilesPage,
+                    passedCourseId,
+                  },
+                });
                 handleScore();
               }
             : handleContinue

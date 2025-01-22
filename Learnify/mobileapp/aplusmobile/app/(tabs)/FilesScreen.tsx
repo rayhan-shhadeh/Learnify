@@ -41,7 +41,7 @@ const FilesScreen = () => {
   const [files, setFiles] = useState<any[]>([]);
   const [courses, setmyCourses] = useState<any[]>([]);
   const [courseId, setCourseId] = useState(46);
-  const [newFile, setNewFile] = useState();
+  const [newFile, setNewFile] = useState<FileObject>();
   const [initialDeadline, setInitialDeadline] = useState(
     new Date(new Date().setDate(new Date().getDate() + 14))
   );
@@ -194,7 +194,7 @@ const FilesScreen = () => {
     courseId: string,
     fileDeadline: string,
     setFiles: React.Dispatch<React.SetStateAction<FileObject[]>>,
-    setNewFile: React.Dispatch<React.SetStateAction<FileObject | null>>
+    setNewFile: React.Dispatch<React.SetStateAction<FileObject | undefined>>
   ): Promise<void> => {
     try {
       // Step 1: Pick a file
@@ -240,7 +240,7 @@ const FilesScreen = () => {
         type: mimeType,
       } as any);
       formData.append("fileName", name);
-      formData.append("courseId", courseId); // Convert bigint to string
+      formData.append("courseId", courseId);
       formData.append("fileDeadline", fileDeadline);
       // Step 4: Upload the file to the server
       const response = await API.post(`/api/file/upload`, formData, {
@@ -258,7 +258,7 @@ const FilesScreen = () => {
       // Update state with the new file
       setFiles((prevFiles) => [...prevFiles, newFile]);
       setNewFile(newFile);
-      setSelectedFileId(newFile.id);
+      setSelectedFileId(newFile.id.toString());
       setFileDeadline(fileDeadline);
       console.log(selectedFileId);
       if (!fileName) {

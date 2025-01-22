@@ -12,6 +12,7 @@ userRouter.post('/login', authController.login);
 userRouter.post('/forgot', authController.forgotpassword);//return an email to return password
 userRouter.patch('/users/resetPassword/:token', authController.resetPassword);//return a token to retrive the new password
 userRouter.get('/getallusers', userController.getAllUsers);
+userRouter.patch('/updatePremiumStatus/:id', userController.updatePremiumStatus);
 
 
 userRouter.patch('/users/updatepassword', authController.updatePassword);//return an email to return password
