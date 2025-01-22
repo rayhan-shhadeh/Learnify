@@ -11,8 +11,9 @@ export const statisticsController ={
             const habitsDoneTodayCount= await statisticsService.getHabitsDoneTodayCount(userId);
             const habitsCount= await statisticsService.getHabitsCount(userId);
             const groupsCreated = await statisticsService.getGroupsCreatedCount(userId);
-            const userStatistics= createJSONStatistics(flashcardsCount,keytermsCount,quizzesCount,exploreTopicsCount,habitsDoneTodayCount,habitsCount, groupsCreated);
-    
+            const usersCount = await statisticsService.getUsersCount();
+            const userStatistics= createJSONStatistics(flashcardsCount,keytermsCount,quizzesCount,exploreTopicsCount,habitsDoneTodayCount,habitsCount, groupsCreated, usersCount);
+            
             res.status(201).json({userStatistics});
         }catch(error){
             console.log(error);

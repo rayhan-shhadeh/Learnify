@@ -77,6 +77,11 @@ export const statisticsService = {
             }
         });
     }
+    ,
+    // cound the number of users in the system
+    async getUsersCount() {
+        return await prisma.user_.count();
+     }
 
 };
 

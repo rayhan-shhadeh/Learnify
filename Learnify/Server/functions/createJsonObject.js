@@ -182,7 +182,7 @@ export function createJSONExploreHistory(userId,topiclevelId){
     return jsonObject;
 }
 
-export function createJSONStatistics(falshcardsCount,keytermsCount,quizzesCount,exploreTopicsCont,habitsDoneToday,habitsCount, groupsCreated){
+export function createJSONStatistics(falshcardsCount,keytermsCount,quizzesCount,exploreTopicsCont,habitsDoneToday,habitsCount, groupsCreated, usersCount){
     const jsonObject = {
         "falshcardsCount":falshcardsCount,
         "keytermsCount":keytermsCount,
@@ -190,7 +190,8 @@ export function createJSONStatistics(falshcardsCount,keytermsCount,quizzesCount,
         "exploreTopicsCount":exploreTopicsCont,
         "habitsDoneTodayCount":habitsDoneToday,
         "habitsCount":habitsCount,
-        "groupsCreated":groupsCreated
+        "groupsCreated":groupsCreated,
+        "usersCount":usersCount
     };
     return jsonObject;
 }
