@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Grid, Box, Card, Stack, Typography, TextField, Button, Alert,Container } from '@mui/material';
-
 // components
 import PageContainer from '../../Components/container/PageContainer';
 import Logo from '../../layouts/full/shared/logo/Logo';
@@ -29,13 +28,10 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:8080/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });  
+      const response = await API.post('login', {email: formData.email, password: formData.password
+      },
+      );
+
       const token = response.data.token;
       console.log("token from login: ",token);
       Cookies.set('authToken', token, { sameSite: "None", secure: false });
@@ -43,8 +39,10 @@ const Login = () => {
       localStorage.setItem('authToken', token);
       setMessage('Logged in successfully!');
       setError(false); // Reset error state
-      res.setToken(token, { sameSite: "None", secure: false, maxAge: 10000 });
-      // Redirect to the profile page after successful login
+      // console.log("Setting token:", token);
+      // res.setToken(token);
+      Cookies.set('token', token, { sameSite: "None", secure: false });
+      // console.log("Token set successfully");      // Redirect to the profile page after successful login
       navigate('/dashboard');
     } catch (error) {
       setMessage(error.response?.data?.message || 'Error logging in.');
