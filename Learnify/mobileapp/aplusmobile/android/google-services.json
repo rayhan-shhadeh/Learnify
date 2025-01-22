@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "763495258421",
+    "project_id": "aplusmobile-73187",
+    "storage_bucket": "aplusmobile-73187.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:763495258421:android:91731796313c49fef2947c",
+        "android_client_info": {
+          "package_name": "com.anonymous.aplusmobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWJtQiUbEfi_0NmxvBsRDfbjNdn_HlLKs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

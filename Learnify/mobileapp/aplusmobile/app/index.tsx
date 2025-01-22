@@ -2,10 +2,11 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-
+import { usePushNotifications } from "../usePushNotifications";
 const IndexScreen = () => {
   const router = useRouter();
-
+  const { expoPushToken, notification } = usePushNotifications();
+  const data = JSON.stringify(notification, undefined, 2);
   const handleStartPress = () => {
     router.push("/(tabs)/auth/signin");
   };
@@ -17,6 +18,7 @@ const IndexScreen = () => {
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
+      <Text> Token: {expoPushToken?.data ?? ""}</Text>
       <View style={styles.logoContainer}>
         <Image
           source={require("../assets/images/a-plus-4.gif")}

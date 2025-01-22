@@ -13,14 +13,16 @@
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "We need access to your photos to allow you to upload a profile picture."
-      }
+      },
+      "bundleIdentifier": "com.anonymous.aplusmobile"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.aplusmobile"
+      "package": "com.anonymous.aplusmobile",
+      "googleServicesFile": "./android/google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -42,6 +44,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "2a98d148-25df-4639-8ad9-a9317c156a41"
+      }
     }
   }
 }
