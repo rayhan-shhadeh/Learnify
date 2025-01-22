@@ -1,4 +1,5 @@
 import { tokens } from "../theme";
+import API from "../api/axios"
 
 export const mockDataTeam = [
   {
@@ -369,6 +370,15 @@ export const mockTransactions = [
     cost: "133.45",
   },
 ];
+// fetch habits and their count from the server
+export const fetchHabits = async () => {
+  try {
+    const response = await API.post("trackHabit/allHabit/1");
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 export const mockBarData = [
   {
