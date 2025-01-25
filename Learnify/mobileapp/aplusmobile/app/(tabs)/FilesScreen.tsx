@@ -663,15 +663,15 @@ const FilesScreen = () => {
     <>
       <View style={styles.header}>
         <Header />
+        <View style={styles.headercontainer}>
+          <Icon name="folder" size={27} color="#778899" />
+          <Text style={styles.header}> My files</Text>
+        </View>
       </View>
-      <LinearGradient colors={["#f7f7f7", "#fbfbfb", "#9ad9ea"]}>
+      <LinearGradient colors={["#fff", "#fff", "#333"]}>
         <View style={styles.container}>
-          <View style={styles.headercontainer}>
-            <Icon name="folder" size={27} color="#778899" />
-            <Text style={styles.header}> My files</Text>
-          </View>
           <TextInput
-            style={styles.input}
+            style={styles.searchInput}
             value={searchQuery}
             onChangeText={(value) => {
               setSearchQuery(value);
@@ -708,6 +708,7 @@ const FilesScreen = () => {
                       onPress={() => {
                         setSortCriteria(option.value);
                         setShowDropdown(false); // Close dropdown after selection
+                        handleSort(option.value);
                       }}
                     >
                       <Text style={styles.dropdownItemText}>
@@ -719,11 +720,12 @@ const FilesScreen = () => {
               )}
 
               {/* Sort Button */}
-              <Button
-                title="Sort"
+              {/* <TouchableOpacity
                 onPress={() => handleSort(sortCriteria)}
                 disabled={!sortCriteria} // Disable button if no criteria is selected
-              />
+              >
+                <Text>Sort</Text>
+              </TouchableOpacity> */}
             </View>
           </View>
           <TouchableOpacity
@@ -876,6 +878,11 @@ const styles = StyleSheet.create({
   headercontainer: {
     flexDirection: "row",
     fontSize: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    top: 25,
+    left: 130,
   },
   notificationButton: {
     flex: 1,
@@ -948,6 +955,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 10,
     marginBottom: 10,
+    overflow: "hidden",
   },
   dropdownTriggerText: {
     fontSize: 16,
@@ -982,7 +990,8 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
     borderRadius: 5,
     paddingHorizontal: 8,
-    marginBottom: 16,
+    marginBottom: 10,
+    marginTop: 10,
   },
   searchButton: {
     backgroundColor: "#1CA7EC",
