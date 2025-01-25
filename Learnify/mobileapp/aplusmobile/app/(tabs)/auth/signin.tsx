@@ -63,7 +63,7 @@ const SignIn = () => {
       if (response.status === 200) {
         const token = JSON.stringify(data.token);
         authCtx.authenticate(token);
-        Alert.alert("Success", `Token: ${token}`);
+        Alert.alert("Success", "Login successful.");
         await AsyncStorage.setItem("token", token);
         const decoded: any = jwtDecode(token);
         const currentUserId = decoded.id.toString();
@@ -146,7 +146,7 @@ const SignIn = () => {
           style={styles.input}
           value={password}
           onChangeText={setPassword}
-          secureTextEntry={false}
+          secureTextEntry={true}
           // secureTextEntry
         />
       </View>
