@@ -21,7 +21,8 @@ import { Circle, Svg, Text as SvgText } from "react-native-svg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { io } from "socket.io-client";
 import Header from "../header/Header";
-const SOCKET_URL = "http://192.168.68.59:8080";
+import { LOCALHOST } from "../../../api/axois";
+const SOCKET_URL = `http://${LOCALHOST}:8080`;
 const socket = io(SOCKET_URL, {
   transports: ["websocket"],
   withCredentials: true,
