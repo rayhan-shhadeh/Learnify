@@ -32,7 +32,7 @@ model calenderevent {
   eventTitle       String   @db.VarChar(255)
   eventStart       DateTime @db.Date
   eventEnd         DateTime @db.Date
-  eventDescription String   @db.VarChar(255)
+  eventDescription String?  @db.VarChar(255)
   userid           Int
   user_            user_    @relation(fields: [userid], references: [userId], onDelete: Cascade, onUpdate: Restrict, map: "fk_calenderevent_user")
 

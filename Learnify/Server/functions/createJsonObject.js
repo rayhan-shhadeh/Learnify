@@ -5,7 +5,7 @@ export  function createJSONFile( fileName,fileDeadline,fileURL,courseid,numberOf
         "fileDeadline": fileDeadline,
         "fileURL": fileURL ,
         "practiceCount":0,
-        "numberOfPages":numberOfPages,
+        "numOfPages":numberOfPages,
         "course":{
             "connect": {
               "courseId": courseid
