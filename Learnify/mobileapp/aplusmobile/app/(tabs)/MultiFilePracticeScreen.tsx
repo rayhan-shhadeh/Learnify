@@ -240,7 +240,7 @@ const MultiFilePracticeScreen: React.FC = () => {
   if (finish) {
     return (
       <LinearGradient
-        colors={["#CA7EC", "#f6f6f6", "#fff"]}
+        colors={["#1CA7EC", "#f6f6f6", "#fff"]}
         style={styles.container}
       >
         <View style={styles.celebrationContainer}>
@@ -269,7 +269,7 @@ const MultiFilePracticeScreen: React.FC = () => {
           onPress={() => setCourseModalVisible(true)}
         >
           <LottieView
-            source={require("../../../aplusmobile/assets/practice.json")}
+            source={require("../../../aplusmobile/assets/practice-2.json")}
             autoPlay
             loop={true}
             style={{
@@ -289,6 +289,13 @@ const MultiFilePracticeScreen: React.FC = () => {
         <Modal transparent visible={isCourseModalVisible}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
+              <Icon
+                name="close"
+                size={30}
+                color="red"
+                style={{ alignSelf: "flex-end", padding: 10 }}
+                onPress={() => setCourseModalVisible(false)}
+              />
               <Text style={styles.modalTitle}>Select a Course</Text>
               <FlatList
                 data={courses}
@@ -304,6 +311,13 @@ const MultiFilePracticeScreen: React.FC = () => {
         <Modal transparent visible={isFileModalVisible}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
+              <Icon
+                name="close"
+                size={30}
+                color="red"
+                style={{ alignSelf: "flex-end", padding: 10 }}
+                onPress={() => setFileModalVisible(false)}
+              />
               <Text style={styles.modalTitle}>Select Files</Text>
               <FlatList
                 data={files}
@@ -470,7 +484,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     shadowOpacity: 0.8,
     textAlign: "left",
-    direction: "ltr",
+    direction: "rtl",
     padding: 10,
   },
   cardContent: {
@@ -478,7 +492,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: "100%",
     width: "100%",
-    direction: "ltr",
+    direction: "rtl",
     textAlign: "left",
   },
   cardText: {
@@ -571,8 +585,9 @@ const styles = StyleSheet.create({
   practiceButtonText: {
     color: "#333",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 30,
     textAlign: "center",
+    fontFamily: "sans-serif",
     textRendering: "optimizeLegibility",
   },
   modalContainer: {
