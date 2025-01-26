@@ -91,30 +91,7 @@ const Router = [
         path: "/dash/calendar",
         element: <Calendar />,
       },
-      {
-        path: "/dash/contacts",
-        element: <Contacts />,
-      },
-      {
-        path: "/dash/team",
-        element: <Team />,
-      },
-      {
-        path: "/dash/invoices",
-        element: <Invoices />,
-      },
-      {
-        path: "/dash/form",
-        element: <Form />,
-      },
-      {
-        path: "/dash/bar",
-        element: <Bar />,
-      },
-      {
-        path: "/dash/pie",
-        element: <Pie />,
-      },
+
       {
         path: "/dash/stream",
         element: <Stream />,

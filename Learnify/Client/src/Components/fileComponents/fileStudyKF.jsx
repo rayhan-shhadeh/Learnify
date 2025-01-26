@@ -11,22 +11,6 @@ import Add from '@mui/icons-material/Add';
 import { useLocation } from "react-router-dom"; 
 import PartialLoadingImageComponent from '../../Components/loadingAndErrorComponents/partialLoadingComponent'
 import PartialErrorComponent from "../loadingAndErrorComponents/partialErrorComponent";
-import LaunchIcon from "@mui/icons-material/Launch"; 
-
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  TextField,
-  Checkbox,
-  FormControlLabel,
-} from "@mui/material";
 
 const FileStudy = () => {
     const [activeTab, setActiveTab] = useState("flashcards");
@@ -44,17 +28,7 @@ const FileStudy = () => {
     const {fileId,fileURL} = location.state; 
     const [wait,setWait] = useState(false);
     const [error,setError] = useState(false);
-    const [showFCModal, setShowFCModal] = useState(false);
-    const [complexity, setComplexity] = useState("Medium");
-    const [numPages , setNumPages ] = useState();
-    const [currentPage , setCurrentPage ] = useState();
-    const [length, setLength] = useState("Medium");
-    const [baseURL,setBaseURL] =useState(fileURL);
-    const [URL, setURL]= useState(fileURL);//URL for baseURL + page# 
-    const [isAllPages, setIsAllPages] = useState(true);
-    const [startPage, setStartPage] = useState(1);
-    const [endPage, setEndPage] = useState(1);
-  
+
     useEffect(() => {
       if (activeTab === "flashcards") {
         fetchFlashcards();
@@ -63,18 +37,6 @@ const FileStudy = () => {
       }
     }, [activeTab]);
 
-
-    const handleFCClose = () => setShowFCModal(false);
-    const handleStartPageChange = (e) => {
-      const value = Number(e.target.value);
-      setStartPage(value < 1 ? 1 : value); // Ensure start page is at least 1
-    };
-  
-    const handleEndPageChange = (e) => {
-      const value = Number(e.target.value);
-      setEndPage(value < startPage ? startPage : value); // Ensure end page is at least start page
-    };
-  
     const handleCreateNew = () => {
         if (activeTab === "flashcards") {
           const newFlashcard = {
@@ -82,7 +44,7 @@ const FileStudy = () => {
             flashcardQ: "",
             flashcardA: "",
             isNew: true,
-            isEditing : true,
+            isEditing : true
           };
           setFlashcards((prev) => [newFlashcard, ...prev]);
           setNewItem(newFlashcard);
@@ -98,34 +60,14 @@ const FileStudy = () => {
           setNewItem(newKeyterm);
         }
     };
-    const handleClickGenerateFlashcards = async()=>{
-      setShowFCModal(true);
-    }
-    const handleClickGenerateKeyterms = async()=>{
-      setShowFCModal(true);
-    }
-
+      
     const handleGenerateFlashcards = async()=>{
         if (!fileId) {
           return;
         }
         setWait(true);
         try {
-            const response = await axios.post(
-              `http://localhost:8080/api/smartFlashcards/${fileId}`,
-              {
-                complexity: complexity,
-                length: length,
-                allPages:isAllPages,
-                startPage: startPage ,
-                endPage: endPage
-              },
-              {
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              }
-            );
+            const response = await axios.post(`http://localhost:8080/api/smartFlashcards/${fileId}`);
             if (!response.data || response.data.length === 0) {
               setFlashcards([]);
               setFetchedFlashcards([]);
@@ -138,12 +80,10 @@ const FileStudy = () => {
               name: flashcard.flashcardName,
               flashcardQ: flashcard.flashcardQ || '',
               flashcardA: flashcard.flashcardA || '',
-              type:1
             }));
             setFlashcards(fetchedFlashcards);
             setFetchedFlashcards(fetchedFlashcards);
             setLoading(false);
-            setShowFCModal(false);
           } catch (error) {
             console.error('Error fetching flashcards: *_*', error);
             setLoading(false);
@@ -159,7 +99,6 @@ const FileStudy = () => {
           id: flashcard.flashcardId,
           flashcardQ: flashcard.flashcardQ || "",
           flashcardA: flashcard.flashcardA || "",
-          type : flashcard.type
         }));
         setFlashcards(data);
       } catch (error) {
@@ -174,7 +113,6 @@ const FileStudy = () => {
           id: keyterm.keytermId,
           keytermText: keyterm.keytermText,
           keytermDef: keyterm.keytermDef || "",
-          type: keyterm.type
         }));
         setKeyterms(data);
       } catch (error) {
@@ -264,23 +202,14 @@ const FileStudy = () => {
         );
       }
     };
-
     const handleGenerateKeyterms = async()=>{
         if (!fileId) {
           return;
         }
+        
         try {
             setWait(true);
-            const response = await axios.post(`http://localhost:8080/api/smartKeyterms/${fileId}`,
-             {
-              complexity: complexity,
-              length: length,
-              allPages:isAllPages,
-              startPage: startPage ,
-              endPage: endPage
-    
-             }
-          );
+            const response = await axios.post(`http://localhost:8080/api/smartKeyterms/${fileId}`);
             if (!response.data || response.data.length === 0) {
               setKeyterms([]);
               setFetchedKeyterms([]);
@@ -292,7 +221,6 @@ const FileStudy = () => {
               id: Keyterm.keytermId,
               keytermText: Keyterm.keytermText,
               keytermDef: Keyterm.keytermDef || '',
-              type:1
             }));
             setKeyterms(fetchedKeyterms);
             setFetchedKeyterms(fetchedKeyterms);
@@ -312,8 +240,6 @@ const FileStudy = () => {
               flashcardQ: Q,
               flashcardA: A,
               flashcardName : "",
-              page:0 ,
-              type:0,
               file: {
                 connect: {
                   fileId: fileId, // Assuming `fileId` is already defined
@@ -332,8 +258,6 @@ const FileStudy = () => {
             const response = await axios.post("http://localhost:8080/api/keyterm", {
                 keytermText: editedText,
                 keytermDef: editedDef,
-                page:0 ,
-                type:0,  
                 file: {
                   connect: {
                     fileId: fileId, // Assuming `fileId` is already defined
@@ -369,35 +293,8 @@ const FileStudy = () => {
         setEditedText("");
         setEditedDef("");
       };
-      const handleOpenPageFlashcard = async (flashcardId) => {
-        try {
-          const response = await axios.get(`http://localhost:8080/api/flashcard/${flashcardId}`);
-          const page = response.data.page || 1;
-          setURL("");
-          setTimeout(() => {
-            setURL(baseURL+'#page='+page);
-          }, 0);
-          console.log(`Navigated to page ${page}`);
-        } catch (error) {
-          console.error("Error navigating to page:", error);
-        }
-      };
-
-        const handleOpenPageKeyTerm = async (keytermId) => {
-        try {
-          const response = await axios.get(`http://localhost:8080/api/keyterm/${keytermId}`);
-          const page = response.data.page || 1;
-          setURL("");
-          setTimeout(() => {
-            setURL(baseURL+'#page='+page);
-          }, 0);
-          console.log(`Navigated to page ${page}`);
-        } catch (error) {
-          console.error("Error navigating to page:", error);
-        }
-      };
-
-          return (
+  
+    return (
       <div className="app-container">
         <div className="app-left-section">
         {wait && !error ? (
@@ -431,97 +328,30 @@ const FileStudy = () => {
               className="app-search-input"
             />
           </div>
+
           <div className="app-content">
           {activeTab === "flashcards" &&(
 
-          <div class="button-container">
-          <button class="generate-button"
-          onClick={() => {
-            handleClickGenerateFlashcards();
-          }}
-          >
-          <AutoAwesomeIcon />
-          AI Flashcards (For File)
-          </button>
-          <button class="create-button"
-          onClick={() => {
-            handleCreateNew();
-          }}
-          >
-          <Add/> New Flashcard
-          </button>
-          </div>
-          )}
-          <Dialog open={showFCModal} onClose={handleFCClose}>
-            <DialogContent>
-                      {/* All Pages Checkbox */}
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={isAllPages}
-              onChange={(e) => setIsAllPages(e.target.checked)}
-            />
-          }
-          label="All Pages"
-        />
-
-        {/* Start and End Page Fields */}
-        {!isAllPages && (
-          <>
-            <TextField
-              fullWidth
-              type="number"
-              label="Start Page"
-              value={startPage}
-              onChange={handleStartPageChange}
-              margin="normal"
-              InputProps={{ inputProps: { min: 1 } }}
-            />
-            <TextField
-              fullWidth
-              type="number"
-              label="End Page"
-              value={endPage}
-              onChange={handleEndPageChange}
-              margin="normal"
-              InputProps={{ inputProps: { min: startPage } }}
-            />
-            </>)}
-              {/* Complexity Dropdown */}
-              <FormControl fullWidth margin="normal">
-                <InputLabel>Complexity</InputLabel>
-                <Select
-                  value={complexity}
-                  onChange={(e) => setComplexity(e.target.value)}
-                >
-                  <MenuItem value="Easy">Easy</MenuItem>
-                  <MenuItem value="Medium">Medium</MenuItem>
-                  <MenuItem value="Hard">Hard</MenuItem>
-                </Select>
-              </FormControl>
-              {/* Length Dropdown */}
-              <FormControl fullWidth margin="normal">
-                <InputLabel>Length</InputLabel>
-                <Select
-                  value={length}
-                  onChange={(e) => setLength(e.target.value)}
-                >
-                  <MenuItem value="Short">Short</MenuItem>
-                  <MenuItem value="Medium">Medium</MenuItem>
-                  <MenuItem value="Long">Long</MenuItem>
-                </Select>
-              </FormControl>
-            </DialogContent>
-            <DialogActions>
-              {/* Actions */}
-              <Button onClick={handleFCClose} color="secondary">
-                Cancel
-              </Button>
-              <Button onClick={activeTab === "flashcards"?handleGenerateFlashcards:handleGenerateKeyterms} color="primary" variant="contained">
-                Generate
-              </Button>
-            </DialogActions>
-          </Dialog>
+<div class="button-container">
+<button class="generate-button"
+onClick={() => {
+  handleGenerateFlashcards();
+}}
+>
+<AutoAwesomeIcon />
+AI Flashcards (For File)
+</button>
+<button class="create-button"
+onClick={() => {
+  handleCreateNew();
+}}
+>
+<Add/> New Flashcard
+</button>
+</div>
+)}
+   
+   
 
             {activeTab === "flashcards" && !wait  &&
 
@@ -534,30 +364,31 @@ const FileStudy = () => {
                   handleSaveNewItem = {handleSaveNewItem}
                   isEditingParent = {flashcard.flashcardQ == ""}
                   handleCancelNewItem = {handleCancelNewItem}
-                  handleOpenPageFlashcard={handleOpenPageFlashcard}                
-                  />
-              ))
-              }
-            {activeTab === "keyterms" &&(
-            <div class="button-container">
-            <button class="generate-button"
-            onClick={() => {
-                handleClickGenerateKeyterms();
-            }}
-            >
-            <AutoAwesomeIcon />
-            Generate AI Key Term
-            </button>
-            <button class="create-button"
-            onClick={() => {
-                handleCreateNew();
-            }}
-            >
-            <Add/>    
-            New Keyterm
-            </button>
-            </div>
-                )}
+                />
+              ))}
+
+{activeTab === "keyterms" &&(
+<div class="button-container">
+<button class="generate-button"
+onClick={() => {
+    handleGenerateKeyterms();
+}}
+>
+<AutoAwesomeIcon />
+Generate AI Key Term
+</button>
+<button class="create-button"
+onClick={() => {
+    handleCreateNew();
+}}
+>
+<Add/>    
+New Keyterm
+</button>
+</div>
+
+
+)}
             {activeTab === "keyterms" && !wait && (
               <div>
               {keyterms.map((keyterm) => (
@@ -607,12 +438,6 @@ const FileStudy = () => {
                       className="flashcard-action-icon delete"
                     />
                   )}
-                  {keyterm.type===1 && (
-                    <LaunchIcon
-                      onClick={() => handleOpenPageKeyTerm(keyterm.id)}
-                      className="flashcard-action-icon edit"
-                    />
-                  )}
                 </div>
                 </div>
               ))}
@@ -624,11 +449,10 @@ const FileStudy = () => {
         </div>
         <div className="app-right-section">
           <iframe
-            id = "pdf-iframe"
-            src={`${URL}`}
+            src={fileURL}
             className="app-pdf-viewer"
             title="PDF Viewer"
-          ></iframe>       
+          ></iframe>
         </div>
       </div>
     );

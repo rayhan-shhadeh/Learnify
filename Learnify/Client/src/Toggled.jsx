@@ -1,7 +1,6 @@
 import React, { createContext, useState } from "react";
 import { Box, CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
-import { Navbar, SideBar } from "./scenes";
 import { Outlet } from "react-router-dom";
 
 export const ToggledContext = createContext(null);
@@ -17,7 +16,7 @@ function Toggled() {
         <CssBaseline />
         <ToggledContext.Provider value={values}>
           <Box sx={{ display: "flex", height: "100vh", maxWidth: "100%" }}>
-            <SideBar />
+         
             <Box
               sx={{
                 flexGrow: 1,
@@ -27,7 +26,6 @@ function Toggled() {
                 maxWidth: "100%",
               }}
             >
-              <Navbar />
               <Box sx={{ overflowY: "auto", flex: 1, maxWidth: "100%" }}>
                 <Outlet />
               </Box>
