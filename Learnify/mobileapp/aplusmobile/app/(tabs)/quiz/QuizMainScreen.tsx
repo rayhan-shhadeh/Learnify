@@ -73,7 +73,7 @@ export default function QuizScreen() {
               id: quiz.quizId,
               title: quiz.quizTitle,
               description: quiz.quizDescription,
-              color: ["#DCE35B", "#45B649"],
+              color: ["#1f2f98", "#7bd5f5"],
               successRate: quiz.score,
             }));
             setQuizData(mappedQuizzes);
@@ -183,7 +183,7 @@ export default function QuizScreen() {
           <Icon
             name="close"
             size={24}
-            color="#333"
+            color="red"
             onPress={() => setCourseModalVisible(false)}
           />
           <Text style={styles.modalTitle}>Select a Course</Text>
@@ -208,7 +208,7 @@ export default function QuizScreen() {
           <Icon
             name="close"
             size={24}
-            color="#333"
+            color="red"
             onPress={() => setFileModalVisible(false)}
           />
           <Text style={styles.modalTitle}>
@@ -238,7 +238,7 @@ export default function QuizScreen() {
           >
             <TouchableOpacity
               style={styles.modalButtonSelect}
-              onPress={() => {
+              onPress={(item: any) => {
                 handleOpenQuiz(item.id);
               }}
             >
@@ -286,13 +286,13 @@ export default function QuizScreen() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient colors={["#1e91cb", "#1CA7EC"]} style={styles.header}>
+      <LinearGradient colors={["#1f2f98", "#7bd5f5"]} style={styles.header}>
         <Header />
-        <View style={styles.headerContent}>
+        {/* <View style={styles.headerContent}>
           <View>
             <Text style={styles.greeting}>Hello {username}!</Text>
           </View>
-        </View>
+        </View> */}
         <View style={styles.recentQuiz}>
           <Text style={styles.recentQuizText}>Recent Quiz</Text>
           <Text style={styles.quizTitle}>
@@ -313,20 +313,15 @@ export default function QuizScreen() {
           style={styles.button}
           onPress={() => setCourseModalVisible(true)}
         >
-          <Animatable.Text
-            animation="pulse"
-            easing="ease-out"
-            iterationCount="infinite"
-          >
-            <Icon name="plus-circle" size={20} color="white" />
-          </Animatable.Text>
+          <Icon name="plus-circle" size={20} color="white" />
           <Text style={styles.buttonText}>Start New Quiz?</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.quizhistory}>
-          <Text style={styles.cardText}>Quiz History</Text>
-          <Icon name="history" size={25} color="#1CA7EC" />
-        </TouchableOpacity>
       </View>
+      <TouchableOpacity style={styles.quizhistory}>
+        <Icon name="history" size={25} color="#1CA7EC" />
+
+        <Text style={styles.cardText}>Quiz History</Text>
+      </TouchableOpacity>
       {renderCourseModal()}
       {renderFileModal()}
       <FlatList
@@ -394,7 +389,7 @@ const styles = StyleSheet.create({
   quizList: {
     paddingVertical: 15,
     paddingHorizontal: 15,
-    marginBottom: 20,
+    marginBottom: 100,
   },
   card: {
     marginBottom: 20,
@@ -417,7 +412,7 @@ const styles = StyleSheet.create({
   },
   successRate: {
     fontSize: 14,
-    color: "white",
+    color: "#f0f8ff",
     fontWeight: "600",
   },
   navBar: {
@@ -437,11 +432,11 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   button: {
-    marginBlockEnd: 5,
+    marginBlockEnd: 1,
     backgroundColor: "#1CA7EC",
-    borderRadius: 50,
+    borderRadius: 30,
     width: 200,
-    height: 50,
+    height: 70,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
@@ -451,11 +446,15 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 18,
     paddingLeft: 10,
+    alignContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
   },
 
   cardText: {
     fontSize: 20,
     marginRight: 10,
+    marginLeft: 10,
   },
   linearcontainer: {
     flex: 1,
@@ -539,14 +538,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   addButton: {
-    backgroundColor: "#2196F3",
+    backgroundColor: "#1ca7ec",
   },
   modalButtonSelect: {
     borderRadius: 10,
     padding: 5,
     right: 0,
     bottom: 0,
-    backgroundColor: "#4fbbda",
+    backgroundColor: "#1ca7ec",
     height: 40,
     width: 200,
     alignItems: "center",
@@ -556,7 +555,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   modalButtonText: {
-    color: "#333",
+    color: "#f6f6f6",
     fontSize: 18,
     fontWeight: "bold",
   },
@@ -578,7 +577,9 @@ const styles = StyleSheet.create({
     flex: 0,
     backgroundColor: "transparent",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
+    alignContent: "center",
+    alignSelf: "center",
     width: 300,
     height: 100,
   },

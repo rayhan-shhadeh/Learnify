@@ -211,10 +211,10 @@ const Quiz = () => {
     return (
       <View style={styles.popupContainer}>
         <LottieView
-          source={require("../../../assets/quiz.json")}
+          source={require("../../../assets/quiz-main.json")}
           autoPlay
           loop
-          style={{ width: 200, height: 200 }}
+          style={{ width: 300, height: 300 }}
         />
         <Text style={styles.bannerText}>
           Unleash your potential and challenge your mind!
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#F5FCFF",
-    marginBlock: 20,
+    marginBlock: 5,
   },
   bannerText: {
     fontSize: 18,
@@ -374,6 +374,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 20,
     marginHorizontal: 20,
+    top: -30,
   },
   popup: {
     width: "90%",
