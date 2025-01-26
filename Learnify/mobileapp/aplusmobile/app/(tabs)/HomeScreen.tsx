@@ -94,28 +94,26 @@ const HomePage = () => {
             ))}
           </View>
         </SafeAreaView>
-        {!isPremium && (
+
+        <TouchableOpacity style={styles.floatingButtonLeft}>
+          <Image
+            source={require("../../assets/images/diamond-unscreen.gif")}
+            style={{ width: 80, height: 80 }}
+          />
+        </TouchableOpacity>
+        {isPremium && (
           <TouchableOpacity
             style={styles.floatingButtonLeft}
             onPress={() => {
               router.push("/(tabs)/Payment/PremiumScreen");
             }}
           >
-            <MaterialCommunityIcons
-              name="plus-circle"
-              size={60}
-              color="#1ca7ec"
+            <Image
+              source={require("../../assets/images/diamond-unscreen.gif")}
+              style={{ width: 80, height: 80 }}
             />
           </TouchableOpacity>
         )}
-        <TouchableOpacity style={styles.floatingButton}>
-          <MaterialCommunityIcons
-            name="plus-circle"
-            size={60}
-            color="#1ca7ec"
-          />
-        </TouchableOpacity>
-
         <TouchableOpacity style={styles.floatingButton}>
           <MaterialCommunityIcons
             onPress={toggleModal}
@@ -127,6 +125,7 @@ const HomePage = () => {
         <Text style={styles.aiText}>
           This App contains AI{"\n"} Generated contents
         </Text>
+
         {/* How to Use Modal */}
         <Modal
           animationType="slide"
@@ -188,6 +187,7 @@ const HomePage = () => {
             </Animatable.View>
           </View>
         </Modal>
+
         <NavBar />
       </LinearGradient>
     </>
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   floatingButton: {
     position: "absolute",
     right: 20,
-    bottom: 65,
+    bottom: 90,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.5,
@@ -309,12 +309,14 @@ const styles = StyleSheet.create({
   },
   floatingButtonLeft: {
     position: "absolute",
-    left: 20,
+    left: 10,
     bottom: 90,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 6,
+    justifyContent: "flex-start",
+    alignSelf: "flex-start",
+    // overflow: "hidden",
+    zIndex: 1,
+    flex: 1,
+    marginTop: 20,
   },
 
   icons: {
