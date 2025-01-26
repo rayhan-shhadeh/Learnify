@@ -324,16 +324,15 @@ const Habits = () => {
             textDayHeaderFontWeight: "500",
             textMonthFontSize: 10,
             textDayHeaderFontSize: 8,
-            radius: 50,
+            radius: 20,
             selectedDayBackgroundColor: "#2e7d32",
             selectedDayTextColor: "#ffffff",
             textDayStyle: { margin: 5 },
             textDayFontSize: 10,
           }}
           style={{
-            borderRadius: 50,
-            padding: -50,
-            margin: -8,
+            borderRadius: 20,
+
             transform: [{ scale: 1 }],
             width: "100%",
           }} // Zoom out the calendar}}
@@ -478,14 +477,14 @@ const styles = StyleSheet.create({
   habitCard: {
     backgroundColor: "#e0f3f7",
     padding: 20,
-    marginBottom: 15,
+    marginBottom: 5,
     borderRadius: 20,
     elevation: 3,
     shadowColor: "#333",
     shadowOffset: { width: 2, height: 3 },
     shadowOpacity: 0.3,
     shadowRadius: 2,
-    height: 150,
+    height: 100,
   },
   habitRow: {
     flexDirection: "row",

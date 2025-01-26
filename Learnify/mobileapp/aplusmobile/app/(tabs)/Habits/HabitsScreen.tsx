@@ -184,8 +184,6 @@ export default function HabitsScreen() {
       <Header />
 
       <View style={styles.container}>
-        <Text style={styles.header}>Habits</Text>
-
         {/* <FlatList
           style={[styles.myhabit]}
           data={habits}
@@ -330,7 +328,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     marginVertical: 15,
-    marginBottom: 50,
+    marginBottom: 60,
     width: "80%",
     alignSelf: "center",
     alignContent: "center",
