@@ -3,7 +3,7 @@ import { calendarEventController } from '../controllers/calendarEventController.
 export const calendarEventRouter = express.Router();
 
 calendarEventRouter.post('/event',calendarEventController.createEvent);
-calendarEventRouter.put('/event/:eventId',calendarEventController.updateEvent);
+calendarEventRouter.put('/event/update/:eventId',calendarEventController.updateEvent);
 calendarEventRouter.delete('/event/:eventId',calendarEventController.deleteEvent);
 calendarEventRouter.get('/event/:eventId',calendarEventController.getEventById);
 calendarEventRouter.get('/user/events/:userId',calendarEventController.getAllEventsByUser);

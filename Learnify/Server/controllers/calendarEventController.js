@@ -16,7 +16,7 @@ export const calendarEventController = {
             if (!updatedEvent) {
                 return res.status(404).json({ error: 'Event not found' });
             }
-            res.json(updatedEvent);
+            res.status(200).json(updatedEvent);
         } catch (error) {
             console.log(error);
             res.status(500).json({ error: 'Error updating event' });

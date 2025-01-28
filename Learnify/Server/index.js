@@ -33,7 +33,7 @@ import { statisticsRouter } from './routers/statisticsRouter.js';
 import { paymentRouter } from './routers/paymentRouter.js'
 import { cardRouter } from './routers/cardRouter.js'
 import { transactionRouter } from './routers/transactionRouter.js';
-
+import {notificationRouter} from "./routers/notificationRouter.js";
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server,{
@@ -105,9 +105,10 @@ app.use("/api",statisticsRouter)
 app.use("/api",paymentRouter);
 app.use("/api",cardRouter);
 app.use("/api",transactionRouter);
+app.use("/api",notificationRouter);
 
 app.use(express.json());  // Make sure this is included
-
+// app.use("http://api.glassdoor.com/api/api.htm?v=1&format=json&t.p=120&t.k=fz6JLNDfgVs&action=employers&q=pharmaceuticals&userip=localhost&useragent=Opera/%2F4.0");
 app.get("/api", (req, res) => {
   res.json({ fruits: ["apple", "orange", "banana"] });
 });
@@ -139,7 +140,7 @@ io.on("connection", (socket) => {
   socket.on("sendMessage",  async (messageData) => {
     const { text, senderId, groupId } = messageData;
     try {
-      const response = await fetch('http://192.168.68.61:8080/api/messages/savemessage',
+      const response = await fetch('http://192.168.68.50:8080/api/messages/savemessage',
         {
           method: 'POST',
           headers: {
