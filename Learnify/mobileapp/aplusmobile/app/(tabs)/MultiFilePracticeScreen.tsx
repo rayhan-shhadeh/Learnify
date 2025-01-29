@@ -99,7 +99,15 @@ const MultiFilePracticeScreen: React.FC = () => {
     inputRange: [0, 1],
     outputRange: ["180deg", "360deg"],
   });
-
+  const noFlashcards = () => {
+    return (
+      <View style={styles.flashcard}>
+        <Text style={styles.noFlashcardsText}>
+          No flashcards available for the selected files.
+        </Text>
+      </View>
+    );
+  };
   useEffect(() => {
     const fetchCourses = async () => {
       setLoading(true);
@@ -193,13 +201,23 @@ const MultiFilePracticeScreen: React.FC = () => {
           );
         }
       }
-
       if (allFlashcards.length > 0) {
         setFlashcards(allFlashcards);
       } else {
+        setFlashcards([]);
+        setFinish(true);
         Alert.alert(
           "No Flashcards",
-          "No flashcards were fetched for the selected files."
+          "No flashcards available for the selected files.",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                noFlashcards();
+                // Optionally navigate back or perform another action
+              },
+            },
+          ]
         );
       }
     } catch (error) {
@@ -650,6 +668,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   flashcardContainer: {
+    marginTop: 20,
+  },
+  noFlashcardsText: {
+    fontSize: 16,
+    color: "#333",
+    textAlign: "center",
     marginTop: 20,
   },
   lottieRating: {

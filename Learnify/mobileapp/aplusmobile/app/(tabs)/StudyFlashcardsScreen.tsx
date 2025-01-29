@@ -127,7 +127,12 @@ const PracticeScreen = () => {
   if (flashcards.length === 0) {
     return (
       <View style={styles.centered}>
-        <Text>No flashcards available</Text>
+        <LottieView
+          source={require("../../assets/notfound.json")} // Place your Lottie file in the project directory
+          autoPlay
+          loop={false}
+          style={styles.lottie}
+        />
       </View>
     );
   }
