@@ -133,7 +133,7 @@ export default function GroupsScreen() {
         if (userId) {
           setCurrentUserId(userId);
         }
-        console.log("Full response:", response); // Log the full response for debugging
+        // console.log("Full response:", response); // Log the full response for debugging
 
         // Access the array inside response.data.data
         if (response.data.data && Array.isArray(response.data.data)) {
@@ -156,7 +156,7 @@ export default function GroupsScreen() {
           }));
 
           setGroups(transformedGroups);
-          console.log(transformedGroups);
+          // console.log(transformedGroups);
           // Alert.alert("Groups fetched successfully");
         } else {
           console.error("Response data is not an array:", response.data.data);
@@ -459,25 +459,29 @@ export default function GroupsScreen() {
     </Modal>
   );
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <Header />
-      <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Icon name="message" size={28} color="#6B6B6B" />
-          <Text style={styles.headerTitle}>Groups</Text>
-          <TouchableOpacity onPress={() => setGroupModalVisible(true)}>
-            <Icon
-              name="add"
-              size={28}
-              color="#6B6B6B"
-              style={styles.newGroup}
-            />
-          </TouchableOpacity>
-          {/* </View> */}
-          {renderGroupeModal()}
-          {/* Search Bar */}
-          {/* <View style={{ padding: 20 }}>
+    <>
+      <View style={{ backgroundColor: "#fff" }}>
+        <Header />
+      </View>
+
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.container}>
+          {/* Header */}
+          <View style={styles.header}>
+            <Icon name="message" size={28} color="#6B6B6B" />
+            <Text style={styles.headerTitle}>Groups</Text>
+            <TouchableOpacity onPress={() => setGroupModalVisible(true)}>
+              <Icon
+                name="add"
+                size={28}
+                color="#6B6B6B"
+                style={styles.newGroup}
+              />
+            </TouchableOpacity>
+            {/* </View> */}
+            {renderGroupeModal()}
+            {/* Search Bar */}
+            {/* <View style={{ padding: 20 }}>
           <TextInput
             style={styles.searchBar}
             placeholder="Search for a group by name"
@@ -485,7 +489,7 @@ export default function GroupsScreen() {
             onChangeText={handleSearchGroups}
             placeholderTextColor="#A7A7A7"
           /> */}
-          {/* {searchTerm.length > 0 &&
+            {/* {searchTerm.length > 0 &&
             (filteredUsers.length > 0 ? (
               <FlatList
                 data={filteredUsers}
@@ -500,56 +504,56 @@ export default function GroupsScreen() {
                     }}
                     onPress={() => handleSelectUser(item)} 
           > */}
-          {/* view the added users in the group below the search bar */}
-          {/* <View style={styles.userContainer}>
+            {/* view the added users in the group below the search bar */}
+            {/* <View style={styles.userContainer}>
                       {usernames.map((username, index) => (
                         <View key={index} style={styles.userItem}>
                           <Text>{username}</Text>
                         </View>
                       ))}
                     </View> */}
-          {/* <Text>{item.username}</Text>
+            {/* <Text>{item.username}</Text>
                   </TouchableOpacity>
                 )} 
               />
             ) : (
               <Text>No users found</Text>
             ))} */}
+          </View>
+          {/* Tabs */}
+          <View style={styles.tabs}>
+            <Text style={[styles.tab, styles.activeTab]}>Active</Text>
+            {/* <Text style={styles.tab}>Archived</Text> */}
+          </View>
+          {groups.length === 0 ? (
+            <Text style={styles.noGroups}>No groups found</Text>
+          ) : (
+            <FlatList
+              data={groups}
+              renderItem={renderGroupItem}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.groupsList}
+            />
+          )}
         </View>
-        {/* Tabs */}
-        <View style={styles.tabs}>
-          <Text style={[styles.tab, styles.activeTab]}>Active</Text>
-          {/* <Text style={styles.tab}>Archived</Text> */}
-        </View>
-        {groups.length === 0 ? (
-          <Text style={styles.noGroups}>No groups found</Text>
-        ) : (
-          <FlatList
-            data={groups}
-            renderItem={renderGroupItem}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.groupsList}
-          />
-        )}
-      </View>
-      <NavBar />
-    </SafeAreaView>
+        <NavBar />
+      </SafeAreaView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F7F7F9",
+    backgroundColor: "#f6f6f6",
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between", // Add this line
     paddingHorizontal: 20,
-    paddingTop: 20,
     paddingBottom: 10,
-    backgroundColor: "#F7F7F9",
+    backgroundColor: "#fff",
     elevation: 2,
   },
   headerTitle: {
