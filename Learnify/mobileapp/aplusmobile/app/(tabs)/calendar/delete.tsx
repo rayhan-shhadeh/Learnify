@@ -16,7 +16,6 @@ import Header from "../header/Header";
 import NavBar from "../NavBar";
 import API from "../../../api/axois";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-const [userId, setUserId] = useState("");
 
 const initialEvents = [
   {
@@ -40,6 +39,8 @@ const initialEvents = [
 ];
 
 export default function CalendarScreen() {
+  const [userId, setUserId] = useState("");
+
   const [events, setEvents] = useState(initialEvents);
   const [viewMode, setViewMode] = useState<"day" | "week" | "month">("week");
   const [modalVisible, setModalVisible] = useState(false);
@@ -61,44 +62,47 @@ export default function CalendarScreen() {
     end: new Date(),
   });
   const [allevents, setAllEvents] = useState([]);
-  const [userId, setUserId] = useState("");
   useEffect(() => {
     handleGetEvents();
   }, []);
   const handleEditEvent = async (event: any) => {
-    setEditModalVisible(true);
     setEditEvent({
       title: event.title,
       description: event.description,
       start: event.start,
       end: event.end,
     });
-    const userId = await AsyncStorage.getItem("currentUserId");
-    const token = await AsyncStorage.getItem("token");
-    if (!userId) {
-      Alert.alert("Error", "You are not logged in.");
-      return;
-    }
-    setUserId(userId);
-    try {
-      const response = await API.put(`/api/event/${event.id}`, {
-        eventTitle: event.title,
-        eventStart: event.start.toISOString(),
-        eventEnd: event.end.toISOString(),
-        allDay: 0,
-        description: event.description,
-        userid: parseInt(userId),
-      });
-      if (response.status === 200) {
-        Alert.alert("Success", "Event updated successfully!");
-        handleSaveEditEvent(event);
-      } else {
-        Alert.alert("Error", "Failed to update event.");
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Error", "An error occurred while updating the event.");
-    }
+    setEditModalVisible(true);
+
+    // const userId = await AsyncStorage.getItem("currentUserId");
+    // const token = await AsyncStorage.getItem("token");
+    // if (!userId) {
+    //   Alert.alert("Error", "You are not logged in.");
+    //   return;
+    // }
+    // setUserId(userId);
+    // try {
+    //   const response = await API.put(`/api/event/${event.id}`, {
+    //     eventTitle: event.title,
+    //     eventStart: event.start.toISOString(),
+    //     eventEnd: event.end.toISOString(),
+    //     description: event.description,
+    //     user_: {
+    //       connect: {
+    //         userId: userId ? parseInt(userId) : 1,
+    //       },
+    //     },
+    //   });
+    //   if (response.status === 200) {
+    //     Alert.alert("Success", "Event updated successfully!");
+    //     handleSaveEditEvent(event);
+    //   } else {
+    //     Alert.alert("Error", "Failed to update event.");
+    //   }
+    // } catch (error) {
+    //   console.error(error);
+    //   Alert.alert("Error", "An error occurred while updating the event.");
+    // }
   };
   const handleDeleteEvent = async (event: any) => {
     try {
@@ -114,28 +118,48 @@ export default function CalendarScreen() {
       Alert.alert("Error", "An error occurred while deleting the event.");
     }
   };
-  const handleSaveEditEvent = async (event: any) => {
-    if (!editEvent.title || !editEvent.description) {
+  const handleSaveEditEvent = async (event) => {
+    if (!event.title || !event.description) {
       Alert.alert("Error", "Please fill in all the fields.");
       return;
     }
 
-    try {
-      const response = await API.put(`/api/events/${event.id}`, {
-        eventTitle: editEvent.title,
-        eventStart: editEvent.start.toISOString(),
-        eventEnd: editEvent.end.toISOString(),
-        eventDescription: editEvent.description,
-        user_: {
-          connect: {
-            userId: userId ? parseInt(userId) : 1,
-          },
+    const userId = await AsyncStorage.getItem("currentUserId");
+    const requestBody = {
+      eventTitle: editEvent.title,
+      eventStart: editEvent.start.toISOString(),
+      eventEnd: editEvent.end.toISOString(),
+      eventDescription: editEvent.description,
+      user_: {
+        connect: {
+          userId: userId ? parseInt(userId) : 1, // Replace with the actual user ID
         },
-      });
-      if (response.status === 200) {
+      },
+    };
+    Alert.alert("event id", event.id.toString());
+    try {
+      const response = await API.put(
+        `/api/event/update/${event.id}`,
+        requestBody
+      );
+      console.log("API Response:", response); // Debug log
+      const status = response?.status || response?.data?.status;
+      if (response.status === 200 || status === 201) {
+        setEvents((prevEvents) => [
+          ...prevEvents,
+          {
+            title: newEvent.title,
+            description: newEvent.description,
+            start: newEvent.start,
+            end: newEvent.end,
+            color: "#87CEEB",
+          },
+        ]);
         Alert.alert("Success", "Event updated successfully!");
         handleGetEvents();
         setEditModalVisible(false);
+      } else {
+        Alert.alert("Error", "Failed to edit event.");
       }
     } catch (error) {
       console.error(error);
@@ -185,7 +209,6 @@ export default function CalendarScreen() {
       eventStart: newEvent.start.toISOString(),
       eventEnd: newEvent.end.toISOString(),
       eventDescription: newEvent.description,
-      allDay: 0, // Set this dynamically if required
       user_: {
         connect: {
           userId: userId ? parseInt(userId) : 0, // Replace with the actual user ID
@@ -460,6 +483,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   header: {
+    top: -55,
     zIndex: 1,
     flexDirection: "row",
     alignItems: "center",
@@ -518,7 +542,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 20,
-    marginBottom: 40,
+    marginBottom: 50,
   },
   addButton: {
     padding: 10,
