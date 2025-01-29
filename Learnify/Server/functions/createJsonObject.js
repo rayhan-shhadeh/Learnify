@@ -87,7 +87,7 @@ export  function createJSONExploreFlashcard(Q,A,topicId) {
     const jsonObject = {
         "ExploreFlashcardQ": Q,
         "ExploreFlashcardA" : A,
-        "topic": {
+        "topiclevel": {
             "connect": {
               "topiclevelId": topicId
             }
@@ -182,16 +182,14 @@ export function createJSONExploreHistory(userId,topiclevelId){
     return jsonObject;
 }
 
-export function createJSONStatistics(falshcardsCount,keytermsCount,quizzesCount,exploreTopicsCont,habitsDoneToday,habitsCount, groupsCreated, usersCount){
+export function createJSONStatistics(falshcardsCount,keytermsCount,quizzesCount,exploreTopicsCont,habitsDoneToday,habitsCount){
     const jsonObject = {
         "falshcardsCount":falshcardsCount,
         "keytermsCount":keytermsCount,
         "quizzesCount":quizzesCount,
         "exploreTopicsCount":exploreTopicsCont,
         "habitsDoneTodayCount":habitsDoneToday,
-        "habitsCount":habitsCount,
-        "groupsCreated":groupsCreated,
-        "usersCount":usersCount
+        "habitsCount":habitsCount
     };
     return jsonObject;
 }
