@@ -286,7 +286,20 @@ export default function QuizScreen() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient colors={["#1f2f98", "#7bd5f5"]} style={styles.header}>
+      <LinearGradient
+        colors={[
+          // "#f6f6f6",
+          // "#f6f6f6",
+          // "#1f2f98",
+          // "#1f2f98",
+          // "#1f2f98",
+          "#ffffff",
+          "#7bd5f5",
+          "#1ca7ec",
+          "#1ca7ec",
+        ]}
+        style={styles.header}
+      >
         <Header />
         {/* <View style={styles.headerContent}>
           <View>
@@ -344,7 +357,6 @@ const styles = StyleSheet.create({
     height: 250,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
-    paddingTop: 20,
     paddingHorizontal: 20,
   },
   headerContent: {
@@ -373,7 +385,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   recentQuizText: {
-    color: "white",
+    color: "black",
     fontSize: 16,
     marginBottom: 5,
   },
@@ -383,7 +395,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   quizScore: {
-    color: "white",
+    color: "black",
     fontSize: 16,
   },
   quizList: {
