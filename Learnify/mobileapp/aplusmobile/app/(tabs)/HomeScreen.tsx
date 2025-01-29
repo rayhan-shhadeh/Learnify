@@ -326,6 +326,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     textAlign: "left",
+    alignSelf: "center",
+    alignContent: "center",
+    width: "100%",
+    height: "100%",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
@@ -336,6 +340,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     textAlign: "left",
     elevation: 10,
+    alignSelf: "center",
   },
   modalTitle: {
     fontSize: 22,
