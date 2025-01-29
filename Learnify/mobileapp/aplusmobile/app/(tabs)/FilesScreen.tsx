@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import Icon from "react-native-vector-icons/FontAwesome";
+import Icon from "react-native-vector-icons/FontAwesome5";
 import { useRouter } from "expo-router";
 import NavBar from "./NavBar";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -60,10 +60,19 @@ const FilesScreen = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [fileChoicesVisible, setFileChoicesVisible] = useState(false);
   const sortOptions = [
-    { label: "Sort By", value: "" },
-    { label: "Name (A-Z)", value: "name-asc" },
-    { label: "Deadline (Soonest First)", value: "deadline-asc" },
-    { label: "Deadline (Latest First)", value: "deadline-desc" },
+    { label: <Icon name="sort" size={20} color="#778899" />, value: "" },
+    {
+      label: <Icon name="sort-alpha-up-alt" size={20} color="#778899" />,
+      value: "name-asc",
+    },
+    {
+      label: <Icon name="sort-amount-up-alt" size={20} color="#778899" />,
+      value: "deadline-asc",
+    },
+    {
+      label: <Icon name="sort-amount-down-alt" size={20} color="#778899" />,
+      value: "deadline-desc",
+    },
   ];
 
   const handleDateChange = (event: any, selectedDate: Date | undefined) => {
@@ -661,15 +670,15 @@ const FilesScreen = () => {
 
   return (
     <>
-      <View style={styles.header}>
+      <View style={{ backgroundColor: "#fff", zIndex: 0 }}>
         <Header />
-        <View style={styles.headercontainer}>
-          <Icon name="folder" size={27} color="#778899" />
-          <Text style={styles.header}> My files</Text>
-        </View>
       </View>
-      <LinearGradient colors={["#fff", "#fff", "#333"]}>
-        <View style={styles.container}>
+      <View style={styles.header}>
+        <Icon name="folder" size={27} color="#778899" />
+        <Text style={styles.headerText}> My files</Text>
+      </View>
+      <View style={styles.container}>
+        <TouchableOpacity style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
             value={searchQuery}
@@ -683,78 +692,72 @@ const FilesScreen = () => {
               handleSearch();
             }}
           />
-          <View style={styles.container}>
-            <View style={styles.sortContainer}>
-              {/* Dropdown Trigger */}
+        </TouchableOpacity>
+        {/* Dropdown Trigger */}
+        <TouchableOpacity
+          style={styles.dropdownList}
+          onPress={() => setShowDropdown(!showDropdown)}
+        >
+          <Text style={styles.dropdownTriggerText}>
+            {sortCriteria ? (
+              sortOptions.find((option) => option.value === sortCriteria)?.label
+            ) : (
+              <Icon name="sort-amount-up-alt" size={20} color="#778899" />
+            )}
+          </Text>
+        </TouchableOpacity>
+
+        {showDropdown && (
+          <View style={styles.dropdownList}>
+            {sortOptions.map((option) => (
               <TouchableOpacity
-                style={styles.dropdownList}
-                onPress={() => setShowDropdown(!showDropdown)}
+                key={option.value}
+                style={styles.dropdownItem}
+                onPress={() => {
+                  setSortCriteria(option.value);
+                  setShowDropdown(false); // Close dropdown after selection
+                  handleSort(option.value);
+                }}
               >
-                <Text style={styles.dropdownTriggerText}>
-                  {sortCriteria
-                    ? sortOptions.find(
-                        (option) => option.value === sortCriteria
-                      )?.label
-                    : "Sort By"}
-                </Text>
+                <Text style={styles.dropdownItemText}>{option.label}</Text>
               </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
-              {showDropdown && (
-                <View style={styles.dropdownList}>
-                  {sortOptions.map((option) => (
-                    <TouchableOpacity
-                      key={option.value}
-                      style={styles.dropdownItem}
-                      onPress={() => {
-                        setSortCriteria(option.value);
-                        setShowDropdown(false); // Close dropdown after selection
-                        handleSort(option.value);
-                      }}
-                    >
-                      <Text style={styles.dropdownItemText}>
-                        {option.label}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-
-              {/* Sort Button */}
-              {/* <TouchableOpacity
+        {/* Sort Button */}
+        {/* <TouchableOpacity
                 onPress={() => handleSort(sortCriteria)}
                 disabled={!sortCriteria} // Disable button if no criteria is selected
               >
                 <Text>Sort</Text>
               </TouchableOpacity> */}
-            </View>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => setModalVisible(true)}
+        >
+          <Text style={styles.addButtonText}>Add File</Text>
+        </TouchableOpacity>
+        {renderAddFileModal()}
+        <Animatable.View animation="fadeInUp" delay={200} duration={800}>
+          <View style={{ marginBottom: 1500, flex: 1 }}>
+            <FlatList
+              style={styles.fileList}
+              data={files} // Adjust this based on the course structure
+              renderItem={({ item }) => (
+                <FileCard
+                  fileId={item.fileId}
+                  title={item.fileName}
+                  uri={item.fileURL}
+                  fileDeadline={item.fileDeadline}
+                />
+              )}
+              keyExtractor={(item, index) => index.toString()}
+              contentContainerStyle={{ paddingBottom: 10 }}
+            />
           </View>
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => setModalVisible(true)}
-          >
-            <Text style={styles.addButtonText}>Add File</Text>
-          </TouchableOpacity>
-          {renderAddFileModal()}
-          <Animatable.View animation="fadeInUp" delay={200} duration={800}>
-            <View>
-              <FlatList
-                style={styles.fileList}
-                data={files} // Adjust this based on the course structure
-                renderItem={({ item }) => (
-                  <FileCard
-                    fileId={item.fileId}
-                    title={item.fileName}
-                    uri={item.fileURL}
-                    fileDeadline={item.fileDeadline}
-                  />
-                )}
-                keyExtractor={(item, index) => index.toString()}
-                contentContainerStyle={styles.fileList}
-              />
-            </View>
-          </Animatable.View>
-        </View>
-      </LinearGradient>
+        </Animatable.View>
+      </View>
       <NavBar />
       {isEditModalVisible && renderEditFileModal()}
       {fileChoicesVisible && renderChoicesModal()}
@@ -772,11 +775,21 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 24,
     fontWeight: "bold",
-    justifyContent: "flex-start",
-    paddingLeft: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    backgroundColor: "#fff",
+    zIndex: 1,
+    position: "absolute",
+    top: 30,
+    left: 105,
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    backgroundColor: "#fff",
   },
   fileList: {
-    flexGrow: 1,
+    paddingBottom: 500,
   },
   card: {
     flex: 1,
@@ -882,20 +895,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "absolute",
     top: 25,
-    left: 130,
+    left: 140,
   },
-  notificationButton: {
-    flex: 1,
-    zIndex: 1,
-    padding: 8,
-    position: "absolute",
-    top: 16,
-    right: 16,
-  },
-  back: {
-    position: "absolute",
-    left: 16,
-  },
+
   dateInput: {
     height: 40,
     borderColor: "#1CA7EC",
@@ -940,11 +942,11 @@ const styles = StyleSheet.create({
   sortContainer: {
     alignItems: "center",
     justifyContent: "space-between",
-    margin: 10,
-    paddingHorizontal: 20,
-    overflow: "hidden",
-    zIndex: 1,
-    position: "relative",
+    zIndex: 58,
+    position: "absolute",
+    right: 30,
+    top: -10,
+    width: 40,
   },
   dropdownTrigger: {
     width: "100%",
@@ -953,36 +955,70 @@ const styles = StyleSheet.create({
     borderWidth: 0.3,
     borderRadius: 20,
     justifyContent: "center",
-    paddingHorizontal: 10,
     marginBottom: 10,
     overflow: "hidden",
+    zIndex: 999,
   },
   dropdownTriggerText: {
     fontSize: 16,
     color: "black",
+    zIndex: 9999,
   },
   dropdownListText: {
     fontSize: 16,
     color: "black",
+    zIndex: 9999,
   },
   dropdownList: {
-    width: "100%",
-    backgroundColor: "white",
-    borderWidth: 1,
-    borderColor: "gray",
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "#f0f0f0",
     borderRadius: 5,
-    marginBottom: 10,
-    padding: 5,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 8,
+    zIndex: 55,
+    width: "18%",
   },
   dropdownItem: {
     padding: 10,
+    backgroundColor: "#fff",
     borderBottomWidth: 1,
-    borderBottomColor: "gray",
+    borderBottomColor: "#ccc",
+    borderRadius: 17,
+    paddingTop: 10,
+    marginVertical: 5,
+    zIndex: 55,
   },
   dropdownItemText: {
+    color: "#000",
     fontSize: 16,
-    color: "black",
+    zIndex: 55,
   },
+  // dropdownList: {
+  //   backgroundColor: "white",
+  //   borderWidth: 1,
+  //   borderColor: "gray",
+  //   borderRadius: 5,
+  //   padding: 8,
+  //   zIndex: 88,
+  //   marginTop: 5,
+  // },
+  // dropdownItem: {
+  //   padding: 10,
+  //   borderBottomWidth: 1,
+  //   borderBottomColor: "gray",
+  //   zIndex: 99999,
+  //   overflow: "hidden",
+  // },
+  // dropdownItemText: {
+  //   fontSize: 16,
+  //   color: "black",
+  //   zIndex: 999,
+  //   overflow: "hidden",
+  // },
   modalHeader: { fontSize: 20, fontWeight: "bold", marginBottom: 16 },
   searchInput: {
     height: 40,
@@ -992,22 +1028,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginBottom: 10,
     marginTop: 10,
+    width: "80%",
+  },
+  searchContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
   },
   searchButton: {
     backgroundColor: "#1CA7EC",
-    padding: 12,
-    borderRadius: 15,
+    borderRadius: 10,
     borderBlockColor: "white",
     alignItems: "center",
     marginBottom: 16,
-    height: 40,
+    height: 30,
+    width: "80%",
     overflow: "hidden",
-    justifyContent: "center",
-    alignContent: "center",
-    alignSelf: "center",
     zIndex: 1,
   },
-  searchButtonText: { color: "white", fontWeight: "bold" },
+  searchButtonText: { color: "white", fontWeight: "bold", width: "100%" },
   fileItem: {
     padding: 12,
     backgroundColor: "#1CA7EC",
