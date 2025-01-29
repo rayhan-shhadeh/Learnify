@@ -13,12 +13,14 @@ import { router, useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
 import API from "../../api/axois";
+import LottieView from "lottie-react-native";
 
 const TopicScreen = () => {
   const [flippedCards, setFlippedCards] = useState<{ [key: string]: boolean }>(
     {}
   );
-  let { userId, searchTopic, level,exploreFlashcards } = useLocalSearchParams();
+  let { userId, searchTopic, level, exploreFlashcards } =
+    useLocalSearchParams();
   const flashcards = JSON.parse(exploreFlashcards as string);
   const [isPremium, setIsPremium] = useState<boolean>();
 
@@ -41,10 +43,10 @@ const TopicScreen = () => {
   }, []);
 
   const handleFlip = (id: string) => {
-      setFlippedCards((prev) => ({
-        ...prev,
-        [id]: !prev[id],
-      }));
+    setFlippedCards((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
   };
   let count = 0;
   const renderItem = ({
@@ -87,6 +89,12 @@ const TopicScreen = () => {
 
   return (
     <View style={styles.container}>
+      <LottieView
+        source={require("../../assets/celebrate.json")}
+        autoPlay
+        loop
+        style={{ width: 200, alignSelf: "center", zIndex: 1 }}
+      />
       <Text style={styles.title}>Flashcards for {searchTopic}</Text>
       <FlatList
         data={flashcards}
@@ -94,24 +102,26 @@ const TopicScreen = () => {
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 20 }}
       />
-      {isPremium?(
-          <TouchableOpacity 
-          onPress={() => router.push(
-            {pathname:"/(tabs)/LinkListScreen",params: {searchTopic,level}})}>
-          <Text style={styles.nextButton}>
-            Explore more
-          </Text>
+      {isPremium ? (
+        <TouchableOpacity
+          onPress={() =>
+            router.push({
+              pathname: "/(tabs)/LinkListScreen",
+              params: { searchTopic, level },
+            })
+          }
+        >
+          <Text style={styles.nextButton}>Explore more</Text>
         </TouchableOpacity>
-        ):
-        (<TouchableOpacity 
-          onPress={() => router.push(
-            {pathname:"/(tabs)/Payment/PremiumScreen"})}>
-          <Text style={styles.nextButton}>
-            Unlock?
-          </Text>
+      ) : (
+        <TouchableOpacity
+          onPress={() =>
+            router.push({ pathname: "/(tabs)/Payment/PremiumScreen" })
+          }
+        >
+          <Text style={styles.nextButton}>Unlock?</Text>
         </TouchableOpacity>
-      )
-      }
+      )}
     </View>
   );
 };
@@ -120,10 +130,18 @@ const screenWidth = Dimensions.get("window").width;
 
 const styles = StyleSheet.create({
   nextButton: {
-    alignSelf: 'center',
+    alignSelf: "center",
     padding: 10,
-    backgroundColor: '#007bff',
+    backgroundColor: "#007bff",
     borderRadius: 50,
+    color: "#fff",
+    marginBottom: 20,
+    width: 150,
+    textAlign: "center",
+    height: 50,
+    fontSize: 18,
+    fontWeight: "bold",
+    marginTop: 20,
   },
   container: {
     flex: 1,
@@ -144,7 +162,7 @@ const styles = StyleSheet.create({
     width: screenWidth * 0.9,
     height: 150,
     borderRadius: 12,
-    backgroundColor: "#85c4e4",
+    backgroundColor: "#1ca7ec",
     justifyContent: "center",
     alignItems: "center",
     shadowColor: "#000",

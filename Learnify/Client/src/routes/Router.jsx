@@ -39,7 +39,9 @@ const Shadow = Loadable(lazy(() => import('../views/utilities/Shadow')))
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
-
+const HabitTracker = Loadable(lazy(() => import('../scenes/HabitTracker')));
+const Chatting = Loadable(lazy(() => import('../scenes/Chatting/Chatting')));
+const GroupsScreen = Loadable(lazy(() => import('../scenes/Chatting/GroupsScreen')));
 const Router = [
   {
     path: '/auth',
@@ -105,7 +107,40 @@ const Router = [
         element: <FAQ />,
       },
     ],
+  },{
+    path: "/habits",
+    element: <HabitTracker />,
+    children: [
+      {
+        path: "/habits/track",
+        element: <Dashboard />,
+      },
+    ],
   },
+  {
+    path: "/chatting",
+      element: <Chatting />,
+      children: [
+        {
+          path: "/chatting/chat",
+          element: <Chatting />,
+        },      {
+          path: "/chatting/groups",
+          element: <GroupsScreen />,
+        },
+  
+      ],
+    },  {
+      path: "/groups",
+        element: <GroupsScreen />,
+        children: [
+          {
+            path: "/groups/chat",
+            element: <Chatting />,
+          }, 
+    
+        ],
+      },
 ];
 
 export default Router;

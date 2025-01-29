@@ -10,6 +10,7 @@ import {
   FlatList,
   TextInput,
   Button,
+  Image,
 } from "react-native";
 import { WebView } from "react-native-webview";
 import API, { LOCALHOST } from "../../../api/axois";
@@ -327,6 +328,16 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
     </View>
   );
 */
+  const setShowErrorImage = () => {
+    return (
+      <View style={styles.modalContainer}>
+        <Image
+          source={require("../../../assets/images/error-404.png")}
+          style={styles.icon}
+        />
+      </View>
+    );
+  };
 
   const renderFlashcard = ({ item }: { item: Flashcard }) => {
     const { isEditing, editedQuestion, editedAnswer } = flashcardStates[
@@ -495,7 +506,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
       if (!data || data.length === 0) {
         setFlashcards([]);
         setLoading(false);
-        setLoading(false);
         return;
       }
       console.log("Flashcards Generated Successfully.");
@@ -506,8 +516,8 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
       setIsAllPages(true);
     } catch (error) {
       console.error("Error generating flashcards:", error);
-      setError("hi");
-      setLoading(true);
+      setError("Failed to generate flashcards. Please try again.");
+      setLoading(false);
     }
   };
 
@@ -1934,5 +1944,3 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
 });
-
-export default PdfViewer;
