@@ -343,7 +343,7 @@ const CoursesScreen = () => {
           <View style={styles.modalContent}>
             <View style={styles.modalheadercontainer}>
               <Image
-                source={require("../../assets/images/plus.png")}
+                source={require("../../assets/images/add.png")}
                 style={{ width: 27, height: 27, marginRight: 10 }}
                 resizeMode="contain"
               />
@@ -395,7 +395,11 @@ const CoursesScreen = () => {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <View style={styles.modalheadercontainer}>
-              <Icon name="plus" size={24} color="#1CA7EC" />
+              <Image
+                source={require("../../assets/images/edit.png")}
+                style={{ width: 27, height: 27, marginRight: 10 }}
+                resizeMode="contain"
+              />
               <Text style={styles.modalTitle}>edit Course</Text>
             </View>
             <TextInput
@@ -446,7 +450,7 @@ const CoursesScreen = () => {
       <View style={styles.container}>
         <View style={styles.headercontainer}>
           <Image
-            source={require("../../assets/images/book.png")}
+            source={require("../../assets/images/folder-unscreen.gif")}
             style={styles.logo}
             resizeMode="contain"
           />
@@ -565,8 +569,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 3, height: 6 },
     shadowOpacity: 0.4,
     shadowRadius: 4,
-    paddingBlock: 10,
-    marginBottom: 20,
+    marginBottom: 35,
   },
   cardHeader: {
     flexDirection: "column",
@@ -589,7 +592,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 18,
     alignItems: "center",
-    marginBottom: 50,
+    marginBottom: 80,
     marginHorizontal: 20,
     bottom: 10,
     position: "absolute",
@@ -604,7 +607,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#bde0fe",
+    backgroundColor: "rgba(219, 223, 227, 0.5)",
     //'rgba(0, 0, 0, 0.5)'
   },
   modalContent: {
@@ -633,6 +636,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingRight: 90,
     paddingVertical: 5,
+    position: "absolute",
+    left: 100,
+    top: -60,
+    zIndex: 1,
   },
   modalheadercontainer: {
     flexDirection: "row",
@@ -641,18 +648,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingBlock: 20,
   },
-  notificationButton: {
-    flex: 1,
-    zIndex: 1,
-    position: "relative",
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexDirection: "row",
-    top: 19,
-    paddingRight: 20,
-    left: 20,
-    marginBottom: 20,
-  },
+
   back: {
     position: "absolute",
     left: 16,
