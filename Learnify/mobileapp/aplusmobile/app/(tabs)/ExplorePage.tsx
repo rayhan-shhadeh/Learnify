@@ -8,6 +8,8 @@ import {
   ActivityIndicator,
   Alert,
   TextInput,
+  Image,
+  ScrollView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import NavBar from "../(tabs)/NavBar";
@@ -17,23 +19,20 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useRouter } from "expo-router";
+import Header from "./header/Header";
+interface HistoryTopic {
+  topic: string;
+  topiclevelId: string;
+  level: string;
+}
+
 const randomGradient = (): [string, string, ...string[]] => {
   const colors: [string, string, ...string[]][] = [
-    ["#4c669f", "#3b5998", "#192f6a"],
-    ["#6a11cb", "#2575fc"],
-    ["#00c6ff", "#0072ff"],
-    ["#43cea2", "#185a9d"],
-    ["#ff758c", "#ff7eb3"],
-    ["#5f83b1", "#7BD5F5"],
-    ["#787FF6", "#4ADEDE"],
-    ["#1CA7EC", "#1F2F98"],
-    ["#ffffff", "#5F83B1"],
-    ["#21277B", "#9AD9EA"],
-    ["#9AD9EA", "#006A67"],
-    ["#92e1ff", "#4682b4"],
-    ["#5f9ea0", "#ffffff"],
-    ["#778899", "#5F83B1"],
-    ["#708090", "#5F83B1"],
+    ["#2C3E50", "#1CA7EC"], // Dark blue and blue gradient (reliable and educational)
+    ["#2C3E50", "#1CA7EC"], // Dark blue and blue gradient (reliable and educational)
+    ["#34495E", "#16A085"], // Dark teal and green gradient (calm and focused)
+    ["#1F3A69", "#3498DB"], // Navy blue and light blue gradient (professional and calming)
+    ["#8E44AD", "#9B59B6"], // Purple gradient (creative and engaging)
   ];
   return colors[Math.floor(Math.random() * colors.length)];
 };
@@ -111,7 +110,7 @@ interface HistoryCardProps {
   id: string;
   level: string;
   userId: string;
-  setHistoryTopics: React.Dispatch<React.SetStateAction<string[]>>;
+  setHistoryTopics: React.Dispatch<React.SetStateAction<HistoryTopic[]>>;
 }
 
 const HistoryCard: React.FC<HistoryCardProps> = ({
@@ -184,11 +183,17 @@ const ExploreScreen = () => {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<any>();
   const [showDropdown, setShowDropdown] = useState(false);
-  const [level, setLevel] = useState<String>();
+  const [level, setLevel] = useState<string>();
   const [searchTopic, setSearchTopic] = useState<string>();
   const router = useRouter();
   const [isPremium, setIsPremium] = useState<boolean>();
-  const [historyTopics, setHistoryTopics] = useState<string[]>([]);
+  interface HistoryTopic {
+    topic: string;
+    topiclevelId: string;
+    level: string;
+  }
+
+  const [historyTopics, setHistoryTopics] = useState<HistoryTopic[]>([]);
   const [loadingFlashcards, setLoadingFlashcards] = useState<boolean>(false);
 
   useEffect(() => {
@@ -322,121 +327,172 @@ const ExploreScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>
-        <Back title={""} onBackPress={() => console.log("Back pressed")} />{" "}
-        Explore
-      </Text>
-      <View style={styles.searchBarContainer}>
-        <View style={styles.searchBar}>
-          <TextInput
-            placeholder="Search for a new topic"
-            style={styles.searchText}
-            value={searchTopic}
-            onChangeText={(text) => setSearchTopic(text)}
-            onSubmitEditing={handleSearch}
-            returnKeyType="search"
-          />
-        </View>
-        <TouchableOpacity
-          style={styles.filterIcon}
-          onPress={() => setShowDropdown(!showDropdown)}
+    <>
+      <Header />
+      <View style={styles.container}>
+        <Text style={styles.header}>Explore</Text>
+
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
         >
-          <Icon name="filter" size={20} color="#888" />
-        </TouchableOpacity>
-        {showDropdown && (
-          <View style={styles.dropdown}>
-            <TouchableOpacity
-              style={styles.dropdownItem}
-              onPress={() => handleLevelSelect("Beginner")}
+          <View style={styles.searchBarContainer}>
+            <LinearGradient
+              style={styles.searchBar}
+              colors={[
+                "#1CA7EC",
+                "#a8c3d4",
+                "#dbd6df",
+                "#eec6c7",
+                "#db88a4",
+                "#cc82b1",
+              ]}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
             >
-              <Text style={styles.dropdownText}>Beginner</Text>
-            </TouchableOpacity>
+              <TextInput
+                placeholder="Generate Flashcards for a new topic"
+                style={{ ...styles.searchText, color: "black", zIndex: 55 }}
+                value={searchTopic}
+                onChangeText={(text) => setSearchTopic(text)}
+                onSubmitEditing={handleSearch}
+                returnKeyType="search"
+                placeholderTextColor={"#1c3456"}
+              />
+            </LinearGradient>
             <TouchableOpacity
-              style={styles.dropdownItem}
-              onPress={() => handleLevelSelect("Medium")}
+              style={styles.filterIcon}
+              onPress={() => setShowDropdown(!showDropdown)}
             >
-              <Text style={styles.dropdownText}>Medium</Text>
+              <Image
+                source={require("../../assets/images/filter.png")}
+                style={{ width: 20, height: 20 }}
+              />
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.dropdownItem}
-              onPress={() => handleLevelSelect("Advanced")}
-            >
-              <Text style={styles.dropdownText}>Advanced</Text>
-            </TouchableOpacity>
+            {showDropdown && (
+              <View style={styles.dropdown}>
+                <TouchableOpacity
+                  style={styles.dropdownItem}
+                  onPress={() => handleLevelSelect("Beginner")}
+                >
+                  <Text style={styles.dropdownText}>Beginner</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.dropdownItem}
+                  onPress={() => handleLevelSelect("Medium")}
+                >
+                  <Text style={styles.dropdownText}>Medium</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.dropdownItem}
+                  onPress={() => handleLevelSelect("Advanced")}
+                >
+                  <Text style={styles.dropdownText}>Advanced</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
-        )}
-      </View>
-      {/* History */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>History</Text>
-        <FlatList
-          horizontal
-          data={historyTopics}
-          renderItem={({ item }) => (
-            <HistoryCard
-              searchTopic={item.topic}
-              id={item.topiclevelId}
-              userId={userId}
-              level={item.level}
-              setHistoryTopics={setHistoryTopics}
+          {/* History */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>History</Text>
+            <FlatList
+              horizontal
+              data={historyTopics}
+              renderItem={({ item }) => (
+                <HistoryCard
+                  searchTopic={item.topic}
+                  id={item.topiclevelId}
+                  userId={userId}
+                  level={item.level}
+                  setHistoryTopics={setHistoryTopics}
+                />
+              )}
+              keyExtractor={(item) => item.topiclevelId}
             />
-          )}
-          keyExtractor={(item) => item.topiclevelId}
-        />
-      </View>
-      {/* Suggested Topics */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Suggested</Text>
-        <FlatList
-          horizontal
-          data={suggestedTopics}
-          renderItem={({ item }) => (
-            <Card
-              searchTopic={item}
-              userId={userId}
-              setLoadingFlashcards={setLoadingFlashcards}
-            />
-          )}
-          keyExtractor={(item, index) => `suggested-${index}`}
-        />
-      </View>
+          </View>
+          {/* Suggested Topics */}
+          <View style={styles.section}>
+            <View
+              style={{ flexDirection: "row", justifyContent: "flex-start" }}
+            >
+              <Icon name="lightbulb-o" size={20} color="#ffd335" />
 
-      {/* Related Topics */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Related</Text>
-        <FlatList
-          horizontal
-          data={relatedTopics}
-          renderItem={({ item }) => (
-            <Card
-              searchTopic={item}
-              userId={userId}
-              setLoadingFlashcards={setLoadingFlashcards}
-            />
-          )}
-          keyExtractor={(item, index) => `related-${index}`}
-        />
-      </View>
+              <Text style={styles.sectionTitle}>Suggested</Text>
+            </View>
 
-      {/* Popular Topics */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Popular</Text>
-        <FlatList
-          horizontal
-          data={popularTopics}
-          renderItem={({ item }) => (
-            <Card
-              searchTopic={item}
-              userId={userId}
-              setLoadingFlashcards={setLoadingFlashcards}
+            <FlatList
+              data={suggestedTopics}
+              renderItem={({ item }) => (
+                <Card
+                  searchTopic={item}
+                  userId={userId}
+                  setLoadingFlashcards={setLoadingFlashcards}
+                />
+              )}
+              keyExtractor={(item, index) => `suggested-${index}`}
+              horizontal
+              nestedScrollEnabled
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.flatlistContainer}
             />
-          )}
-          keyExtractor={(item, index) => `popular-${index}`}
-        />
+          </View>
+
+          {/* Related Topics */}
+          <View style={styles.section}>
+            <View
+              style={{ flexDirection: "row", justifyContent: "flex-start" }}
+            >
+              <Icon name="link" size={20} color="#ffd335" />
+
+              <Text style={styles.sectionTitle}>Related</Text>
+            </View>
+
+            <FlatList
+              horizontal
+              nestedScrollEnabled
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.flatlistContainer}
+              data={relatedTopics}
+              renderItem={({ item }) => (
+                <Card
+                  searchTopic={item}
+                  userId={userId}
+                  setLoadingFlashcards={setLoadingFlashcards}
+                />
+              )}
+              keyExtractor={(item, index) => `related-${index}`}
+            />
+          </View>
+
+          {/* Popular Topics */}
+          <View style={styles.section}>
+            <View
+              style={{ flexDirection: "row", justifyContent: "flex-start" }}
+            >
+              <Icon name="fire" size={20} color="#ffd335" />
+
+              <Text style={styles.sectionTitle}>Popular</Text>
+            </View>
+            <FlatList
+              horizontal
+              nestedScrollEnabled
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.flatlistContainer}
+              data={popularTopics}
+              renderItem={({ item }) => (
+                <Card
+                  searchTopic={item}
+                  userId={userId}
+                  setLoadingFlashcards={setLoadingFlashcards}
+                />
+              )}
+              keyExtractor={(item, index) => `popular-${index}`}
+            />
+          </View>
+        </ScrollView>
+        <NavBar />
       </View>
-      <NavBar />
-    </View>
+    </>
   );
 };
 
@@ -464,7 +520,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 4,
     elevation: 5,
-    zIndex: 1,
+    zIndex: 999,
+    overflow: "hidden",
   },
   dropdownItem: {
     padding: 10,
@@ -473,20 +530,43 @@ const styles = StyleSheet.create({
     borderBottomColor: "#ccc",
     borderRadius: 17,
     paddingTop: 10,
+    overflow: "hidden",
+
+    zIndex: 55,
+  },
+  dropdownText: {
+    color: "#000",
+    fontSize: 16,
+    zIndex: 55,
   },
   header: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 0,
+    position: "absolute",
+    top: -50,
+    left: 150,
+    zIndex: 66,
+    flex: 1,
   },
   searchBar: {
-    backgroundColor: "#e0e0e0",
-    borderRadius: 10,
+    borderRadius: 15,
     padding: 10,
     width: "90%",
+    shadowColor: "#000",
+    shadowOffset: { width: 7, height: 7 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    color: "#000",
   },
   searchText: {
-    color: "#888",
+    color: "black",
+    fontWeight: "bold",
+    fontSize: 16,
+    shadowColor: "#ccc",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
   },
   section: {
     marginBottom: 20,
@@ -495,18 +575,28 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 10,
+    marginLeft: 10,
   },
   card: {
-    width: 150,
-    height: 100,
-    borderRadius: 10,
+    width: 250,
+    height: 150,
+    borderRadius: 35,
     marginRight: 10,
-    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    elevation: 5,
   },
   gradient: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    borderRadius: 35,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
   },
   gradienthistory: {
     flex: 1,
@@ -515,11 +605,13 @@ const styles = StyleSheet.create({
   },
   cardText: {
     color: "#fff",
-    fontSize: 14,
+    fontSize: 19,
     fontWeight: "bold",
     position: "absolute",
     top: 15,
     left: 10,
+    justifyContent: "flex-start",
+    paddingHorizontal: 15,
   },
   loadingContainer: {
     flex: 1,
@@ -570,13 +662,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 7, height: 7 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    color: "#000",
+    zIndex: 55,
   },
   filterIcon: {
     marginLeft: 10,
   },
-  dropdownText: {
-    color: "#000",
-    fontSize: 16,
+
+  scrollContainer: {
+    paddingBottom: 100,
   },
 });
 
