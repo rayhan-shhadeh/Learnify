@@ -6,14 +6,15 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
+  Keyboard,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import API from "@/api/axois";
-import { useLocalSearchParams,useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 const CreateKeyTermScreen = () => {
   const router = useRouter();
-  const {passedFileId}=useLocalSearchParams();
+  const { passedFileId } = useLocalSearchParams();
   const [flashcardName, setFlashcardName] = useState("");
   const [keytermText, setKeytermText] = useState("");
   const [keytermDef, setKeytermDef] = useState("");
@@ -28,14 +29,13 @@ const CreateKeyTermScreen = () => {
     return colors[Math.floor(Math.random() * colors.length)];
   };
 
-
   const handleCreateKeyTerm = async () => {
     if (!keytermText || !keytermDef) {
       setMessage("All fields are required!");
       return;
     }
     setFlashcardName("Flachcard" + passedFileId);
-  
+
     const keyTermData = {
       keytermText,
       keytermDef,
@@ -52,10 +52,10 @@ const CreateKeyTermScreen = () => {
       setMessage("Flashcard created successfully!");
       setKeytermText("");
       setKeytermDef("");
-      const activeTab = 'KeyTerms'//"PDF" | "Flashcards" | "KeyTerms"
+      const activeTab = "KeyTerms"; //"PDF" | "Flashcards" | "KeyTerms"
       router.replace({
-        pathname: '/Files/PdfScreen',
-        params: { passedFileId ,activeTab},
+        pathname: "/Files/PdfScreen",
+        params: { passedFileId, activeTab },
       });
       //navigation.pop();
     } catch (error) {
@@ -63,7 +63,7 @@ const CreateKeyTermScreen = () => {
       setMessage("Failed to create key term.");
     }
   };
-  
+
   return (
     <LinearGradient colors={randomGradient()} style={styles.container}>
       <View style={styles.card}>
@@ -72,7 +72,7 @@ const CreateKeyTermScreen = () => {
           source={require("../../../assets/images/manualflashcard.gif")}
           style={styles.logo}
         />
-                <TouchableOpacity style={styles.button} onPress={handleCreateKeyTerm}>
+        <TouchableOpacity style={styles.button} onPress={handleCreateKeyTerm}>
           <LinearGradient
             colors={["#6a11cb", "#2575fc"]}
             style={styles.buttonGradient}
@@ -81,20 +81,21 @@ const CreateKeyTermScreen = () => {
           </LinearGradient>
         </TouchableOpacity>
 
-
         <TextInput
           style={styles.inputLarge}
           placeholder="key term"
-          multiline
           value={keytermText}
           onChangeText={setKeytermText}
+          returnKeyLabel="done"
+          onSubmitEditing={() => Keyboard.dismiss()} // this will close the keyboard when the user clicks on done
         />
         <TextInput
           style={styles.inputLarge}
           placeholder="Definition"
-          multiline
           value={keytermDef}
           onChangeText={setKeytermDef}
+          returnKeyLabel="done"
+          onSubmitEditing={() => Keyboard.dismiss()} // this will close the keyboard when the user clicks on done
         />
         {message ? (
           <Text
@@ -161,6 +162,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     fontSize: 16,
     backgroundColor: "#f9f9f9",
+    marginTop: 10,
   },
   button: {
     borderRadius: 25,
