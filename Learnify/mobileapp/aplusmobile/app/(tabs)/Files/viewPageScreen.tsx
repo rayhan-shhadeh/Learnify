@@ -1,9 +1,9 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect } from 'react';
-import { SafeAreaView, Text, TouchableOpacity,Dimensions } from 'react-native';
-const { width, height } = Dimensions.get('window');
-import { StyleSheet, View } from 'react-native';
-import { WebView } from 'react-native-webview';
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect } from "react";
+import { SafeAreaView, Text, TouchableOpacity, Dimensions } from "react-native";
+const { width, height } = Dimensions.get("window");
+import { StyleSheet, View } from "react-native";
+import { WebView } from "react-native-webview";
 
 interface PdfViewerProps {
   pdfUrl: string;
@@ -45,8 +45,8 @@ const PageViewer: React.FC<PdfViewerProps> = ({ pdfUrl, page }) => {
 
   return (
     <View style={styles.containerPDF}>
-      <WebView 
-        originWhitelist={['*']}
+      <WebView
+        originWhitelist={["*"]}
         source={{ html: pdfViewerHTML }}
         style={styles.webview}
       />
@@ -56,19 +56,21 @@ const PageViewer: React.FC<PdfViewerProps> = ({ pdfUrl, page }) => {
 
 const viewPageScreen = () => {
   //questionORterm,answerORdefinition,pdfUrl,page,KF
-  const containerSize = width < height / 2 ? { width, height: height / 2 } : { width, height };
-  const { questionORterm, answerORdefinition, pdfUrl, page ,passedFileId,KF} = useLocalSearchParams();
+  const containerSize =
+    width < height / 2 ? { width, height: height / 2 } : { width, height };
+  const { questionORterm, answerORdefinition, pdfUrl, page, passedFileId, KF } =
+    useLocalSearchParams();
   const QuestionORterm = questionORterm || "No question provided.";
   const AnswerORdefinition = answerORdefinition || "No answer available.";
   const PdfUrl = pdfUrl?.toString();
-  const Page = page ? page.toString() :'1' ;
-  const activeTab = (KF=='F')? 'Flashcards':'KeyTerms';
+  const Page = page ? page.toString() : "1";
+  const activeTab = KF == "F" ? "Flashcards" : "KeyTerms";
   const router = useRouter();
 
   const handleButtonPress = () => {
     router.replace({
       pathname: `/(tabs)/Files/PdfScreen`,
-      params: {passedFileId,activeTab},
+      params: { passedFileId, activeTab },
     });
   };
 
@@ -83,17 +85,20 @@ const viewPageScreen = () => {
         <View style={styles.flashcardCard}>
           <View style={styles.flashcardContent}>
             <Text style={styles.flashcardTitle}>{QuestionORterm}</Text>
-            <Text style={styles.flashcardDescription}>{AnswerORdefinition}</Text>
+            <Text style={styles.flashcardDescription}>
+              {AnswerORdefinition}
+            </Text>
           </View>
         </View>
       </View>
       {/* PDF Viewer */}
-      <View style={[styles.pdfViewerContainer, { flex: 0.6 }]}>
+      <View style={[styles.pdfViewerContainer, { flex: 0.7 }]}>
         <PageViewer pdfUrl={PdfUrl} page={Page} />
       </View>
       {/* Button Stuck to Bottom */}
       <TouchableOpacity style={styles.stickyButton} onPress={handleButtonPress}>
         <Text style={styles.buttonText}>Back to Study</Text>
+        <Text style={styles.buttonText}>←</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -101,32 +106,32 @@ const viewPageScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#f4f4f9',
+    backgroundColor: "#ffffff",
     flex: 1,
   },
   header: {
     paddingHorizontal: 16,
     paddingVertical: 20,
-    backgroundColor: '#4A90E2',
-    alignItems: 'center',
+    backgroundColor: "#4A90E2",
+    alignItems: "center",
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     elevation: 5,
   },
   title: {
     fontSize: 22,
-    fontWeight: 'bold',
-    color: '#ffffff',
+    fontWeight: "bold",
+    color: "#ffffff",
   },
   flashcardContainer: {
     marginVertical: 20,
     paddingHorizontal: 16,
   },
   flashcardCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     borderRadius: 10,
     padding: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 3,
@@ -136,47 +141,46 @@ const styles = StyleSheet.create({
   },
   flashcardTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333333',
+    fontWeight: "bold",
+    color: "#333333",
   },
   flashcardDescription: {
     fontSize: 16,
-    color: '#555555',
+    color: "#555555",
     marginTop: 5,
   },
   pdfViewerContainer: {
     flex: 1,
     marginHorizontal: 16,
     marginBottom: 20,
-    backgroundColor: '#e9e9f0',
+    backgroundColor: "#e9e9f0",
     borderRadius: 10,
-    overflow: 'hidden',
+    overflow: "hidden",
     elevation: 3,
   },
   stickyButton: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
-    width: '100%',
-    backgroundColor: '#4A90E2',
-    paddingVertical: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: "100%",
+    backgroundColor: "#4A90E2",
+    paddingVertical: 30,
+    alignItems: "center",
+    justifyContent: "center",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     elevation: 5,
   },
   buttonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#ffffff',
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#ffffff",
   },
-    containerPDF: {
-      flex: 1,
-    },
-    webview: {
-      flex: 1,
-    },
-  
+  containerPDF: {
+    flex: 1,
+  },
+  webview: {
+    flex: 1,
+  },
 });
 
 export default viewPageScreen;

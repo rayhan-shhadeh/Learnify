@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  Alert,
   View,
   ActivityIndicator,
   StyleSheet,
@@ -15,14 +16,16 @@ import API, { LOCALHOST } from "../../../api/axois";
 import Icon from "react-native-vector-icons/AntDesign";
 import FlashcardIcon from "react-native-vector-icons/Ionicons";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import Octicons from "react-native-vector-icons/Octicons";
 import { useLocalSearchParams } from "expo-router";
 import { Keyboard } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { jwtDecode } from "jwt-decode";
 
 interface PdfViewerProps {
   fileId: string;
 }
 import { useRouter } from "expo-router";
+import LottieView from "lottie-react-native";
 interface Flashcard {
   id: string;
   question: string;
@@ -76,7 +79,25 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
   const [endPage, setEndPage] = useState<number>(1);
   const [isAllPages, setIsAllPages] = useState<boolean>(true);
   const [numberOfPages, setNumberOfPages] = useState<number>(1);
+  const [isPremium, setIsPremium] = useState<boolean>();
+  const [userId, setUserId] = useState<string>();
   useEffect(() => {
+    const initialize = async () => {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        Alert.alert("Error", "Token not found");
+        router.push("/(tabs)/auth/signin");
+        return;
+      }
+      const decoded: { id: string } | null = jwtDecode<{ id: string }>(token);
+      console.log(decoded?.id);
+      setUserId(decoded?.id);
+      //preimium flag
+      const userData = await API.get(`/api/users/getme/${decoded?.id}`);
+      const userFlag = userData.data.data.flag;
+      userFlag === 1 ? setIsPremium(true) : setIsPremium(false);
+    };
+
     const fetchPdfUrl = async () => {
       fileId = passedFileId.toString();
       try {
@@ -348,7 +369,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                 style={styles.saveButton}
                 onPress={() => handleSaveFlashcard(item.id)}
               >
-                <Text style={styles.actionText}>Save</Text>
+                <Text style={styles.actionTextSave}>Save</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.cancelButton}
@@ -364,26 +385,22 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                   }))
                 }
               >
-                <Text style={styles.actionText}>Cancel</Text>
+                <Text style={styles.actionTextCancle}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>
         ) : (
           <View>
             <View style={styles.flashcardContent}>
-              <Text style={styles.flashcardTitle}>{item.question}</Text>
-              <Text style={styles.flashcardDescription}>{item.answer}</Text>
+              <Text style={styles.flashcardTitle}>💬 {item.question}</Text>
+              <Text style={styles.flashcardDescription}>💡 {item.answer}</Text>
             </View>
             <View style={styles.flashcardActions}>
               <TouchableOpacity
                 style={styles.actionButton}
                 onPress={() => handleEditToggle(item.id)}
               >
-                <FlashcardIcon
-                  name="create-outline"
-                  size={20}
-                  color="#6b2905"
-                />
+                <FlashcardIcon name="create-outline" size={20} color="green" />
                 <Text style={styles.actionText}>Edit</Text>
               </TouchableOpacity>
               {item.type === 1 && (
@@ -393,7 +410,13 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                     handleGoToPage(item.question, item.answer, item.page, "F")
                   }
                 >
-                  <Octicons name="cross-reference" size={20} color="#11ad0c" />
+                  <LottieView
+                    source={require("../../../assets/eye.json")}
+                    autoPlay
+                    loop
+                    style={{ width: 35, height: 35 }}
+                  />
+
                   <Text>{item.page}</Text>
                 </TouchableOpacity>
               )}
@@ -643,7 +666,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
       setEndPage(numberOfPages);
     } else if (end < 1) {
       alert(`End page must be at least 1`);
-      setEndPage(1);
+      setEndPage(numberOfPages);
     } else {
       setEndPage(end);
     }
@@ -685,7 +708,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
         );
       }
       return pdfUrl ? (
-        <WebView source={{ uri: `${pdfUrl}#page=3` }} style={styles.webview} />
+        <WebView source={{ uri: `${pdfUrl}` }} style={styles.webview} />
       ) : null;
     }
     if (activeModal === "Flashcards") {
@@ -782,15 +805,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
         // </View>
 
         <View style={styles.flashcardContainer}>
-          <View style={{ flexDirection: "row", justifyContent: "center" }}>
-            <Icon
-              name="switcher"
-              size={24}
-              color="#1f93e0"
-              style={{ marginRight: 10 }}
-            />
-            <Text style={styles.title}>Review Flashcards</Text>
-          </View>
           {/* Search Bar */}
           <TextInput
             style={styles.keyTermSearchBar}
@@ -854,7 +868,11 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                         isAllPages && styles.checkedCheckbox,
                       ]}
                       onPress={() => setIsAllPages(!isAllPages)}
-                    />
+                    >
+                      <Text style={{ fontSize: 20 }}>
+                        {isAllPages ? "✅" : "⬜"}
+                      </Text>
+                    </TouchableOpacity>
                     <Text style={styles.optionLabel}>All Pages</Text>
                   </View>
                   {!isAllPages && (
@@ -983,15 +1001,17 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
             onChangeText={handleSearch}
           />
           {/* Buttons */}
-          <View style={styles.keyTermbuttonContainer}>
+          <View style={styles.flashcardsButtonContainer}>
             <TouchableOpacity
-              style={styles.button}
+              style={styles.generateButton}
               onPress={handleKeytermGenerateClick}
             >
-              <Text style={styles.buttonText}>Generate</Text>
+              <Ionicons name="add-circle" size={24} color="#fff" />
+
+              <Text style={styles.popupbuttonText}>Generate Key Term</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.button}
+              style={styles.manualButton}
               onPress={() => {
                 router.replace({
                   //pathname: /Flashcards/ManualFlashcard,
@@ -1000,7 +1020,9 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                 });
               }}
             >
-              <Text style={styles.buttonText}>Manual</Text>
+              <Ionicons name="pencil" size={22} color="#fff" />
+
+              <Text style={styles.popupbuttonText}>Manual</Text>
             </TouchableOpacity>
           </View>
           {/* Modal for key terms Options */}
@@ -1197,24 +1219,21 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                         )
                       }
                       placeholder="Edit Definition"
-                      multiline={false} // Enable multiline
+                      multiline={true} // Enable multiline
                       textAlignVertical="top" // Align text to the top
-                      // add done button to close keyboard
-                      returnKeyType="done"
-                      onSubmitEditing={handleDismissKeyboard}
                     />
                     <View style={styles.modalActions}>
                       <TouchableOpacity
                         style={styles.saveButton}
                         onPress={handleSaveKeyterm}
                       >
-                        <Text style={styles.actionText}>Save</Text>
+                        <Text style={styles.actionTextSave}>Save</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={styles.cancelButton}
                         onPress={handleCancelEdit}
                       >
-                        <Text style={styles.actionText}>Cancel</Text>
+                        <Text style={styles.actionTextCancle}>Cancel</Text>
                       </TouchableOpacity>
                     </View>
                   </>
@@ -1252,51 +1271,58 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                   style={styles.keyTermCard}
                   onPress={() => toggleDefinition(parseInt(item.id))}
                 >
-                  <Text style={styles.keyTermText}>{item.term}</Text>
-                  <TouchableOpacity
-                    style={styles.actionButtons}
-                    onPress={() => handleDeleteKeyTerm(item.id)} // Pass the specific flashcard ID
-                  >
-                    <FlashcardIcon
-                      name="trash-outline"
-                      size={20}
-                      color="#F44336"
-                    />
-                  </TouchableOpacity>
-                  {item.type === 1 && (
+                  <Text style={styles.keyTermText}>❓ {item.term}</Text>
+                  <TouchableOpacity style={styles.keyTermbuttonContainer}>
                     <TouchableOpacity
-                      style={styles.actionButtons}
-                      onPress={() =>
-                        handleGoToPage(
-                          item.term,
-                          item.definition,
-                          item.page,
-                          "K"
-                        )
-                      }
+                      style={styles.actionButton}
+                      onPress={() => handleDeleteKeyTerm(item.id)} // Pass the specific flashcard ID
                     >
-                      <Octicons
-                        name="cross-reference"
+                      <FlashcardIcon
+                        name="trash-outline"
                         size={20}
-                        color="#11ad0c"
+                        color="#F44336"
                       />
-                      {item.page}
                     </TouchableOpacity>
-                  )}
-                  <TouchableOpacity
-                    style={styles.actionButtons}
-                    onPress={() => handleEditKeyterm(item)}
-                  >
-                    <FlashcardIcon
-                      name="create-outline"
-                      size={20}
-                      color="#F44336"
-                    />
+                    {item.type === 1 && (
+                      <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() =>
+                          handleGoToPage(
+                            item.term,
+                            item.definition,
+                            item.page,
+                            "K"
+                          )
+                        }
+                      >
+                        <LottieView
+                          style={{ width: 35, height: 35 }}
+                          source={require("../../../assets/blackeye.json")}
+                          autoPlay
+                          loop
+                        />
+                        <Text> {item.page}</Text>
+                      </TouchableOpacity>
+                    )}
+                    <TouchableOpacity
+                      style={styles.actionButton}
+                      onPress={() => handleEditKeyterm(item)}
+                    >
+                      <FlashcardIcon
+                        name="create-outline"
+                        size={20}
+                        color="green"
+                      />
+                    </TouchableOpacity>
                   </TouchableOpacity>
                 </TouchableOpacity>
-                {activeKey === parseInt(item.id) && (
-                  <Text>{item.definition}</Text>
-                )}
+                <TouchableOpacity style={styles.keyTermDefinition}>
+                  {activeKey === parseInt(item.id) && (
+                    <Text style={styles.definitionText}>
+                      💡 {item.definition}
+                    </Text>
+                  )}
+                </TouchableOpacity>
               </View>
             )}
           />
@@ -1373,10 +1399,10 @@ const styles = StyleSheet.create({
   },
   flashcardsButtonContainer: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
     paddingVertical: 10,
     backgroundColor: "transparent",
-    width: "50%",
+    width: "100%",
   },
   button: {
     padding: 10,
@@ -1547,17 +1573,31 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   keyTermCard: {
-    backgroundColor: "#92e1ff",
-    padding: 15,
-    marginBottom: 10,
+    backgroundColor: "#aee4ff",
+
+    paddingLeft: 10,
+    paddingRight: 15,
+    paddingTop: 15,
+    marginBottom: 15,
     borderRadius: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
-    flexDirection: "row",
-    justifyContent: "space-between",
+  },
+  keyTermDefinition: {
+    backgroundColor: "#FFF",
+    paddingLeft: 10,
+    paddingRight: 15,
+    paddingTop: 15,
+    marginBottom: 15,
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   keyTermText: {
     fontSize: 16,
@@ -1585,16 +1625,42 @@ const styles = StyleSheet.create({
   definitionText: {
     fontSize: 16,
     color: "#333",
+    padding: 10,
   },
   actionButton: {
     flexDirection: "row",
-    alignItems: "flex-end",
+    alignItems: "center",
     padding: 8,
   },
   actionText: {
     marginLeft: 5,
     fontSize: 14,
     color: "#333",
+  },
+  actionTextSave: {
+    marginLeft: 5,
+    fontSize: 16,
+    color: "blue",
+  },
+  actionTextCancle: {
+    marginLeft: 5,
+    fontSize: 16,
+    color: "red",
+    backgroundColor: "transparent",
+  },
+  saveButton: {
+    backgroundColor: "transparent",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginVertical: 5,
+  },
+  cancelButton: {
+    backgroundColor: "transparent",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginVertical: 5,
   },
   // Flashcard Styles
   flashcardContainer: {
@@ -1762,22 +1828,40 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginVertical: 5,
+    zIndex: 55,
+    overflow: "hidden",
+    backgroundColor: "#fff",
+    marginTop: 10,
   },
   dropdownText: {
     fontSize: 16,
+    zIndex: 56,
+    overflow: "hidden",
   },
   dropdownOptions: {
+    position: "absolute",
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
     backgroundColor: "#fff",
-    marginVertical: 5,
+    marginTop: 35,
+    zIndex: 56,
+    overflow: "hidden",
+    justifyContent: "center",
+    width: "100%",
   },
   dropdownOption: {
     padding: 10,
+    zIndex: 55,
+    overflow: "hidden",
+    backgroundColor: "#fff",
+    marginStart: 10,
   },
   dropdownOptionText: {
     fontSize: 16,
+    zIndex: 55,
+    overflow: "hidden",
+    backgroundColor: "#fff",
   },
   loadingContainer: {
     flex: 1,
@@ -1801,20 +1885,7 @@ const styles = StyleSheet.create({
     minHeight: 50, // Minimum height for the input field
     textAlignVertical: "top", // Ensures text starts at the top
   },
-  saveButton: {
-    backgroundColor: "#4CAF50",
-    padding: 10,
-    borderRadius: 5,
-    alignItems: "center",
-    marginVertical: 5,
-  },
-  cancelButton: {
-    backgroundColor: "#F44336",
-    padding: 10,
-    borderRadius: 5,
-    alignItems: "center",
-    marginVertical: 5,
-  },
+
   modalInput: {
     borderWidth: 1,
     borderColor: "#ccc",
@@ -1855,14 +1926,12 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   checkbox: {
-    width: 20,
-    height: 20,
-    borderWidth: 2,
-    borderColor: "#333",
-    marginRight: 10,
+    width: 30,
+    height: 30,
+    marginRight: 4,
   },
   checkedCheckbox: {
-    backgroundColor: "#333",
+    backgroundColor: "transparent",
   },
 });
 
