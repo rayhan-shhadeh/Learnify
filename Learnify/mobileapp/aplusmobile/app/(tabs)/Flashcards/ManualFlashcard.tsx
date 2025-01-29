@@ -6,17 +6,22 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
+  Keyboard,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import Icon from "react-native-vector-icons/Ionicons";
 import API from "@/api/axois";
-import { useLocalSearchParams,router,useRouter } from "expo-router";
-import { createStaticNavigation, useNavigation } from '@react-navigation/native';
+import { useLocalSearchParams, router, useRouter } from "expo-router";
+import {
+  createStaticNavigation,
+  useNavigation,
+} from "@react-navigation/native";
+import LottieView from "lottie-react-native";
 
 const CreateFlashcardScreen = () => {
   const router = useRouter();
   const navigation = useNavigation();
-  const {passedFileId}=useLocalSearchParams();
+  const { passedFileId } = useLocalSearchParams();
   const [flashcardName, setFlashcardName] = useState("");
   const [flashcardQ, setFlashcardQ] = useState("");
   const [flashcardA, setFlashcardA] = useState("");
@@ -24,14 +29,18 @@ const CreateFlashcardScreen = () => {
 
   const randomGradient = () => {
     const colors: [string, string, ...string[]][] = [
-      ["#6a11cb", "#2575fc"],
-      ["#ff758c", "#ff7eb3"],
-      ["#43cea2", "#185a9d"],
-      ["#00c6ff", "#0072ff"],
+      ["#2C3E50", "#1CA7EC"], // Dark blue and blue gradient (reliable and educational)
+      ["#2C3E50", "#1CA7EC"], // Dark blue and blue gradient (reliable and educational)
+      ["#34495E", "#16A085"], // Dark teal and green gradient (calm and focused)
+      ["#1F3A69", "#3498DB"], // Navy blue and light blue gradient (professional and calming)
+      ["#8E44AD", "#9B59B6"], // Purple gradient (creative and engaging)
+      ["#009B77", "#B565A7"], // Purple gradient (creative and engaging)
+      ["#955251", "#92A8D1"], // Purple gradient (creative and engaging)
+      ["#F7CAC9", "#88B04B"], // Purple gradient (creative and engaging)
+      ["#6B5B95", "#FF6F61"], // Purple gradient (creative and engaging)
     ];
     return colors[Math.floor(Math.random() * colors.length)];
   };
-
 
   const handleCreateFlashcard = async () => {
     if (!flashcardQ || !flashcardA) {
@@ -39,7 +48,7 @@ const CreateFlashcardScreen = () => {
       return;
     }
     setFlashcardName("Flachcard" + passedFileId);
-  
+
     const flashcardData = {
       flashcardName,
       flashcardQ,
@@ -57,10 +66,10 @@ const CreateFlashcardScreen = () => {
       setMessage("Flashcard created successfully!");
       setFlashcardQ("");
       setFlashcardA("");
-      const activeTab = 'Flashcards'//"PDF" | "Flashcards" | "KeyTerms"
+      const activeTab = "Flashcards"; //"PDF" | "Flashcards" | "KeyTerms"
       router.replace({
-        pathname: '/Files/PdfScreen',
-        params: { passedFileId ,activeTab},
+        pathname: "/Files/PdfScreen",
+        params: { passedFileId, activeTab },
       });
       //navigation.pop();
     } catch (error) {
@@ -68,38 +77,26 @@ const CreateFlashcardScreen = () => {
       setMessage("Failed to create flashcard.");
     }
   };
-  
+
   return (
     <LinearGradient colors={randomGradient()} style={styles.container}>
       <View style={styles.card}>
         <Text style={styles.title}>Create Flashcard</Text>
-        <Image
-          source={require("../../../assets/images/manualflashcard.gif")}
-          style={styles.logo}
-        />
-                <TouchableOpacity style={styles.button} onPress={handleCreateFlashcard}>
-          <LinearGradient
-            colors={["#6a11cb", "#2575fc"]}
-            style={styles.buttonGradient}
-          >
-            <Text style={styles.buttonText}>Create Flashcard</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-
-
         <TextInput
           style={styles.inputLarge}
           placeholder="Question"
-          multiline
           value={flashcardQ}
           onChangeText={setFlashcardQ}
+          enablesReturnKeyAutomatically
+          keyboardAppearance="dark"
+          onSubmitEditing={() => Keyboard.dismiss()}
         />
         <TextInput
           style={styles.inputLarge}
           placeholder="Answer"
-          multiline
           value={flashcardA}
           onChangeText={setFlashcardA}
+          onSubmitEditing={() => Keyboard.dismiss()}
         />
         {message ? (
           <Text
@@ -111,6 +108,20 @@ const CreateFlashcardScreen = () => {
             {message}
           </Text>
         ) : null}
+        <LottieView
+          style={styles.logo}
+          source={require("@/assets/manualflashcards.json")}
+          autoPlay
+          loop
+        />
+        <TouchableOpacity style={styles.button} onPress={handleCreateFlashcard}>
+          <LinearGradient
+            colors={["#6a11cb", "#2575fc"]}
+            style={styles.buttonGradient}
+          >
+            <Text style={styles.buttonText}>Create Flashcard</Text>
+          </LinearGradient>
+        </TouchableOpacity>
       </View>
     </LinearGradient>
   );
@@ -121,6 +132,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     paddingHorizontal: 20,
+    width: "100%",
+    height: "90%",
   },
   card: {
     backgroundColor: "white",
@@ -140,8 +153,8 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   logo: {
-    width: 120,
-    height: 120,
+    width: 200,
+    height: 200,
     alignSelf: "center",
     marginBottom: 20,
   },
@@ -170,11 +183,12 @@ const styles = StyleSheet.create({
   button: {
     borderRadius: 25,
     overflow: "hidden",
+    marginBottom: 15,
   },
   buttonGradient: {
     paddingVertical: 15,
     alignItems: "center",
-    borderRadius: 25,
+    borderRadius: 50,
   },
   buttonText: {
     color: "#fff",
