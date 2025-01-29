@@ -19,7 +19,7 @@ import API from "../../../api/axois";
 import { jwtDecode } from "jwt-decode";
 //import Lottie from "lottie-react";
 import fireAnimation from "../../../assets/fire.json";
-import welcome from "../../../assets/welcome.json";
+import welcome from "../../../assets/an1.json";
 import StreakFire from "../streak/StreakFire";
 import { router, useRouter } from "expo-router";
 import Header from "../header/Header";
@@ -225,8 +225,9 @@ export default function Profile() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* <View style={styles.main}>
+    <>
+      <ScrollView contentContainerStyle={styles.container}>
+        {/* <View style={styles.main}>
         <TouchableOpacity
           style={styles.actionButton}
           onPress={() => increaseStreak()}
@@ -234,27 +235,28 @@ export default function Profile() {
           <Text style={styles.actionText}>Streak</Text>
         </TouchableOpacity>
       </View> */}
-      <StreakFire
-        streak={streak}
-        visible={showStreakFire}
-        onFinish={handleAnimationEnd}
-      />
-      <Header />
 
-      <View style={styles.header}>
-        {/* <Image source={require('../../assets/images/a-plus-4.gif')} style={styles.logoImage} /> */}
-        {/* <View style={styles.headerIcons}>
+        <View style={{ position: "absolute", top: 170, left: 180, zIndex: 1 }}>
+          <StreakFire
+            streak={streak}
+            visible={showStreakFire}
+            onFinish={handleAnimationEnd}
+          />
+        </View>
+        <Header />
+        <View style={styles.header}>
+          {/* <Image source={require('../../assets/images/a-plus-4.gif')} style={styles.logoImage} /> */}
+          {/* <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.notificationButton}>
             <Icon name="bell" size={24} color="#647987" />
             <View style={styles.notificationDot} />
           </TouchableOpacity>
         </View> */}
-      </View>
-      {/* Profile Image */}
-
-      <View style={styles.main}>
-        <View style={styles.welcomeSection}>
-          {/* <TouchableOpacity style={styles.profileImageContainer}>
+        </View>
+        {/* Profile Image */}
+        <View style={styles.main}>
+          <View style={styles.welcomeSection}>
+            {/* <TouchableOpacity style={styles.profileImageContainer}>
             {profileImage ? (
               <Image
                 source={{ uri: profileImage }}
@@ -264,79 +266,76 @@ export default function Profile() {
               <Icon name="user-circle" size={32} color="#647987" />
             )}
           </TouchableOpacity>  */}
-          <LottieView
-            source={require("../../../assets/welcome.json")}
-            autoPlay
-            loop={false}
-            speed={1}
-            style={styles.logoImage}
-          />
-          <Text style={styles.welcomeText}>
-            Welcome back {userData?.username} !
-          </Text>
-          {/* <View style={styles.progressChartContainer}>
+            <Image
+              source={require("../../../assets/images/a-plus-4.gif")}
+              style={styles.logoImage}
+            />
+            <Text style={styles.welcomeText}>
+              Welcome back {userData?.username} !
+            </Text>
+            {/* <View style={styles.progressChartContainer}>
             <View style={styles.progressChart}>
               <Text style={styles.progressText}>78%</Text>
             </View>
           </View> */}
-        </View>
-        <Text style={styles.subText}>Keep up the great work</Text>
+          </View>
+          <Text style={styles.subText}>Keep up the great work</Text>
 
-        {/* <View>
+          {/* <View>
               <Text> Your info:</Text>
               <Text> {userData}</Text>
             </View> */}
-        <View style={styles.streakSection}>
-          <View style={styles.streakHeader}>
-            {/* <Icon name="fire" size={24} color="#FFA500" />
+          <View style={styles.streakSection}>
+            <View style={styles.streakHeader}>
+              {/* <Icon name="fire" size={24} color="#FFA500" />
             <Text style={styles.streakText}>15 Day Streak!</Text> */}
-          </View>
-          <View style={styles.streakDetails}>
-            <View style={styles.streakDetail}>
-              <Text style={styles.subTextDetail}>Habits Today</Text>
-              <Text style={styles.detailText}>
-                {habitsDoneTodayCount}/{habitsCount}
-              </Text>
             </View>
-            <View style={styles.streakDetail}>
-              <Text style={styles.subTextDetail}>Success Rate</Text>
-              <Text style={styles.detailText}>{successRate}</Text>
+            <View style={styles.streakDetails}>
+              <View style={styles.streakDetail}>
+                <Text style={styles.subTextDetail}>Habits Today</Text>
+                <Text style={styles.detailText}>
+                  {habitsDoneTodayCount}/{habitsCount}
+                </Text>
+              </View>
+              <View style={styles.streakDetail}>
+                <Text style={styles.subTextDetail}>Success Rate</Text>
+                <Text style={styles.detailText}>{successRate}</Text>
+              </View>
             </View>
           </View>
-        </View>
 
-        <ScrollView horizontal style={styles.actionsSection}>
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => router.push("/(tabs)/MultiFilePracticeScreen")}
-          >
-            <Icon name="tasks" size={16} color="#fff" />
-            <Text style={styles.actionText}>Practice Now</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.actionButtonOutline}
-            onPress={() => router.push("/(tabs)/profile/UserProfile")}
-          >
-            <Icon name="question-circle" size={16} color="#125488" />
-            <Text style={styles.actionTextOutline}>Start Quiz</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.actionButtonOutline}
-            onPress={() => router.push("/(tabs)/Habits/HabitsScreen")}
-          >
-            <Icon name="tasks" size={16} color="#125488" />
-            <Text style={styles.actionTextOutline}>Add Habit</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.actionButtonOutline}
-            onPress={() => router.push("/(tabs)/calendar/delete")}
-          >
-            <Icon name="plus" size={16} color="#125488" />
-            <Text style={styles.actionTextOutline}>Add Event</Text>
-          </TouchableOpacity>
-        </ScrollView>
+          <ScrollView horizontal style={styles.actionsSection}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => router.push("/(tabs)/MultiFilePracticeScreen")}
+            >
+              <Icon name="tasks" size={16} color="#fff" />
+              <Text style={styles.actionText}>Practice Now</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionButtonOutline}
+              onPress={() => router.push("/(tabs)/profile/UserProfile")}
+            >
+              <Icon name="question-circle" size={16} color="#125488" />
+              <Text style={styles.actionTextOutline}>Start Quiz</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionButtonOutline}
+              onPress={() => router.push("/(tabs)/Habits/HabitsScreen")}
+            >
+              <Icon name="tasks" size={16} color="#125488" />
+              <Text style={styles.actionTextOutline}>Add Habit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionButtonOutline}
+              onPress={() => router.push("/(tabs)/calendar/delete")}
+            >
+              <Icon name="plus" size={16} color="#125488" />
+              <Text style={styles.actionTextOutline}>Add Event</Text>
+            </TouchableOpacity>
+          </ScrollView>
 
-        <View style={styles.learningSection}>
+          {/* <View style={styles.learningSection}>
           <Text style={styles.sectionTitle}>Continue Learning</Text>
           <ScrollView horizontal style={styles.coursesSection}>
             <View style={styles.courseCard}>
@@ -350,53 +349,54 @@ export default function Profile() {
             </View>
             <View style={styles.courseCard}></View>
           </ScrollView>
+        </View> */}
+          {/* Pie Chart */}
+          <Text style={styles.chartTitle}>Task Distribution</Text>
+          <PieChart
+            data={pieData}
+            width={screenWidth - 40}
+            height={220}
+            chartConfig={chartConfig}
+            accessor="value"
+            backgroundColor="transparent"
+            paddingLeft="15"
+            absolute
+          />
+
+          {/* Bar Chart */}
+          <Text style={styles.chartTitle}>Habit Completion</Text>
+          <BarChart
+            data={barChartData}
+            width={screenWidth - 40}
+            height={220}
+            chartConfig={chartConfig}
+            verticalLabelRotation={30}
+            style={styles.chart}
+            yAxisLabel=""
+            yAxisSuffix=""
+          />
+
+          {/* Line Chart */}
+          <Text style={styles.chartTitle}>Habits Done Over Time</Text>
+          <LineChart
+            data={lineChartData}
+            width={screenWidth - 40}
+            height={220}
+            chartConfig={chartConfig}
+            bezier
+            style={styles.chart}
+          />
         </View>
-        {/* Pie Chart */}
-        <Text style={styles.chartTitle}>Task Distribution</Text>
-        <PieChart
-          data={pieData}
-          width={screenWidth - 40}
-          height={220}
-          chartConfig={chartConfig}
-          accessor="value"
-          backgroundColor="transparent"
-          paddingLeft="15"
-          absolute
-        />
-
-        {/* Bar Chart */}
-        <Text style={styles.chartTitle}>Habit Completion</Text>
-        <BarChart
-          data={barChartData}
-          width={screenWidth - 40}
-          height={220}
-          chartConfig={chartConfig}
-          verticalLabelRotation={30}
-          style={styles.chart}
-          yAxisLabel=""
-          yAxisSuffix=""
-        />
-
-        {/* Line Chart */}
-        <Text style={styles.chartTitle}>Habits Done Over Time</Text>
-        <LineChart
-          data={lineChartData}
-          width={screenWidth - 40}
-          height={220}
-          chartConfig={chartConfig}
-          bezier
-          style={styles.chart}
-        />
-      </View>
+      </ScrollView>
       <NavBar />
-    </ScrollView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: "#f8f8f8",
+    backgroundColor: "#fff",
     paddingBottom: 70,
   },
   header: {
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 10,
-    backgroundColor: "#fff",
+    backgroundColor: "#f6f6f6",
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
   },
@@ -417,7 +417,7 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     alignContent: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
   },
   headerIcons: {
     flexDirection: "row",
@@ -457,19 +457,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     // justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
   },
   welcomeText: {
     fontSize: 20,
     fontWeight: "bold",
-    marginLeft: 8,
+    marginLeft: 18,
   },
   subText: {
     fontSize: 14,
     color: "#888",
-    paddingLeft: 10,
+    paddingLeft: 90,
     marginBottom: 8,
-    marginLeft: 10,
+    marginLeft: 20,
     top: -15,
   },
   subTextDetail: {
