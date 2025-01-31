@@ -20,6 +20,8 @@ import { jwtDecode } from "jwt-decode";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useRouter } from "expo-router";
 import Header from "./header/Header";
+import LottieView from "lottie-react-native";
+
 interface HistoryTopic {
   topic: string;
   topiclevelId: string;
@@ -82,7 +84,7 @@ const Card: React.FC<CardProps> = ({
         const topicData = response.data;
         setLoadingFlashcards(false);
         router.push({
-          pathname: "/(tabs)/ExploreMoreTopics",
+          pathname: "/(tabs)/TopicScreen",
           params: {
             userId,
             searchTopic,
@@ -128,7 +130,7 @@ const HistoryCard: React.FC<HistoryCardProps> = ({
       if (response.data && Array.isArray(response.data)) {
         const topicData = response.data;
         router.push({
-          pathname: "/(tabs)/ExploreMoreTopics",
+          pathname: "/(tabs)/TopicScreen",
           params: {
             userId,
             searchTopic,
@@ -253,7 +255,7 @@ const ExploreScreen = () => {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#1CA7EC" />
-        <Text style={styles.loadingText}>Preparing Topics For you...</Text>
+        <Text style={styles.loadingText}>Asking AI to prepare topics For you...</Text>
       </View>
     );
   }
@@ -261,8 +263,12 @@ const ExploreScreen = () => {
   if (loadingFlashcards) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#1CA7EC" />
-        <Text style={styles.loadingText}>Generating Flashcards ...</Text>
+                  <LottieView
+                    source={require("../../assets/AI-generating.json")}
+                    autoPlay
+                    loop
+                    style={{ width: 300, height: 300 }}
+                  />
       </View>
     );
   }
@@ -304,7 +310,7 @@ const ExploreScreen = () => {
       if (data && Array.isArray(data)) {
         const exploreFlashcards = data;
         router.push({
-          pathname: "/(tabs)/ExploreMoreTopics",
+          pathname: "/(tabs)/TopicScreen",
           params: {
             userId,
             searchTopic,

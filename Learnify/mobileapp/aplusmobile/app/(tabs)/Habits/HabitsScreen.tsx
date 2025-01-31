@@ -215,14 +215,12 @@ export default function HabitsScreen() {
                 autoPlay
                 loop
               />
-              <Text style={styles.habitText}> Habit name:</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Habit Name"
                 value={habitName}
                 onChangeText={setHabitName}
               />
-              <Text style={styles.habitText}> Habit description:</Text>
 
               <TextInput
                 style={styles.input}
@@ -230,7 +228,7 @@ export default function HabitsScreen() {
                 value={habitDescription}
                 onChangeText={setHabitDescription}
               />
-              <Text style={styles.habitText}> Reminder time:</Text>
+              <Text style={styles.reminder}>Reminder Time</Text>
               <DateTimePicker
                 testID="dateTimePicker"
                 value={reminderTime ? new Date(reminderTime) : new Date()}
@@ -243,6 +241,13 @@ export default function HabitsScreen() {
               />
               <View style={styles.addcontainer}>
                 <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
                   style={styles.addButton}
                   onPress={() => {
                     addHabit();
@@ -250,12 +255,6 @@ export default function HabitsScreen() {
                   }}
                 >
                   <Text style={styles.addButtonText}>Add</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={() => setModalVisible(false)}
-                >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -317,7 +316,7 @@ const styles = StyleSheet.create({
   addButton: {
     backgroundColor: "#1CA7EC",
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 18,
     marginTop: 10,
     alignContent: "center",
     textAlign: "center",
@@ -326,7 +325,7 @@ const styles = StyleSheet.create({
   addHabitButton: {
     backgroundColor: "#1CA7EC",
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 18,
     marginVertical: 15,
     marginBottom: 60,
     width: "80%",
@@ -341,7 +340,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     fontFamily: "Roboto",
-    fontSize: 18,
+    fontSize: 16,
   },
   linearcontainer: {
     flex: 1,
@@ -379,24 +378,32 @@ const styles = StyleSheet.create({
   cancelButton: {
     backgroundColor: "red",
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 18,
     marginTop: 10,
     width: "40%",
   },
   cancelButtonText: {
     color: "white",
     fontWeight: "bold",
+    alignSelf: 'center',
+    fontSize: 16
   },
   logo: {
     width: 200,
     height: 200,
     alignSelf: "center",
-    marginBottom: 10,
+    marginBottom: -40,
     top: -20,
   },
   datetime: {
     width: "100%",
     borderRadius: 8,
     marginTop: 10,
+    marginLeft: -10
   },
+  reminder:{
+    color: "#ccc",
+    marginTop: 3
+  },
+  
 });

@@ -448,7 +448,7 @@ const FilesScreen = () => {
         return file;
       });
       setFiles(updatedFiles);
-      closeEditModal(); // Close modal or UI after successful update
+      closeEditModal();
       Alert.alert("Success", "File edited successfully");
     } catch (error) {
       console.error("Error editing file:", error);
@@ -1058,11 +1058,13 @@ const styles = StyleSheet.create({
   closeButton: {
     backgroundColor: "#DC3545",
     padding: 12,
-    borderRadius: 5,
+    borderRadius: 18,
     alignItems: "center",
-    marginTop: 16,
+    marginTop: 10,
   },
-  closeButtonText: { color: "white", fontWeight: "bold" },
+  closeButtonText: {
+     color: "white", 
+     fontWeight: "bold" },
   choiceModalContainer: {
     flex: 1,
     justifyContent: "center",
@@ -1086,11 +1088,12 @@ const styles = StyleSheet.create({
     width: "100%",
     padding: 12,
     backgroundColor: "#1CA7EC",
-    borderRadius: 5,
+    borderRadius: 18,
     marginVertical: 8,
     alignItems: "center",
   },
-  choiceButtonText: { color: "white", fontWeight: "bold" },
+  choiceButtonText: { color: "white", fontWeight: "bold" ,    fontSize:18
+   },
   icon: {
     marginLeft: 10,
     marginRight: 10,

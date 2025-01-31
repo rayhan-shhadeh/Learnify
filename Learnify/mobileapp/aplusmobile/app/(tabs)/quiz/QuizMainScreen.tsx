@@ -73,7 +73,13 @@ export default function QuizScreen() {
               id: quiz.quizId,
               title: quiz.quizTitle,
               description: quiz.quizDescription,
-              color: ["#1f2f98", "#7bd5f5"],
+              color:["#7bd5f5","#1ca7ec",],
+              /**
+               *           "#ffffff",
+          
+          "#1ca7ec",
+
+               */
               successRate: quiz.score,
             }));
             setQuizData(mappedQuizzes);
@@ -87,6 +93,7 @@ export default function QuizScreen() {
     };
     initialize();
   }, []);
+
 
   const toggleFileSelection = (fileId: string) => {
     setSelectedFile(selectedFile === fileId ? null : fileId);

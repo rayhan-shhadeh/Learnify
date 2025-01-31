@@ -10,7 +10,6 @@ import {
   FlatList,
   TextInput,
   Button,
-  Image,
 } from "react-native";
 import { WebView } from "react-native-webview";
 import API, { LOCALHOST } from "../../../api/axois";
@@ -21,7 +20,6 @@ import { useLocalSearchParams } from "expo-router";
 import { Keyboard } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
-
 interface PdfViewerProps {
   fileId: string;
 }
@@ -82,6 +80,8 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
   const [numberOfPages, setNumberOfPages] = useState<number>(1);
   const [isPremium, setIsPremium] = useState<boolean>();
   const [userId, setUserId] = useState<string>();
+  const [loadPdf,         setLoadPdf  ] = useState<boolean>();
+
   useEffect(() => {
     const initialize = async () => {
       const token = await AsyncStorage.getItem("token");
@@ -102,7 +102,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
     const fetchPdfUrl = async () => {
       fileId = passedFileId.toString();
       try {
-        setLoading(true);
+        setLoadPdf(true);
         const response = await API.get(`/api/file/${fileId}`);
         setPdfUrl(response.data.fileURL);
         setNumberOfPages(response.data.numberOfPages);
@@ -112,7 +112,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
         console.error("Error fetching PDF URL:", err);
         setError("Failed to load the PDF. Please try again.");
       } finally {
-        setLoading(false);
+        setLoadPdf(false);
       }
     };
     const fetchFlashcards = async () => {
@@ -328,16 +328,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
     </View>
   );
 */
-  const setShowErrorImage = () => {
-    return (
-      <View style={styles.modalContainer}>
-        <Image
-          source={require("../../../assets/images/error-404.png")}
-          style={styles.icon}
-        />
-      </View>
-    );
-  };
 
   const renderFlashcard = ({ item }: { item: Flashcard }) => {
     const { isEditing, editedQuestion, editedAnswer } = flashcardStates[
@@ -377,12 +367,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
             />
             <View style={styles.flashcardActions}>
               <TouchableOpacity
-                style={styles.saveButton}
-                onPress={() => handleSaveFlashcard(item.id)}
-              >
-                <Text style={styles.actionTextSave}>Save</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
                 style={styles.cancelButton}
                 onPress={() =>
                   setFlashcardStates((prev) => ({
@@ -398,13 +382,20 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
               >
                 <Text style={styles.actionTextCancle}>Cancel</Text>
               </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.saveButton}
+                onPress={() => handleSaveFlashcard(item.id)}
+              >
+                <Text style={styles.actionTextSave}>Save</Text>
+              </TouchableOpacity>
+
             </View>
           </View>
         ) : (
           <View>
             <View style={styles.flashcardContent}>
-              <Text style={styles.flashcardTitle}>💬 {item.question}</Text>
-              <Text style={styles.flashcardDescription}>💡 {item.answer}</Text>
+              <Text style={styles.flashcardTitle}>💬{item.question}</Text>
+              <Text style={styles.flashcardDescription}>💡{item.answer}</Text>
             </View>
             <View style={styles.flashcardActions}>
               <TouchableOpacity
@@ -506,6 +497,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
       if (!data || data.length === 0) {
         setFlashcards([]);
         setLoading(false);
+        setLoading(false);
         return;
       }
       console.log("Flashcards Generated Successfully.");
@@ -516,8 +508,8 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
       setIsAllPages(true);
     } catch (error) {
       console.error("Error generating flashcards:", error);
-      setError("Failed to generate flashcards. Please try again.");
-      setLoading(false);
+      setError("hi");
+      setLoading(true);
     }
   };
 
@@ -574,11 +566,24 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
     }
   };
 
-  if (loading) {
+  if (loadPdf) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#1CA7EC" />
-        <Text style={styles.loadingText}>Generating...</Text>
+        <Text style={styles.loadingText}>Loding PDF file</Text>
+      </View>
+    );
+  }
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+                  <LottieView
+                    source={require("../../../assets/AI-generating.json")}
+                    autoPlay
+                    loop
+                    style={{ width: 300, height: 300 }}
+                  />
       </View>
     );
   }
@@ -888,7 +893,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                   {!isAllPages && (
                     <View style={styles.pageRangeContainer}>
                       <View style={styles.pageInputContainer}>
-                        <Text style={styles.optionLabel}>Start Page:</Text>
                         <TextInput
                           style={styles.pageInput}
                           keyboardType="numeric"
@@ -901,11 +905,10 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                         />
                       </View>
                       <View style={styles.pageInputContainer}>
-                        <Text style={styles.optionLabel}>End Page:</Text>
                         <TextInput
                           style={styles.pageInput}
                           keyboardType="numeric"
-                          placeholder={`Enter end page (Max: ${numberOfPages})`}
+                          placeholder={`Enter end page`}
                           placeholderTextColor="#A9A9A9"
                           onChangeText={handleEndPageInput}
                           onBlur={handleDismissKeyboard}
@@ -918,7 +921,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                 </View>
                 {/* Length Selector */}
                 <View style={styles.option}>
-                  <Text style={styles.optionLabel}>Length:</Text>
+                  <Text style={styles.optionLabel}>Length</Text>
                   <TouchableOpacity
                     style={styles.dropdown}
                     onPress={() => setShowLengthOptions(!showLengthOptions)}
@@ -948,7 +951,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                 </View>
                 {/* Difficulty Selector */}
                 <View style={styles.option}>
-                  <Text style={styles.optionLabel}>Difficulty:</Text>
+                  <Text style={styles.optionLabel}>Difficulty</Text>
                   <TouchableOpacity
                     style={styles.dropdown}
                     onPress={() =>
@@ -978,21 +981,29 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                 </View>
                 {/* Actions */}
                 <View style={styles.actionButtons}>
-                  <TouchableOpacity
-                    style={styles.generateButton}
-                    onPress={() => setFlashcardModalVisible(false)}
-                  >
-                    <Text>Cancel</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.popupbuttonText}>
+                <TouchableOpacity style={styles.popupbuttonText}>
                     <Button
-                      title="Generate"
+                      title="Cancel"
                       onPress={() => {
-                        handleGenerateFlashcards();
-                        setFlashcardModalVisible(false);
+                        setFlashcardModalVisible(false)
                       }}
+                      color={'black'}
                     />
                   </TouchableOpacity>
+
+                  <TouchableOpacity style={styles.popupbuttonText}>
+
+                  <TouchableOpacity
+                    style={styles.generateButton}
+                    onPress={() => {
+                      handleGenerateFlashcards();
+                      setFlashcardModalVisible(false);
+                    }}
+                  >
+                    <Text>Generate</Text>
+                  </TouchableOpacity>
+                  </TouchableOpacity>
+
                 </View>
               </View>
             </View>
@@ -1077,12 +1088,14 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                         ]}
                         onPress={() => setIsAllPages(!isAllPages)}
                       />
+                      <Text style={{ fontSize: 20 }}>
+                        {isAllPages ? "✅" : "⬜"}
+                      </Text>
                       <Text style={styles.optionLabel}>All Pages</Text>
                     </View>
                     {!isAllPages && (
                       <View style={styles.pageRangeContainer}>
                         <View style={styles.pageInputContainer}>
-                          <Text style={styles.optionLabel}>Start Page:</Text>
                           <TextInput
                             style={styles.pageInput}
                             keyboardType="numeric"
@@ -1095,11 +1108,10 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                           />
                         </View>
                         <View style={styles.pageInputContainer}>
-                          <Text style={styles.optionLabel}>End Page:</Text>
                           <TextInput
                             style={styles.pageInput}
                             keyboardType="numeric"
-                            placeholder={`Enter end page (Max: ${numberOfPages})`}
+                            placeholder={`Enter end page)`}
                             placeholderTextColor="#A9A9A9"
                             onChangeText={handleEndPageInput}
                             onBlur={handleDismissKeyboard}
@@ -1112,7 +1124,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                   </View>
 
                   <View style={styles.option}>
-                    <Text style={styles.optionLabel}>Length:</Text>
+                    <Text style={styles.optionLabel}>Length</Text>
                     <TouchableOpacity
                       style={styles.dropdown}
                       onPress={() =>
@@ -1144,7 +1156,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                 </View>
                 {/* Difficulty Selector */}
                 <View style={styles.option}>
-                  <Text style={styles.optionLabel}>Difficulty:</Text>
+                  <Text style={styles.optionLabel}>Difficulty</Text>
                   <TouchableOpacity
                     style={styles.dropdown}
                     onPress={() =>
@@ -1175,22 +1187,27 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                 </View>
                 {/* Actions */}
                 <View style={styles.actionButtons}>
+
+                <TouchableOpacity style={styles.popupbuttonText}>
+                    <Button
+                      title="Cancel"
+                      onPress={() => {
+                        setKeytermModalVisible(false)}
+                      }
+                      color={'black'}
+                    />
+                </TouchableOpacity>
+
                   <TouchableOpacity
                     style={styles.generateButton}
-                    onPress={() => setKeytermModalVisible(false)}
+                    onPress={() => {
+                      handleGenerateKeyTerms();
+                      setKeytermModalVisible(false);
+                    }}
                   >
-                    <Text>Cancel</Text>
+                    <Text>Generate</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity style={styles.popupbuttonText}>
-                    <Button
-                      title="Generate"
-                      onPress={() => {
-                        handleGenerateKeyTerms();
-                        setKeytermModalVisible(false);
-                      }}
-                    />
-                  </TouchableOpacity>
                 </View>
               </View>
             </View>
@@ -1231,18 +1248,20 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                       multiline={true} // Enable multiline
                       textAlignVertical="top" // Align text to the top
                     />
+                    
                     <View style={styles.modalActions}>
+                    <TouchableOpacity
+                        style={styles.cancelButton}
+                        onPress={handleCancelEdit}
+                      >
+                        <Text style={styles.actionTextCancle}>Cancel</Text>
+                      </TouchableOpacity>
+
                       <TouchableOpacity
                         style={styles.saveButton}
                         onPress={handleSaveKeyterm}
                       >
                         <Text style={styles.actionTextSave}>Save</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={styles.cancelButton}
-                        onPress={handleCancelEdit}
-                      >
-                        <Text style={styles.actionTextCancle}>Cancel</Text>
                       </TouchableOpacity>
                     </View>
                   </>
@@ -1281,17 +1300,19 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                   onPress={() => toggleDefinition(parseInt(item.id))}
                 >
                   <Text style={styles.keyTermText}>❓ {item.term}</Text>
+                  
                   <TouchableOpacity style={styles.keyTermbuttonContainer}>
-                    <TouchableOpacity
+                  <TouchableOpacity
                       style={styles.actionButton}
-                      onPress={() => handleDeleteKeyTerm(item.id)} // Pass the specific flashcard ID
+                      onPress={() => handleEditKeyterm(item)}
                     >
                       <FlashcardIcon
-                        name="trash-outline"
+                        name="create-outline"
                         size={20}
-                        color="#F44336"
+                        color="green"
                       />
                     </TouchableOpacity>
+
                     {item.type === 1 && (
                       <TouchableOpacity
                         style={styles.actionButton}
@@ -1315,12 +1336,12 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
                     )}
                     <TouchableOpacity
                       style={styles.actionButton}
-                      onPress={() => handleEditKeyterm(item)}
+                      onPress={() => handleDeleteKeyTerm(item.id)} // Pass the specific flashcard ID
                     >
                       <FlashcardIcon
-                        name="create-outline"
+                        name="trash-outline"
                         size={20}
-                        color="green"
+                        color="#F44336"
                       />
                     </TouchableOpacity>
                   </TouchableOpacity>
@@ -1504,24 +1525,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#000",
   },
-  // progressContainer: {
-  //   flexDirection: "row",
-  //   marginTop: 20,
-  // },
-  // progressDot: {
-  //   width: 10,
-  //   height: 10,
-  //   backgroundColor: "#CCC",
-  //   borderRadius: 5,
-  //   marginHorizontal: 5,
-  // },
-  // activeDot: {
-  //   backgroundColor: "#FFD700",
-  // },
-  // flagImage: {
-  //   width: 30,
-  //   height: 30,
-  // },
   icon: {
     flexDirection: "row",
     justifyContent: "flex-end",
@@ -1650,7 +1653,7 @@ const styles = StyleSheet.create({
   actionTextSave: {
     marginLeft: 5,
     fontSize: 16,
-    color: "blue",
+    color: "#1CA7EC",
   },
   actionTextCancle: {
     marginLeft: 5,
@@ -1743,12 +1746,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#ccdee4",
+    backgroundColor: "#f7f9fa",
   },
   generateButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#ff90b3",
+    backgroundColor: "#1CA7EC",
     padding: 10,
     borderRadius: 10,
     shadowColor: "#000",
@@ -1761,7 +1764,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1f93e0",
+    backgroundColor: "#1CA7EC",
     padding: 11,
     borderRadius: 10,
     shadowColor: "#000",
@@ -1785,7 +1788,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: "90%",
-    backgroundColor: "#f0f3fa",
+    backgroundColor: "#fff",
     borderRadius: 10,
     padding: 20,
     shadowColor: "#000",
@@ -1812,6 +1815,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     marginBottom: 5,
     color: "#000",
+
   },
   picker: {
     height: 100,
@@ -1914,6 +1918,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor:"rgb(0,0,0,0.9)"
   },
   pageRangeContainer: {
     flexDirection: "row",
@@ -1938,9 +1943,10 @@ const styles = StyleSheet.create({
   checkbox: {
     width: 30,
     height: 30,
-    marginRight: 4,
   },
   checkedCheckbox: {
     backgroundColor: "transparent",
   },
 });
+
+export default PdfViewer;

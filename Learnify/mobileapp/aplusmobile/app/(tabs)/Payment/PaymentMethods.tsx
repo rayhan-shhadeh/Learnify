@@ -14,12 +14,12 @@ import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'expo-router';
 import { LOCALHOST } from '@/api/axois';
 import { useNavigation } from '@react-navigation/native';
-
+import LottieView from "lottie-react-native";
 interface Card {
   id: string;
   type: string;
   last4: string;
-  logo: string | null;
+  logo: string;
 }
 
 const PaymentMethodsScreen: React.FC = () => {
@@ -59,11 +59,11 @@ const PaymentMethodsScreen: React.FC = () => {
         last4: card.cardNumber.slice(-4),
         logo:
           card.cardType === 'Visa'
-            ? 'https://seeklogo.com/images/V/visa-logo-6F4057663D-seeklogo.com.png'
+            ? '../../../assets/visa.png'
             : card.cardType === 'MasterCard'
-            ? 'https://seeklogo.com/images/M/mastercard-logo-18A5B70CBA-seeklogo.com.png'
+            ? '../../../assets/master.png'
             : card.cardType === 'Discover'
-            ? 'https://seeklogo.com/images/D/discover-card-logo-7B7C5FCBA2-seeklogo.com.png'
+            ? '../../../assets/discover.png'
             : null,
       }));
 
@@ -100,7 +100,11 @@ const PaymentMethodsScreen: React.FC = () => {
             {selectedCardId === item.id && <View style={styles.radioInnerCircle} />}
           </View>
         </TouchableOpacity>
-        <Image source={{ uri: item.logo || '' }} style={styles.cardLogo} />
+
+        {item.type==='Visa'&&<Image source={require('../../../assets/visa.png')} style={styles.logo} />}
+        {item.type==='Discover'&&<Image source={require('../../../assets/discover.png')} style={styles.logo} />}
+        {item.type==='MasterCard'&&<Image source={require('../../../assets/master.png')} style={styles.logo} />}
+
         <Text style={styles.cardNumber}>**** **** **** {item.last4}</Text>
         <TouchableOpacity onPress={() => handleDeleteCard(item.id)}>
           <Icon name="trash" size={20} color="#999" />
@@ -164,7 +168,7 @@ const PaymentMethodsScreen: React.FC = () => {
       });
       const result = await response.json();
       if (response.ok) {
-        Alert.alert('Success', `Transaction successful!\nTransaction ID: ${result.transactionId}`);
+        Alert.alert('Success');  
         try {
           const premiumResponse = await fetch(`http://${LOCALHOST}:8080/api/updatePremiumStatus/${userId}`, {
             method: 'PATCH',
@@ -175,11 +179,13 @@ const PaymentMethodsScreen: React.FC = () => {
           });
           const premiumData = await premiumResponse.json();
           if (premiumResponse.ok) {
-            Alert.alert('Success', 'Your account has been upgraded to premium!');
-            router.replace("/(tabs)/HomeScreen");
           } else {
             Alert.alert('Error', premiumData.message || 'Failed to upgrade your account.');
           }
+          setTimeout(() => {
+            router.push('/(tabs)/Payment/SucessScreen');
+          }, 3000); 
+  
         } catch (premiumError) {
           Alert.alert('Error', 'An error occurred while updating your account to premium.');
           console.error('Premium Update Error:', premiumError);
@@ -188,10 +194,10 @@ const PaymentMethodsScreen: React.FC = () => {
         switch (result.message) {
           case 'Card already saved':
             console.log('Card already saved');
-            Alert.alert('Error', 'This card is already saved in the system.');
+            Alert.alert('This card is already saved in the system.');
             break;
           case 'All fields are required':
-            Alert.alert('Error', 'Please fill in all the required fields.');
+            Alert.alert('Please fill in all the required fields.');
             break;
           case 'Invalid card number':
             Alert.alert('Error', 'The card number you entered is invalid.');
@@ -220,35 +226,29 @@ const PaymentMethodsScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Payment Cards</Text>
+     <LottieView source={require('@/assets/payment-animation.json')} autoPlay loop style={styles.animation}/>
       <View style={styles.header}>
-          <Text style={styles.headerText}>10$/month</Text>
         </View>
-
       <View style={styles.cardContainer}>
         <View style={styles.header}>
-          <Icon name="credit-card" size={20} color="#0056D2" />
+          <Icon name="credit-card" size={30} color="#1ca7ec" />
           <Text style={styles.headerText}>Credit Cards</Text>
         </View>
-
         <FlatList
           data={cardData}
           renderItem={renderCardItem}
           keyExtractor={(item) => item.id}
           style={styles.cardList}
         />
-
-
         <TouchableOpacity
           style={styles.addCardButton}
           onPress={() => {
             router.push('/(tabs)/Payment/CardDetailsScreen');
           }}
         >
-          <Icon name="plus" size={20} color="#0056D2" />
+          <Icon name="plus" size={20} color="#37678F" />
           <Text style={styles.addCardText}>Add card</Text>
         </TouchableOpacity>
-
       </View>
       {selectedCardId && (
           <TouchableOpacity
@@ -258,21 +258,21 @@ const PaymentMethodsScreen: React.FC = () => {
             <Text style={styles.payNowButtonText}>Pay Now</Text>
           </TouchableOpacity>
         )}
-
     </View>
   );
+
 };
 
 const styles = StyleSheet.create({
     container: {
       flex: 1,
       padding: 20,
-      backgroundColor: '#f0f4ff',
+      backgroundColor: '#ffffff',//"#7bd5f5",
     },
     title: {
       fontSize: 24,
       fontWeight: 'bold',
-      color: '#0056D2',
+      color: '#03bbfc',
       textAlign: 'center',
       marginVertical: 20,
       marginBottom: 20,
@@ -294,9 +294,9 @@ const styles = StyleSheet.create({
       marginBottom: 20,
     },
     headerText: {
-      fontSize: 16,
+      fontSize: 20,
       fontWeight: '600',
-      color: '#333',
+      color: '#37678F',
       marginLeft: 10,
       alignContent: 'center' 
     },
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
     },
     selectedCardContainer: {
       borderWidth: 2,
-      borderColor: '#0056D2', // Blue border for selected card
+      borderColor: '#1ca7ec', // Blue border for selected card
     },
     cardItem: {
       flexDirection: 'row',
@@ -330,8 +330,9 @@ const styles = StyleSheet.create({
     cardNumber: {
       flex: 1,
       fontSize: 16,
-      color: '#333',
+      color: '#102A43',
       marginLeft: 15,
+      fontWeight: 'bold'
     },
     radioContainer: {
       marginRight: 15,
@@ -341,7 +342,7 @@ const styles = StyleSheet.create({
       height: 20,
       borderRadius: 10,
       borderWidth: 2,
-      borderColor: '#0056D2',
+      borderColor: '#37678F',
       justifyContent: 'center',
       alignItems: 'center',
     },
@@ -349,10 +350,10 @@ const styles = StyleSheet.create({
       width: 10,
       height: 10,
       borderRadius: 5,
-      backgroundColor: '#0056D2',
+      backgroundColor: '#1ca7ec',
     },
     radioSelected: {
-      borderColor: '#0056D2',
+      borderColor: '#1ca7ec',
     },
     addCardButton: {
       flexDirection: 'row',
@@ -364,12 +365,12 @@ const styles = StyleSheet.create({
     },
     addCardText: {
       marginLeft: 10,
-      fontSize: 16,
-      color: '#0056D2',
+      fontSize: 18,
+      color: '#37678F',
       fontWeight: '600',
     },
     payNowButton: {
-      backgroundColor: '#0056D2',
+      backgroundColor: '#1ca7ec',
       borderRadius: 50,
       paddingVertical: 15,
       marginTop: 30,
@@ -381,6 +382,26 @@ const styles = StyleSheet.create({
       color: '#fff',
       fontSize: 16,
       fontWeight: 'bold',
+    }
+    ,  animation: {
+      width: 180,
+      height: 180,
+      alignSelf: "center",
+    },
+    logo:{
+      width: 40,
+      height: 40,
+      resizeMode: 'contain',
+    },
+    successContainer:{
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#fff'  
+    },
+    successLottie:{
+      width: 300,
+      height: 300,  
     }
 });
 

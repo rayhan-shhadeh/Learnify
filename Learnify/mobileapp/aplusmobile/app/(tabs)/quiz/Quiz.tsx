@@ -264,15 +264,20 @@ const Quiz = () => {
       </View>
     );
   }
-
   if (!quiz || quiz.questions.length === 0) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#1CA7EC" />
-        <Text style={styles.loadingText}>Generating Quiz...</Text>
+                  <LottieView
+                    source={require("../../../assets/AI-generating.json")}
+                    autoPlay
+                    loop
+                    style={{ width: 300, height: 300 }}
+                  />
       </View>
     );
   }
+
+
   const currentQuestion = quiz.questions[currentQuestionIndex];
 
   return (

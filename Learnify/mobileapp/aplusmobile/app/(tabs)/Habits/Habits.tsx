@@ -419,7 +419,6 @@ const Habits = () => {
         >
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <Icon name="close" size={24} onPress={closeEditModal} />
               <Icon
                 name="wpforms"
                 size={40}
@@ -430,7 +429,7 @@ const Habits = () => {
                   alignItems: "center",
                   textAlign: "center",
                   alignSelf: "center",
-                  color: "#4a90e2",
+                  color: "#1CA7EC",
                 }}
               />
               <Text style={styles.modalTitle}>Edit Habit</Text>
@@ -448,17 +447,17 @@ const Habits = () => {
                 multiline
               />
               <View style={styles.modalActions}>
+              <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={closeEditModal}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.saveButton}
                   onPress={handleSaveHabit}
                 >
                   <Text style={styles.saveButtonText}>Save</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={closeEditModal}
-                >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -546,7 +545,7 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 8,
+    borderRadius:8 ,
     padding: 10,
     marginBottom: 15,
   },
@@ -555,20 +554,31 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   },
   saveButton: {
-    backgroundColor: "#4a90e2",
-    padding: 10,
-    borderRadius: 8,
+    backgroundColor: "#1CA7EC",
+    padding: 12,
+    borderRadius: 18,
+    width: "30%",
+    marginTop: 10,
   },
   saveButtonText: {
     color: "#fff",
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign:'center'
   },
   cancelButton: {
-    backgroundColor: "#ccc",
-    padding: 10,
-    borderRadius: 8,
+    backgroundColor: "red",
+    padding: 12,
+    borderRadius: 16,
+    marginTop: 10,
+    width: "30%",
   },
   cancelButtonText: {
-    color: "#333",
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign:'center'
+
   },
 });
 

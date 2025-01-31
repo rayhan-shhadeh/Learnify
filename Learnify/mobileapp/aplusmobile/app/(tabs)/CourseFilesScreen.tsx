@@ -939,9 +939,9 @@ const styles = StyleSheet.create({
   closeButton: {
     backgroundColor: "#DC3545",
     padding: 12,
-    borderRadius: 5,
+    borderRadius: 18,
     alignItems: "center",
-    marginTop: 16,
+    marginTop: 10,
   },
   closeButtonText: { color: "white", fontWeight: "bold" },
   choiceModalContainer: {
@@ -967,11 +967,12 @@ const styles = StyleSheet.create({
     width: "100%",
     padding: 12,
     backgroundColor: "#1CA7EC",
-    borderRadius: 5,
+    borderRadius: 18,
     marginVertical: 8,
     alignItems: "center",
   },
-  choiceButtonText: { color: "white", fontWeight: "bold" },
+  choiceButtonText: { color: "white", fontWeight: "bold" ,    fontSize:18
+   },
   deadline: {
     borderWidth: 0.2,
     borderColor: "#ddd",
