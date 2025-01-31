@@ -80,6 +80,7 @@ const MultiFilePracticeScreen: React.FC = () => {
   const handleNext = () => {
     setIsFlipped(false);
     setSelectedRating(null);
+
     if (currentIndex < flashcards.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
@@ -105,6 +106,12 @@ const MultiFilePracticeScreen: React.FC = () => {
         <Text style={styles.noFlashcardsText}>
           No flashcards available for the selected files.
         </Text>
+        <LottieView
+          source={require("../../../aplusmobile/assets/notfound.json")} // Place your Lottie file in the project directory
+          autoPlay
+          loop={false}
+          style={{ width: 200, height: 200 }}
+        />
       </View>
     );
   };
@@ -385,11 +392,15 @@ const MultiFilePracticeScreen: React.FC = () => {
                   style={[
                     styles.cardContent,
                     {
-                      transform: [{ rotateY: frontInterpolate }],
+                      transform: [
+                        { rotateY: frontInterpolate },
+                        { scaleX: new Animated.Value(-1) },
+                        { translateX: 0 },
+                      ],
                     },
                   ]}
                 >
-                  <Text style={[styles.cardText, { textAlign: "left" }]}>
+                  <Text style={[styles.cardText]}>
                     {flashcards[currentIndex].question}
                   </Text>
                 </Animated.View>
@@ -398,12 +409,14 @@ const MultiFilePracticeScreen: React.FC = () => {
                   style={[
                     styles.cardContent,
                     {
-                      transform: [{ rotateY: backInterpolate }],
-                      direction: "ltr",
+                      transform: [
+                        { rotateY: backInterpolate },
+                        { scaleX: new Animated.Value(-1) },
+                      ],
                     },
                   ]}
                 >
-                  <Text style={[styles.cardText, { textAlign: "left" }]}>
+                  <Text style={[styles.cardText]}>
                     {flashcards[currentIndex].answer}
                   </Text>
                 </Animated.View>
@@ -440,7 +453,10 @@ const MultiFilePracticeScreen: React.FC = () => {
                   styles.ratingButton,
                   selectedRating === index + 1 && styles.selectedRating,
                 ]}
-                onPress={() => handleRating(index + 1)}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  handleRating(index + 1);
+                }}
               >
                 <LottieView
                   source={rating.emoji}
@@ -501,22 +517,19 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 5,
     shadowOpacity: 0.8,
-    textAlign: "left",
-    direction: "rtl",
     padding: 10,
+    // textAlign: "left",
   },
   cardContent: {
     justifyContent: "center",
     alignItems: "center",
     height: "100%",
     width: "100%",
-    direction: "rtl",
-    textAlign: "left",
+    textAlign: "right",
   },
   cardText: {
     fontSize: 18,
     textAlign: "left",
-    direction: "ltr",
   },
   nextButton: {
     alignSelf: "center",
@@ -585,8 +598,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color: "#21277b",
-    textAlign: "center",
-
+    // textAlign: "right",
     paddingTop: -10,
     marginBottom: 20,
   },
