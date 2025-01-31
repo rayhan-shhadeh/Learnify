@@ -43,7 +43,7 @@ const CourseCard = ({title, description, tag, courseId,onUpdateParent,onOpenCour
     <div
       className="course-card-new"
       style={{
-        background: randomGradient, // Apply random gradient
+        background: "#73d0ff",
         position: "relative", // Needed for positioning the icons
       }}
     >
@@ -51,12 +51,12 @@ const CourseCard = ({title, description, tag, courseId,onUpdateParent,onOpenCour
       <p>{description}</p>
         <div className="card-icons">
         <button className="icon-button" onClick={()=>handleOpenCourseClick(courseId,title)}>
-        <MenuBook/>
+        <MenuBook style={{ color: "black" }} />
         </button>
         <button className="icon-button" onClick={() => handleChange({ id: courseId, title: title, description: description, tag: tag, }, true)}>
-          <Edit />
+          <Edit style={{ color: "black" }}/>
         </button>
-        <button onClick={() => handleChange({ id: courseId, title: title, description: description}, false)} className="icon-button"><Delete /></button>
+        <button onClick={() => handleChange({ id: courseId, title: title, description: description}, false)} className="icon-button"><Delete style={{ color: "black" }}/></button>
       
       </div>
     </div>

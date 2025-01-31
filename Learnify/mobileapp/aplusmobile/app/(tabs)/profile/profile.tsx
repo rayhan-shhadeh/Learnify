@@ -270,15 +270,16 @@ export default function Profile() {
               source={require("../../../assets/images/a-plus-4.gif")}
               style={styles.logoImage}
             />
-            <Text style={styles.welcomeText}>
-              Welcome back {userData?.username} !
-            </Text>
+            <Text style={styles.welcomeText}>Welcome back</Text>
+
             {/* <View style={styles.progressChartContainer}>
             <View style={styles.progressChart}>
               <Text style={styles.progressText}>78%</Text>
             </View>
           </View> */}
           </View>
+
+          <Text style={styles.welcomeText}> {userData?.username} !</Text>
           <Text style={styles.subText}>Keep up the great work</Text>
 
           {/* <View>
@@ -395,7 +396,6 @@ export default function Profile() {
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
     backgroundColor: "#fff",
     paddingBottom: 70,
   },
@@ -462,20 +462,20 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginLeft: 18,
+    paddingLeft: 10,
+    paddingRight: 10,
+    alignSelf: "center",
   },
   subText: {
     fontSize: 14,
     color: "#888",
     paddingLeft: 90,
-    marginBottom: 8,
     marginLeft: 20,
-    top: -15,
   },
   subTextDetail: {
     fontSize: 14,
     color: "#888",
     paddingLeft: 10,
-    marginBottom: 8,
   },
   progressChartContainer: {
     width: 64,

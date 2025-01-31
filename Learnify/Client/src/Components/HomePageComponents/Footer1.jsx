@@ -9,63 +9,45 @@ const Footer1 = () => {
                   <div className="col-lg-4 col-md-6 col-12">
                        <div className="single-footer-items footer-logo-area">
                             <div className="footer-logo">
-                              <a href=""><img src="/assets/img/logo/a+.jpg" alt="" /></a>
+                              <a href=""><img src="/assets/img/logo/a+logoF.png" alt="" /></a>
                             </div>
-                            <ul className="social-icon">
-                                 <li><a href="#"><i className="bi bi-linkedin"></i></a></li>
-                                 <li><a href="#"><i className="bi bi-twitter"></i></a></li>
-                                 <li><a href="#"><i className="bi bi-youtube"></i></a></li>
-                                 <li><a href="#"><i className="bi bi-instagram"></i></a></li>
-                            </ul>
                        </div>
                   </div>
 
                   <div className="col-lg-3 col-md-6 col-12">
                        <div className="single-footer-items">
-                            <h3>Contact Us</h3>
+
 
                             <div className="contact-box">
                               <div className="icon">
-                                <img src="/assets/img/icons/footer1-icon1.png" alt="" />
+                              <li><a href="#"><i className="bi bi-linkedin"></i></a></li>
                               </div>
                               <div className="pera">
-                                <a href="tel:0500222333">0500 222 333</a>
+                                <a href="mailto:admin@techxen.org">aplus</a>
                               </div>
                             </div>
-
                             <div className="contact-box">
                               <div className="icon">
-                                <img src="/assets/img/icons/footer1-icon2.png" alt="" />
+                              <li><a href="#"><i className="bi bi-twitter"></i></a></li>
                               </div>
                               <div className="pera">
-                                <a href="tel:0356588547">03 5658 8547</a>
+                                <a href="mailto:admin@techxen.org">a+studyhelper</a>
                               </div>
                             </div>
-
                             <div className="contact-box">
                               <div className="icon">
-                                <img src="/assets/img/icons/footer1-icon3.png" alt="" />
+                              <li><a href="#"><i className="bi bi-instagram"></i></a></li>
                               </div>
                               <div className="pera">
-                                <a href="mailto:admin@techxen.org">admin@A+.org</a>
+                                <a href="mailto:admin@techxen.org">aplus_study_hepler_</a>
                               </div>
                             </div>
-
-                            <div className="contact-box">
-                              <div className="icon">
-                                <img src="/assets/img/icons/footer1-icon4.png" alt="" />
-                              </div>
-                              <div className="pera">
-                                <a href="mailto:admin@techxen.org">www.A+.org</a>
-                              </div>
-                            </div>
-
                        </div>
                   </div>
 
              </div>
 
-             <div className="space40"></div>
+             <div className="space100"></div>
         </div>
 
         <div className="copyright-area">

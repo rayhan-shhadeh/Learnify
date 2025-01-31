@@ -6,6 +6,8 @@ import QuestionMarkIcon from"@mui/icons-material/QuestionMark";
 import LightbulbIcon from"@mui/icons-material/Lightbulb";
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import LaunchIcon from "@mui/icons-material/Launch"; // Open Page Icon
+import CloseIcon from '@mui/icons-material/Close';
+
 import "../../CSS/flashcard.css";
 
 const Flashcard = ({ flashcard, onSave, onDelete, handleSaveNewItem, isEditingParent, handleCancelNewItem,
@@ -67,7 +69,7 @@ const Flashcard = ({ flashcard, onSave, onDelete, handleSaveNewItem, isEditingPa
           {isEditing ? (
             <>
               <SaveIcon onClick={flashcard.isNew ? handleSaveClick  : handleSave} className="flashcard-action-icon save" />
-              <button onClick={handleCancelNewItem}>Cancel</button>
+              <CloseIcon onClick={handleCancelNewItem} className="flashcard-action-icon cancel"/>
             </>
           ) : (
             <EditIcon onClick={() => setIsEditing(true)} className="flashcard-action-icon edit" />
@@ -81,7 +83,7 @@ const Flashcard = ({ flashcard, onSave, onDelete, handleSaveNewItem, isEditingPa
     {flashcard.type === 1 && (
       <LaunchIcon
         onClick={() => handleOpenPageFlashcard(flashcard.id)}
-        className="flashcard-action-icon open"
+        className="flashcard-action-icon edit"
       />
     )}
           </>

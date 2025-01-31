@@ -82,7 +82,7 @@ const Card: React.FC<CardProps> = ({
         const topicData = response.data;
         setLoadingFlashcards(false);
         router.push({
-          pathname: "/(tabs)/TopicScreen",
+          pathname: "/(tabs)/ExploreMoreTopics",
           params: {
             userId,
             searchTopic,
@@ -128,7 +128,7 @@ const HistoryCard: React.FC<HistoryCardProps> = ({
       if (response.data && Array.isArray(response.data)) {
         const topicData = response.data;
         router.push({
-          pathname: "/(tabs)/TopicScreen",
+          pathname: "/(tabs)/ExploreMoreTopics",
           params: {
             userId,
             searchTopic,
@@ -304,7 +304,7 @@ const ExploreScreen = () => {
       if (data && Array.isArray(data)) {
         const exploreFlashcards = data;
         router.push({
-          pathname: "/(tabs)/TopicScreen",
+          pathname: "/(tabs)/ExploreMoreTopics",
           params: {
             userId,
             searchTopic,

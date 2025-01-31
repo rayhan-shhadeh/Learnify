@@ -9,8 +9,10 @@ import Calender from "../views/Calender";
 import CourseFilesPage from "../views/CourseFilesPage"
 //import App from '../Components/fileComponents/file-study'
 import FileStudyPage from '../views/fileStudyPage';
-import FilePracticePage from '../views/filePracticePage';
-import QuizPage from '../views/QuizPage';
+import FilePracticePage from '../views/filePracticePage'
+import QuizPage from '../views/QuizPage'
+import ExplorePage from '../views/ExplorePage';
+import ExploreFlashcardsPage from '../views/ExploreFlashcardsPage';
 import {
   Dashboard,
   Team,
@@ -53,31 +55,51 @@ const Router = [
     ],
   },
   {
-    path: '/',
-    element: <FullLayout />,
+    path: "/",
+    element: <Main></Main>,
     children: [
-      { path: '/dashboard', exact: true, element: <Dashboard1 /> },
-    ],
-  },
-  {
+      {
+        path: "/",
+        element: <Home></Home>,
+      },
+      {
+        path: "/calendar",
+        element: <Calender></Calender>,
+      }   
+    ]
+  },{
+    path: '/',
+    element: <FullLayout></FullLayout>,
+    children: [
+    { path: '/dashboard', exact: true, element: <Dashboard1 /> }
+    ]
+  },{
     path: '/courses',
-    element: <CoursesPage />,
+    element: <CoursesPage></CoursesPage>,
   },
   {
     path: '/files',
-    element: <CourseFilesPage />,
+    element: <CourseFilesPage></CourseFilesPage>,
   },
   {
     path: '/files/fileStudy',
-    element: <FileStudyPage />,
+    element: <FileStudyPage></FileStudyPage>,
   },
   {
     path: '/files/fileQuiz',
-    element: <QuizPage />,
+    element: <QuizPage></QuizPage>,
   },
   {
     path: '/files/filePractice',
-    element: <FilePracticePage />,
+    element: <FilePracticePage></FilePracticePage>,
+  },
+  {
+    path: '/explore',
+    element: <ExplorePage></ExplorePage>,
+  },
+  {
+    path: '/explore/exploreFlashcards',
+    element: <ExploreFlashcardsPage></ExploreFlashcardsPage>,
   },
   {
     path: "/dash",
@@ -91,7 +113,30 @@ const Router = [
         path: "/dash/calendar",
         element: <Calendar />,
       },
-
+      {
+        path: "/dash/contacts",
+        element: <Contacts />,
+      },
+      {
+        path: "/dash/team",
+        element: <Team />,
+      },
+      {
+        path: "/dash/invoices",
+        element: <Invoices />,
+      },
+      {
+        path: "/dash/form",
+        element: <Form />,
+      },
+      {
+        path: "/dash/bar",
+        element: <Bar />,
+      },
+      {
+        path: "/dash/pie",
+        element: <Pie />,
+      },
       {
         path: "/dash/stream",
         element: <Stream />,
@@ -106,6 +151,7 @@ const Router = [
       },
     ],
   },
+
 ];
 
 export default Router;

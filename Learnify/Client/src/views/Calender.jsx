@@ -64,7 +64,6 @@ export default function Calender() {
         title: event.eventTitle,
         start: event.eventStart,
         end: event.eventEnd || null,
-        allDay: event.allDay || false,
         extendedProps: { description: event.eventDescription || '' },
       }));
       console.log(fetchedEvents)
@@ -109,7 +108,6 @@ export default function Calender() {
       "eventStart": new Date(editedEvent.start).toISOString(),
       "eventEnd": new Date(editedEvent.end).toISOString(),
       "eventDescription": editedEvent.description,
-      "allDay": 0,
         "user_": {
             "connect": {
               "userId": userId
@@ -160,7 +158,6 @@ export default function Calender() {
         eventStart: new Date(newEvent.start).toISOString(),
         eventEnd: new Date(newEvent.end).toISOString(),
         eventDescription: newEvent.description,
-        allDay: 0,
         user_: {
           connect: {
             userId: userId,
@@ -236,7 +233,6 @@ export default function Calender() {
           />
         )}
         <Dialog open={!!selectedEvent} onClose={closePopup}>
-          <DialogTitle>{isEditing ? 'Edit Event' : ""}</DialogTitle>
           <DialogContent >
             {isEditing ? (
               <>
@@ -309,11 +305,11 @@ export default function Calender() {
           <DialogActions>
             {isEditing ? (
               <>
-                <Button onClick={handleSaveEdit} color="primary">
-                  Save
-                </Button>
                 <Button onClick={closePopup} color="#000000">
                   Cancel
+                </Button>
+                <Button onClick={handleSaveEdit} color="primary">
+                  Save
                 </Button>
               </>
             ) : (
@@ -332,7 +328,6 @@ export default function Calender() {
           </DialogActions>
         </Dialog>
         <Dialog open={createEventDialog} onClose={() => setCreateEventDialog(false)}>
-          <DialogTitle>Create New Event</DialogTitle>
           <DialogContent>
            <TextField
              fullWidth
@@ -381,12 +376,13 @@ export default function Calender() {
             )}
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCreateEvent} color="primary">
-              Create
-            </Button>
             <Button onClick={() => setCreateEventDialog(false)} color="#000000">
               Cancel
             </Button>
+            <Button onClick={handleCreateEvent} color="primary">
+              Save
+            </Button>
+
           </DialogActions>
         </Dialog>
       </div>

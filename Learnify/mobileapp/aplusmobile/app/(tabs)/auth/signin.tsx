@@ -151,7 +151,9 @@ const SignIn = () => {
         />
       </View>
 
-      <TouchableOpacity onPress={() => router.push("/TestAPI")}>
+      <TouchableOpacity
+        onPress={() => router.push("/(tabs)/auth/ForgotPassword")}
+      >
         <Text style={styles.forgotPassword}>Forgot password?</Text>
       </TouchableOpacity>
 

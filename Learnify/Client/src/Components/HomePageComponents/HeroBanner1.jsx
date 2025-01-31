@@ -10,17 +10,6 @@ const HeroBanner1 = ({bgImg,title,content,btnName,btnUrl,image1,image2,shapeImag
     loadBackgroudImages();
   }, []);
 
-  const [iframeSrc, setIframeSrc] = useState('about:blank');
-  const [toggle, setToggle] = useState(false);
-
-  const handelClick = () => {
-  setIframeSrc("https://www.youtube.com/embed/rRid6GCJtgc");
-  setToggle(!toggle);
-  };
-  const handelClose = () => {
-  setIframeSrc('about:blank');
-  setToggle(!toggle);
-  };
     return (
       <div className="hero_main_area1">
         <div className="hero1" data-background={bgImg}>
@@ -36,8 +25,6 @@ const HeroBanner1 = ({bgImg,title,content,btnName,btnUrl,image1,image2,shapeImag
                   <div className="buttons">
                     <Link className="theme-btn1" to={btnUrl}>{btnName} <span><i className="bi bi-arrow-right"></i>
                     </span></Link>
-                    <span onClick={handelClick} className="play-btn"><span><i className="bi bi-play"></i>
-                    </span> Watch Demo Video</span>
                   </div>
                 </div>
               </div>
@@ -67,3 +54,7 @@ const HeroBanner1 = ({bgImg,title,content,btnName,btnUrl,image1,image2,shapeImag
 };
 
 export default HeroBanner1;
+
+
+
+

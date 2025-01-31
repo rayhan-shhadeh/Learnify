@@ -12,4 +12,4 @@ const QuizPage = () => {
     );
   };
   
-  export default QuizPage;
+export default QuizPage;

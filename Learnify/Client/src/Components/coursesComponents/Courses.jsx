@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie'
 import {jwtDecode} from 'jwt-decode'
 import axios from 'axios';
-import '../../CSS/home.css';
 import "../../CSS/course.css";
 import CourseCard from'../../Components/coursesComponents/CourseCard'
 
@@ -53,10 +52,9 @@ useEffect(() => {
     initializeUser();
   }, []);
   
-  // Fetch courses only after userId is available
     useEffect(() => {
     if (!userId) {
-      return; // Guard condition to prevent premature execution
+      return;
     }
     const fetchUserCourses = async () => {
       try {
@@ -86,8 +84,6 @@ useEffect(() => {
     fetchUserCourses();
   }, [userId]); // Runs only when userId changes
   
-
-
     //handle popup for add and handle click add icon
     const closePopup = () => {
       setCreateCourseDialog(false);
@@ -298,36 +294,29 @@ useEffect(() => {
                     </svg>
                   </button>
                 </div>
-                  <button className="filter-button" onClick={toggleDropdown}>
-                    <FilterAltIcon style={{ color: "white" }} />{"Tag"}
-                    {/* Material-UI Icon */}
-                  </button>
-                    {selectedFilter && (
-                        <div>
-                        <button className="selected-filter-button" onClick={handleClearFilter}>
-                             <CloseIcon style={{ fontSize: "16px", marginRight: "5px" }} />
-                             {selectedFilter}
-                        </button>
-                        </div>
-                    )}
-                  {showDropdown && (
-                    <ul className=".dropdown-menu ">
-                    {[...new Set(courses.map((course) => course.tag))].map((tag, index) => (
-                      <li key={index}>
-                        <label>
-                          <input
-                            type="radio"
-                            name="filter" // Group all radio buttons under the same name
-                            value={tag}
-                            checked={selectedFilter === tag} // Make it exclusive
-                            onChange={() => handleFilterSelect(tag)} // Update selected filter
-                          />
-                          {tag}
-                        </label>
-                      </li>
-                    ))}
-                  </ul>                  
-                  )}
+                <select
+  className="filter-dropdown"
+  value={selectedFilter || "Filter"} // Default to "Filter" if no filter is selected
+  onChange={(e) => handleFilterSelect(e.target.value)}
+>
+  <option value="Filter" disabled>
+    <FilterAltIcon style={{ color: "black", marginRight: "5px" }} />
+    Tag
+  </option>
+  {[...new Set(courses.map((course) => course.tag))].map((tag, index) => (
+    <option key={index} value={tag}>
+      {tag}
+    </option>
+  ))}
+</select>
+
+{selectedFilter && (
+  <button className="selected-filter-button" onClick={handleClearFilter}>
+    <CloseIcon style={{ fontSize: "16px", marginRight: "5px" }} />
+    {selectedFilter}
+  </button>
+)}
+
               </div>
             </div>
             <div className="courses-grid">
@@ -393,11 +382,11 @@ useEffect(() => {
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleAddCourse} color="primary">
-              Add
-            </Button>
-            <Button onClick={closePopup} color="#000000">
+          <Button onClick={closePopup} color="#000000">
               Cancel
+            </Button>
+            <Button onClick={handleAddCourse} color="primary">
+              Save
             </Button>
           </DialogActions>
         </Dialog>
@@ -414,10 +403,10 @@ useEffect(() => {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseModal} color="primary">
+                    <Button onClick={handleCloseModal} color="black">
                         Cancel
                     </Button>
-                    <Button onClick={handleDelete} color="error" variant="contained">
+                    <Button onClick={handleDelete} color="error" >
                         Delete
                     </Button>
                 </DialogActions>
@@ -471,11 +460,11 @@ useEffect(() => {
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleEditCourse} color="primary">
-              Save
-            </Button>
             <Button onClick={closePopup} color="#000000">
               Cancel
+            </Button>
+            <Button onClick={handleEditCourse} color="primary">
+              Save
             </Button>
           </DialogActions>
         </Dialog>

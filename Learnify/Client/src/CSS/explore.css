@@ -1,0 +1,201 @@
+/* General Styles */
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f7f8fa;
+}
+
+/* Hero Section */
+.hero-section {
+  text-align: center;
+  padding: 2rem 1rem;
+  margin-top: 90px;
+  background: linear-gradient(135deg,#FF99BE,#70cfff ); 
+  color: #102A43;
+  height : 200px;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.hero-description {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+
+/* Search Bar */
+.search-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem; /* Slightly smaller spacing */
+  padding: 0.8rem;
+  background: white;
+  border-radius: 2rem; /* Radial styling */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  margin: 1.5rem auto;
+  max-width: 600px; /* Compact width */
+  width: 90%;
+}
+
+.search-bar input {
+  flex: 2; /* Allow input to take more space */
+  padding: 0.6rem 1rem;
+  border: 1px solid #e0e0e0; /* Light border for professional look */
+  border-radius: 2rem;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.search-bar input:focus {
+  border-color: #1ca7ec; /* Highlighted border */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Slightly elevated shadow */
+  outline: none;
+}
+
+.search-bar .level-selector {
+  flex: 1; /* Smaller size for compactness */
+  padding: 0.6rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 2rem;
+  font-size: 0.9rem;
+  background: #f7f8fa; /* Light gray background for dropdown */
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.search-bar .level-selector:focus {
+  border-color: #1ca7ec;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.search-bar button {
+  flex: 1;
+  padding: 0.6rem 1.5rem;
+  background: #FF80B0;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 2rem;
+  cursor: pointer;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+/* Topics Section */
+.topics-section {
+  width: 90%;
+  margin: 2rem auto;
+  padding: 2rem 1rem;
+  background: white; /* Set the section background to white */
+  border-radius: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Topics Grid */
+.topics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 992px) {
+  .topics-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .topics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.topic-card {
+  padding: 1.5rem;
+  height: 200px;
+  width: 300px;
+  margin: 0 auto;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.topic-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Topic Title */
+.topic-card h3 {
+  margin: 1rem 0;
+  font-weight: bold;
+  font-size: 1.6rem;
+  color: #102A43; /* White text for better contrast */
+}
+
+/* Icon Container */
+.icon-container {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: pointer;
+}
+
+.icon {
+  font-size: 2rem;
+  color: #102A43; /* White icon to match the card */
+  transition: transform 0.3s, color 0.3s;
+}
+
+.icon-container:hover .icon {
+  transform: scale(1.2);
+  color: #ffffff; /* Slightly lighter color on hover */
+}
+
+/* Loading Spinner */
+.spinner {
+  margin: 0 auto;
+  width: 40px;
+  height: 40px;
+  border: 4px solid transparent;
+  border-top-color: #7873f5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* Section Title - Professional Styling */
+.section-title {
+  text-align: center;
+  font-size: 2.5rem; /* Larger font size */
+  font-weight: bold;
+  color: #102A43; /* Elegant blue color */
+  margin-bottom: 2rem;
+  position: relative; /* For decorative underline */
+}
+
+/* Decorative Underline */
+.section-title::after {
+  content: "";
+  display: block;
+  width: 100px; /* Line width */
+  height: 5px; /* Line thickness */
+  background: linear-gradient(90deg, #FF80B0, #1ca7ec); /* Gradient line */
+  margin: 0.5rem auto 0; /* Centered below the title */
+  border-radius: 10px; /* Rounded ends for the line */
+}
