@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, lazy } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { motion } from "framer-motion";
+import Loadable from "../layouts/full/shared/loadable/Loadable";
 import { Button, Card, Container, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { LinearScale } from "chart.js";
-
+const SideBar = Loadable(lazy(() => import('../../src/layouts/full/sidebar/Sidebar')));
 const HabitTracker = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [habits, setHabits] = useState(["Drink Water", "Exercise", "Read a Book"]);
@@ -106,101 +107,71 @@ const HabitTracker = () => {
   };
 
   return (
-    <Container className="mt-5" style={{ width: "100%"}}>
-      <Row>
-        <Col md={6} className="mb-4">
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className="text-center">Habit Tracker</h2>
-            <Calendar onChange={handleDateChange} value={selectedDate} />
-          </motion.div>
-        </Col>
+    <div style={{ width: "100vw", height: "200vh", backgroundColor: "#f6f6f6"}}>
+      <Container style={{ marginTop: 100, paddingTop: 50, borderRadius: 25, width: "100%", height: "70%", backgroundColor: "#ccefff" }}>
+        <Row>
+          <Col md={6} className="mb-4">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h2 className="text-center">Habit Tracker</h2>
+              <Calendar
+                onChange={handleDateChange}
+                value={selectedDate}
+                tileClassName={({ date }) =>
+                  completedDates.includes(date.toDateString()) ? "completed-day" : ""
+                }
+              />
+            </motion.div>
+          </Col>
 
-        <Col md={6}>
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Card>
-              <Card.Body>
-                <Card.Title>Habits for {selectedDate.toDateString()}</Card.Title>
-                <ul className="list-group list-group-flush">
-                  {habits.map((habit) => (
-                    <li
-                      key={habit}
-                      className="list-group-item d-flex justify-content-between align-items-center"
-                    >
-                      {habit}
-                      <Button
-                        variant={completed[selectedDate.toDateString()]?.[habit] ? "success" : "outline-secondary"}
-                        onClick={() => toggleCompletion(habit)}
+          <Col md={6}>
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Card>
+                <Card.Body>
+                  <Card.Title>Habits for {selectedDate.toDateString()}</Card.Title>
+                  <ul className="list-group list-group-flush">
+                    {habits.map((habit) => (
+                      <li
+                        key={habit}
+                        className="list-group-item d-flex justify-content-between align-items-center"
                       >
-                        {completed[selectedDate.toDateString()]?.[habit] ? "Done" : "Mark Done"}
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-                <Button variant="primary" className="mt-3" onClick={addHabit}>
-                  Add Habit
-                </Button>
-              </Card.Body>
-            </Card>
-          </motion.div>
-        </Col>
-      </Row>
-      <div className="habit-calendar">
-      <div className="habit-list">
-        {/* Example habit buttons */}
-        <button onClick={() => handleHabitClick(18)}>Habit 18</button>
-        <button onClick={() => handleHabitClick(24)}>Habit 24</button>
-      </div>
+                        <Button className="button" onClick={() => handleHabitClick(24)}>
+                          {habit}
+                        </Button>
+                        <Button
+                          variant={completed[selectedDate.toDateString()]?.[habit] ? "success" : "outline-secondary"}
+                          onClick={() => toggleCompletion(habit)}
+                        >
+                          {completed[selectedDate.toDateString()]?.[habit] ? "Done" : "Mark Done"}
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button variant="primary" className="mt-3" onClick={addHabit}>
+                    Add Habit
+                  </Button>
+                </Card.Body>
+              </Card>
+            </motion.div>
+          </Col>
+        </Row>
 
-      <div className="calendar-grid">{renderCalendar()}</div>
-
-      <style jsx>{`
-        .habit-calendar {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
-        .habit-list button {
-          margin: 5px;
-          padding: 10px;
-          background: #007bff;
-          color: #fff;
-          border: none;
-          border-radius: 5px;
-          cursor: pointer;
-        }
-        .habit-list button:hover {
-          background: #0056b3;
-        }
-        .calendar-grid {
-          display: grid;
-          grid-template-columns: repeat(7, 1fr);
-          gap: 10px;
-          margin-top: 20px;
-        }
-        .day {
-          width: 40px;
-          height: 40px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          border: 1px solid #ddd;
-          border-radius: 5px;
-        }
-        .day.completed {
-          background: green;
-          color: white;
-        }
-      `}</style>
+        <style jsx>{`
+          .completed-day {
+            background: green !important;
+            color: white !important;
+            border-radius: 6px;
+          }
+        `}</style>
+      </Container>
     </div>
-    </Container>
   );
 };
 
