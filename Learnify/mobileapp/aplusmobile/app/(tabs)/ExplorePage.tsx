@@ -162,13 +162,11 @@ const HistoryCard: React.FC<HistoryCardProps> = ({
         <LinearGradient colors={gradientColors} style={styles.gradienthistory}>
           <Text style={styles.cardText}>{searchTopic}</Text>
           <Text style={styles.ratingContainer}>
-            <Icon name="star" size={20} color="#ffd335" />
             <Text> </Text>
-            <Text style={styles.ratingText}>4.5</Text>
+
+            <Icon name="bars" size={30} color="#ddd7e1" />
             <Text> </Text>
-            <Icon name="bars" size={20} color="#ddd7e1" />
-            <Text> </Text>
-            <Text style={styles.ratingText}>5</Text>
+            <Text style={styles.ratingText}> 10</Text>
           </Text>
         </LinearGradient>
       </TouchableOpacity>

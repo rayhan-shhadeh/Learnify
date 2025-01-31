@@ -44,6 +44,7 @@ export default function ExploreMoreTopics() {
   const [flipped, setFlipped] = useState(false);
   const [gradientColors, setGradientColors] = useState(randomGradient());
   const flipAnim = useRef(new Animated.Value(0)).current;
+  const [isLocked, setIsLocked] = useState(false);
   const position = useRef(new Animated.ValueXY()).current;
   const [flippedCards, setFlippedCards] = useState<{ [key: string]: boolean }>(
     {}
@@ -71,6 +72,8 @@ export default function ExploreMoreTopics() {
     initialize();
   }, []);
   const handleFlip = () => {
+    let count = 0;
+
     Animated.sequence([
       Animated.timing(flipAnim, {
         toValue: 1,
@@ -82,6 +85,8 @@ export default function ExploreMoreTopics() {
       setFlipped(!flipped);
       flipAnim.setValue(0);
     });
+    setIsLocked(!isPremium && count > 5);
+    const isLocked = !isPremium && count > 5;
   };
 
   const panResponder = PanResponder.create({
@@ -120,9 +125,17 @@ export default function ExploreMoreTopics() {
     <>
       <Header />
       <View style={styles.container}>
-        <Text style={styles.header}>
-          Generated flashcards for {searchTopic}
+        <Text
+          style={{
+            marginTop: 20,
+            color: "#1ca7ec",
+            fontSize: 30,
+            fontWeight: "bold",
+          }}
+        >
+          Generated
         </Text>
+        <Text style={styles.header}> flashcards for {searchTopic}</Text>
         <Animated.View
           {...panResponder.panHandlers}
           style={[
@@ -137,26 +150,89 @@ export default function ExploreMoreTopics() {
                 {
                   transform: [{ rotateY }],
                 },
+                isLocked && styles.lockedCard,
               ]}
             >
-              <LinearGradient
-                colors={gradientColors}
-                style={styles.gradientBackground}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-              >
-                <Text style={styles.cardText}>
-                  {flipped
-                    ? flashcards[index].ExploreFlashcardA
-                    : flashcards[index].ExploreFlashcardQ}
-                </Text>
-              </LinearGradient>
+              {isLocked ? (
+                <View style={styles.lockedContent}>
+                  {/* <Ionicons name="lock-closed-outline" size={40} color="#888" /> */}
+                  <Image
+                    source={require("../../assets/images/lock.png")}
+                    style={{ width: 100, height: 100 }}
+                  />
+                </View>
+              ) : (
+                <LinearGradient
+                  colors={gradientColors}
+                  style={styles.gradientBackground}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <Text style={styles.cardText}>
+                    {flipped
+                      ? flashcards[index].ExploreFlashcardA
+                      : flashcards[index].ExploreFlashcardQ}
+                  </Text>
+                </LinearGradient>
+              )}
             </Animated.View>
           </TouchableOpacity>
         </Animated.View>
         <Text style={styles.instructionText}>
           Swipe to move to the next flashcard...
         </Text>
+        {!isPremium ? (
+          <TouchableOpacity
+            onPress={() =>
+              router.push({
+                pathname: "/(tabs)/LinkListScreen",
+                params: { searchTopic, level },
+              })
+            }
+          >
+            <LinearGradient
+              colors={["#1ca7ec", "#1ca7ec"]}
+              style={styles.nextButton}
+            >
+              <Text
+                style={{
+                  fontWeight: "bold",
+                  justifyContent: "center",
+                  alignContent: "center",
+                  textAlign: "center",
+                  fontSize: 18,
+                  color: "#fff",
+                }}
+              >
+                want to Explore more?
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            onPress={() =>
+              router.push({ pathname: "/(tabs)/Payment/PremiumScreen" })
+            }
+          >
+            <LinearGradient
+              colors={["#FFDF00", "#FCC200", "#FFC627", "#FFCC00", "#FDB515"]}
+              style={styles.nextButton}
+            >
+              <Text
+                style={{
+                  fontWeight: "bold",
+                  justifyContent: "center",
+                  alignContent: "center",
+                  textAlign: "center",
+                  fontSize: 18,
+                }}
+              >
+                Unlock?
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        )}
+
         <NavBar />
       </View>
     </>
@@ -168,7 +244,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-start",
     alignItems: "center",
-    backgroundColor: "#f4f4f4",
+    backgroundColor: "#fff",
   },
   title: {
     fontSize: 24,
@@ -180,7 +256,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 80,
-    marginVertical: 20,
     marginHorizontal: 30,
     textAlign: "center",
     top: 20,
@@ -212,5 +287,37 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#888888",
     marginTop: 10,
+  },
+  nextButton: {
+    alignSelf: "center",
+    padding: 10,
+    backgroundColor: "#f5bf03",
+    borderRadius: 50,
+    color: "#fff",
+    marginBottom: 20,
+    width: 290,
+    textAlign: "center",
+    height: 40,
+    fontSize: 18,
+    fontWeight: "bold",
+    marginTop: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+  },
+  lockedCard: {
+    backgroundColor: "#ddd",
+    opacity: 0.6,
+    width: "100%",
+    height: "100%",
+  },
+  lockedContent: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#f0f0f0",
+    width: "100%",
+    height: "100%",
+    borderBlockColor: "#000",
+    borderRadius: 16,
   },
 });

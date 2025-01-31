@@ -14,9 +14,13 @@ import * as Linking from "expo-linking";
 import API from "@/api/axois";
 import axios from "axios";
 import { LOCALHOST } from "@/api/axois";
+import Header from "./header/Header";
+import { LinearGradient } from "expo-linear-gradient";
 const LinkListScreen = () => {
   const { searchTopic, level } = useLocalSearchParams();
-  const [links, setLinks] = useState<{ resourceName: string; resourceLink: string }[]>([]);
+  const [links, setLinks] = useState<
+    { resourceName: string; resourceLink: string }[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -24,32 +28,35 @@ const LinkListScreen = () => {
     const fetchLinks = async () => {
       try {
         const requestBody = {
-          level: level
+          level: level,
         };
-        console.log("level from links page: "+level )
-        const response = await fetch(`http://${LOCALHOST}:8080/api/exploreflashcards/exploreMore/${searchTopic}`, {
-          method: 'POST', 
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(requestBody), 
-        });
+        console.log("level from links page: " + level);
+        const response = await fetch(
+          `http://${LOCALHOST}:8080/api/exploreflashcards/exploreMore/${searchTopic}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestBody),
+          }
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const linksData = await response.json();
-        console.log('Fetched Data:', linksData);
+        console.log("Fetched Data:", linksData);
         setLinks(linksData);
       } catch (error) {
-        console.error('Error fetching links:', error);
+        console.error("Error fetching links:", error);
         setError(true);
       } finally {
         setLoading(false);
       }
     };
     fetchLinks();
-  }, [searchTopic, level]); 
-  
+  }, [searchTopic, level]);
+
   const handleLinkPress = async (url: string) => {
     const fullUrl = url.startsWith("http") ? url : `https://${url}`;
     const supported = await Linking.canOpenURL(fullUrl);
@@ -81,6 +88,7 @@ const LinkListScreen = () => {
 
   return (
     <View style={styles.container}>
+      <Header />
       <View style={styles.header}>
         <Text style={styles.headerText}>New Extra Links for You!</Text>
       </View>
@@ -95,7 +103,13 @@ const LinkListScreen = () => {
               handleLinkPress(link.resourceLink);
             }}
           >
-            <Ionicons name="link" size={24} color="#fff" style={styles.icon} />
+            <Ionicons
+              name="link"
+              size={24}
+              color="#f5bf03"
+              style={styles.icon}
+            />
+
             <Text style={styles.linkText}>{link.resourceName}</Text>
           </TouchableOpacity>
         ))}
