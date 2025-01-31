@@ -10,6 +10,7 @@ import {
   TextInput,
   Button,
   ScrollView,
+  Image
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -469,8 +470,19 @@ const CourseFilesScreen = () => {
     return (
       <Modal visible={modalVisible} transparent={true} animationType="slide">
         <View style={styles.modalContainer}>
+
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>File Details</Text>
+          <View style={styles.modalheadercontainer}>
+              <Image
+                source={require("../../assets/images/add.png")}
+                style={{ width: 27, height: 27, marginRight: 10, marginBottom:16 }}
+                resizeMode="contain"
+              />
+              <Text style={styles.modalTitle}>Add New File</Text>
+          </View>
+
+
+            
             <TextInput
               style={styles.input}
               placeholder="File Name"
@@ -553,7 +565,7 @@ const CourseFilesScreen = () => {
             onChangeText={setNewFileName}
           />
           <Button
-            title="Save Changes"
+            title="Save"
             onPress={() =>
               currentFile?.fileId && editFile(currentFile.fileId, newFileName)
             }
@@ -734,6 +746,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   cardHeader: {
+    
     flexDirection: "column",
     justifyContent: "space-between",
     alignItems: "flex-start",
@@ -778,6 +791,8 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: "bold",
+    marginBottom : 20 ,
+    alignSelf : 'center'
   },
   input: {
     borderWidth: 1,
@@ -973,6 +988,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
+    modalheadercontainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
+    paddingBlock: 20,
+  },
+
 });
 
 export default CourseFilesScreen;

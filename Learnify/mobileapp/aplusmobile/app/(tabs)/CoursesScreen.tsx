@@ -400,7 +400,7 @@ const CoursesScreen = () => {
                 style={{ width: 27, height: 27, marginRight: 10 }}
                 resizeMode="contain"
               />
-              <Text style={styles.modalTitle}>edit Course</Text>
+              <Text style={styles.modalTitle}>Edit Course</Text>
             </View>
             <TextInput
               style={styles.input}
@@ -464,7 +464,7 @@ const CoursesScreen = () => {
               setSearchQuery(value);
               handleInputChange(value);
             }}
-            placeholder="Search for files"
+            placeholder="Search for courses"
             returnKeyType="search"
             onSubmitEditing={() => {
               handleSearch();
@@ -492,7 +492,7 @@ const CoursesScreen = () => {
               style={styles.clearFilterButton}
               onPress={handleClearFilter}
             >
-              <Text style={styles.clearFilterText}>X</Text>
+              <Text style={styles.clearFilterText}>X   {selectedFilter}</Text>
             </TouchableOpacity>
           ) : null}
           {/* Dropdown List */}
@@ -764,8 +764,8 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   clearFilterButton: {
-    marginLeft: 10,
-    backgroundColor: "#ff6b6b",
+    marginTop:10 ,
+    backgroundColor: "#FF80B0",
     padding: 8,
     borderRadius: 5,
   },

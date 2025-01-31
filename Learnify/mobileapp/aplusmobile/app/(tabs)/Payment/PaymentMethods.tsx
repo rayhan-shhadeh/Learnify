@@ -222,7 +222,7 @@ const PaymentMethodsScreen: React.FC = () => {
     <View style={styles.container}>
       <Text style={styles.title}>Payment Cards</Text>
       <View style={styles.header}>
-          <Text style={styles.headerText}>15$/month</Text>
+          <Text style={styles.headerText}>10$/month</Text>
         </View>
 
       <View style={styles.cardContainer}>
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
     container: {
       flex: 1,
       padding: 20,
-      backgroundColor: '#f5f5f5',
+      backgroundColor: '#f0f4ff',
     },
     title: {
       fontSize: 24,
@@ -298,6 +298,7 @@ const styles = StyleSheet.create({
       fontWeight: '600',
       color: '#333',
       marginLeft: 10,
+      alignContent: 'center' 
     },
     cardList: {
       marginBottom: 20,

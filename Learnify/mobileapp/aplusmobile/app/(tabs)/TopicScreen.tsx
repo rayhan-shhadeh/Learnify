@@ -120,10 +120,16 @@ const screenWidth = Dimensions.get("window").width;
 
 const styles = StyleSheet.create({
   nextButton: {
+    fontSize: 18,
+    fontWeight: 600,
     alignSelf: 'center',
-    padding: 10,
-    backgroundColor: '#007bff',
-    borderRadius: 50,
+    textAlign: 'center',
+    width:screenWidth * 0.9,
+    padding: 23,
+    marginBottom:15,
+    backgroundColor: '#c5c6c7',
+    borderRadius: 10,
+    color: '#000',
   },
   container: {
     flex: 1,

@@ -28,26 +28,26 @@ interface HistoryTopic {
 
 const randomGradient = (): [string, string, ...string[]] => {
   const colors: [string, string, ...string[]][] = [
-    ["#2C3E50", "#1CA7EC"], // Dark blue and blue gradient (reliable and educational)
-    ["#2C3E50", "#1CA7EC"], // Dark blue and blue gradient (reliable and educational)
-    ["#34495E", "#16A085"], // Dark teal and green gradient (calm and focused)
-    ["#1F3A69", "#3498DB"], // Navy blue and light blue gradient (professional and calming)
-    ["#8E44AD", "#9B59B6"], // Purple gradient (creative and engaging)
+    ["#4E8BC4", "#96CBFC"], // Medium blue → light blue
+    ["#96CBFC", "#C2E1FC"], // Light blue → softer pastel blue
+    ["#4E8BC4", "#C2E1FC"], // Medium blue → soft pastel blue
+    ["#FFC2D9", "#FF99BE"], // Soft pink → rich pastel pink
+    ["#FF99BE", "#FFC2D9"], // Rich pastel pink → soft pink
+    ["#FFC2D9", "#FEE3EC"], // Soft pink → light pastel pink
+    ["#FF99BE", "#F4C9DA"], // Rich pastel pink → soft warm pink
   ];
   return colors[Math.floor(Math.random() * colors.length)];
 };
 
 const historyRandomGradient = (): [string, string, ...string[]] => {
   const colors: [string, string, ...string[]][] = [
-    ["#2C3E50", "#1CA7EC"], // Dark blue and blue gradient (reliable and educational)
-    ["#34495E", "#16A085"], // Dark teal and green gradient (calm and focused)
-    ["#1F3A69", "#3498DB"], // Navy blue and light blue gradient (professional and calming)
-    ["#8E44AD", "#9B59B6"], // Purple gradient (creative and engaging)
-    ["#27AE60", "#2ECC71"], // Green gradient (fresh, calm, and encouraging)
-    ["#D35400", "#F39C12"], // Orange gradient (energetic and motivating)
-    ["#2980B9", "#6BB9F0"], // Blue gradient (serene and productive)
-    ["#C0392B", "#E74C3C"], // Red gradient (urgent and impactful)
-    ["#34495E", "#5D6D7E"], // Cool grey gradient (focused and professional)
+    ["#4E8BC4", "#96CBFC"], // Medium blue → light blue
+    ["#96CBFC", "#C2E1FC"], // Light blue → softer pastel blue
+    ["#4E8BC4", "#C2E1FC"], // Medium blue → soft pastel blue
+    ["#FFC2D9", "#FF99BE"], // Soft pink → rich pastel pink
+    ["#FF99BE", "#FFC2D9"], // Rich pastel pink → soft pink
+    ["#FFC2D9", "#FEE3EC"], // Soft pink → light pastel pink
+    ["#FF99BE", "#F4C9DA"], // Rich pastel pink → soft warm pink
   ];
 
   return colors[Math.floor(Math.random() * colors.length)];
@@ -156,19 +156,15 @@ const HistoryCard: React.FC<HistoryCardProps> = ({
   return (
     <>
       <TouchableOpacity style={styles.trashIcon} onPress={handleDelete}>
-        <Icon name="trash-o" size={20} color="#fff" />
+        <Icon name="trash-o" size={20} color="#102A43'" />
       </TouchableOpacity>
       <TouchableOpacity style={styles.card} onPress={handleCardPress}>
         <LinearGradient colors={gradientColors} style={styles.gradienthistory}>
           <Text style={styles.cardText}>{searchTopic}</Text>
           <Text style={styles.ratingContainer}>
-            <Icon name="star" size={20} color="#ffd335" />
+            <Icon name="bars" size={20} color="black" />
             <Text> </Text>
-            <Text style={styles.ratingText}>4.5</Text>
-            <Text> </Text>
-            <Icon name="bars" size={20} color="#ddd7e1" />
-            <Text> </Text>
-            <Text style={styles.ratingText}>5</Text>
+            <Text style={styles.ratingText}>10</Text>
           </Text>
         </LinearGradient>
       </TouchableOpacity>
@@ -228,6 +224,7 @@ const ExploreScreen = () => {
         const exploreHistory = await API.get(
           `/api/exploreflashcards/exploreHistory/${id}`
         );
+  
         const exploreHistoryData = exploreHistory.data;
         if (
           exploreHistoryData.length > 0 &&
@@ -336,6 +333,44 @@ const ExploreScreen = () => {
           contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
         >
+          <View style={styles.searchContainer}>
+
+  <View style={styles.searchWrapper}>
+    <TextInput
+      placeholder="Enter a topic..."
+      style={styles.input}
+      value={searchTopic}
+      onChangeText={(text) => setSearchTopic(text)}
+      onSubmitEditing={handleSearch}
+      returnKeyType="search"
+      placeholderTextColor={"#52688F"}
+    />
+
+    <TouchableOpacity style={styles.filterIcon} onPress={() => setShowDropdown(!showDropdown)}>
+      <Image source={require("../../assets/images/filter.png")} style={{ width: 20, height: 20 }} />
+    </TouchableOpacity>
+  </View>
+
+  {showDropdown && (
+    <View style={styles.dropdown}>
+      <TouchableOpacity style={styles.dropdownItem} onPress={() => handleLevelSelect("Beginner")}>
+        <Text style={styles.dropdownText}>Beginner</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.dropdownItem} onPress={() => handleLevelSelect("Medium")}>
+        <Text style={styles.dropdownText}>Medium</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.dropdownItem} onPress={() => handleLevelSelect("Advanced")}>
+        <Text style={styles.dropdownText}>Advanced</Text>
+      </TouchableOpacity>
+    </View>
+  )}
+
+  <TouchableOpacity style={styles.generateButton} onPress={handleSearch}>
+    <Text style={styles.generateButtonText}>Generate Flashcards</Text>
+  </TouchableOpacity>
+</View>
+
+          {/*
           <View style={styles.searchBarContainer}>
             <LinearGradient
               style={styles.searchBar}
@@ -392,8 +427,9 @@ const ExploreScreen = () => {
               </View>
             )}
           </View>
-          {/* History */}
-          <View style={styles.section}>
+          */}
+                              {/* History */}
+                              <View style={styles.section}>
             <Text style={styles.sectionTitle}>History</Text>
             <FlatList
               horizontal
@@ -410,14 +446,15 @@ const ExploreScreen = () => {
               keyExtractor={(item) => item.topiclevelId}
             />
           </View>
+
           {/* Suggested Topics */}
           <View style={styles.section}>
             <View
               style={{ flexDirection: "row", justifyContent: "flex-start" }}
             >
-              <Icon name="lightbulb-o" size={20} color="#ffd335" />
+              <Icon name="lightbulb-o" size={27} color="#ffd335" />
 
-              <Text style={styles.sectionTitle}>Suggested</Text>
+              <Text style={styles.sectionTitle}>Suggested Topics</Text>
             </View>
 
             <FlatList
@@ -442,9 +479,9 @@ const ExploreScreen = () => {
             <View
               style={{ flexDirection: "row", justifyContent: "flex-start" }}
             >
-              <Icon name="link" size={20} color="#ffd335" />
+              <Icon name="link" size={27} color="#ffd335" />
 
-              <Text style={styles.sectionTitle}>Related</Text>
+              <Text style={styles.sectionTitle}>Related Topics</Text>
             </View>
 
             <FlatList
@@ -469,9 +506,9 @@ const ExploreScreen = () => {
             <View
               style={{ flexDirection: "row", justifyContent: "flex-start" }}
             >
-              <Icon name="fire" size={20} color="#ffd335" />
+              <Icon name="fire" size={27} color="#ffd335" />
 
-              <Text style={styles.sectionTitle}>Popular</Text>
+              <Text style={styles.sectionTitle}>Popular Topics</Text>
             </View>
             <FlatList
               horizontal
@@ -489,6 +526,7 @@ const ExploreScreen = () => {
               keyExtractor={(item, index) => `popular-${index}`}
             />
           </View>
+
         </ScrollView>
         <NavBar />
       </View>
@@ -576,6 +614,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
     marginLeft: 10,
+    color :'#102A43'
   },
   card: {
     width: 250,
@@ -604,7 +643,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cardText: {
-    color: "#fff",
+    color: '#102A43',
     fontSize: 19,
     fontWeight: "bold",
     position: "absolute",
@@ -626,6 +665,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   trashIcon: {
+    color: '#102A43',
     position: "absolute",
     bottom: 8,
     right: 15,
@@ -645,7 +685,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   ratingText: {
-    color: "#ddd7e1",
+    color: "#102A43",
     fontSize: 14,
     fontWeight: "bold",
     position: "absolute",
@@ -676,6 +716,47 @@ const styles = StyleSheet.create({
   scrollContainer: {
     paddingBottom: 100,
   },
+  input: {
+    borderWidth: 0.2,
+    borderColor: "#ddd",
+    borderRadius: 5,
+    backgroundColor: "#f6f6f6",
+    color: "#000",
+    padding: 10,
+    marginBottom: 10,
+    width: "93%",
+    alignSelf: "center",
+  },searchContainer: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+    
+  searchWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "90%",
+  },
+
+  generateButton: {
+    backgroundColor: "#6fc3ed",
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 18,
+    marginTop: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 4,
+  },
+  
+  generateButtonText: {
+    color: "#102A43",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  
+  
 });
 
 export default ExploreScreen;

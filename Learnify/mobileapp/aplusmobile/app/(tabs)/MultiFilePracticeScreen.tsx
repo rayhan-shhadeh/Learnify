@@ -112,7 +112,7 @@ const MultiFilePracticeScreen: React.FC = () => {
     const fetchCourses = async () => {
       setLoading(true);
       try {
-        const userId = 1; // Replace with dynamic user ID
+        const userId = 12; // Replace with dynamic user ID
         const response = await API.get(`/api/user/courses/${userId}`);
         if (response.status === 200) {
           const formattedCourses: Course[] = response.data.map(

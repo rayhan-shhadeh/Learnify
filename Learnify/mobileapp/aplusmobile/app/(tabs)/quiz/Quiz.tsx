@@ -216,11 +216,8 @@ const Quiz = () => {
           loop
           style={{ width: 300, height: 300 }}
         />
-        <Text style={styles.bannerText}>
-          Unleash your potential and challenge your mind!
-        </Text>
         <View style={styles.popup}>
-          <Text style={styles.popupLabel}>Number of Questions:</Text>
+          <Text style={styles.popupLabel}>Number of Questions</Text>
           <TextInput
             style={styles.input}
             keyboardType="numeric"
@@ -366,6 +363,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#F5FCFF",
     marginBlock: 5,
+    marginTop: -200,
+    overflow: "hidden",
+    zIndex: 9999,
+
   },
   bannerText: {
     fontSize: 18,
@@ -403,7 +404,7 @@ const styles = StyleSheet.create({
   startButton: {
     backgroundColor: "#1CA7EC",
     padding: 12,
-    borderRadius: 5,
+    borderRadius: 18,
     alignItems: "center",
     marginTop: 10,
   },

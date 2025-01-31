@@ -1007,8 +1007,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileId }) => {
               onPress={handleKeytermGenerateClick}
             >
               <Ionicons name="add-circle" size={24} color="#fff" />
-
-              <Text style={styles.popupbuttonText}>Generate Key Term</Text>
+              <Text style={styles.popupbuttonText}>Generate Key Terms</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.manualButton}
@@ -1406,15 +1405,16 @@ const styles = StyleSheet.create({
   },
   button: {
     padding: 10,
-    backgroundColor: "#1f93e0",
+    backgroundColor: "#1CA7EC",
     borderRadius: 20,
   },
   activeButton: {
-    backgroundColor: "#0056b3",
+    backgroundColor: "#ff90b3",
   },
   buttonText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 17,
+    fontWeight:500,
     borderRadius: 20,
   },
   modalContainer: {
@@ -1738,7 +1738,7 @@ const styles = StyleSheet.create({
   generateButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#ff6f61",
+    backgroundColor: "#ff90b3",
     padding: 10,
     borderRadius: 10,
     shadowColor: "#000",

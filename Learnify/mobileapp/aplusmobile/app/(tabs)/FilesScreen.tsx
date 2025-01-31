@@ -9,6 +9,7 @@ import {
   Modal,
   TextInput,
   Button,
+  Image
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -380,7 +381,7 @@ const FilesScreen = () => {
             onChangeText={setNewFileName}
           />
           <Button
-            title="Save Changes"
+            title="Save"
             onPress={() =>
               currentFile?.fileId && editFile(currentFile.fileId, newFileName)
             }
@@ -544,16 +545,15 @@ const FilesScreen = () => {
       <Modal visible={modalVisible} transparent={true} animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>File Details</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="File Name"
-              value={fileName}
-              onChangeText={setFileName}
-            />
-            <View>
-              <Text style={styles.dateText}> File Deadline</Text>
-            </View>
+          <View style={styles.modalheadercontainer}>
+              <Image
+                source={require("../../assets/images/add.png")}
+                style={{ width: 27, height: 27, marginRight: 10, marginBottom:16 }}
+                resizeMode="contain"
+              />
+              <Text style={styles.modalTitle}>Add New File</Text>
+          </View>
+
             <Animatable.View animation="fadeInUp" duration={1400}>
               <TouchableOpacity
                 onPress={() => setShowDatePicker(true)}
@@ -1095,6 +1095,14 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
   },
+  modalheadercontainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
+    paddingBlock: 20,
+  },
+
 });
 
 export default FilesScreen;

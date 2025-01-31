@@ -100,6 +100,14 @@ export default function QuizScreen() {
     });
   };
 
+  const handleStartQuiz = (passedFileId: string) => {
+    const passedIsFromAllFilesPage = "history";
+    router.push({
+      pathname: "/(tabs)/quiz/Quiz",
+      params: { passedFileId, passedIsFromAllFilesPage,  },
+    });
+  };
+
   const renderCourseItem = ({
     item,
   }: {
@@ -238,10 +246,21 @@ export default function QuizScreen() {
           >
             <TouchableOpacity
               style={styles.modalButtonSelect}
-              onPress={(item: any) => {
-                handleOpenQuiz(item.id);
+              onPress={() => {
+                if (selectedFile) {
+                  console.log("Selected file ID:", selectedFile);
+                  const passedFileId = selectedFile;
+                  const passedIsFromAllFilesPage = "home";
+                  router.push({
+                    pathname: "/(tabs)/quiz/Quiz",
+                    params: { passedFileId, passedIsFromAllFilesPage },
+                  });
+                } else {
+                  Alert.alert("No File Selected", "Please select a file.");
+                }
+                setFileModalVisible(false);
               }}
-            >
+              >
               <Text style={styles.modalButtonText}>Confirm Selection</Text>
             </TouchableOpacity>
           </TouchableOpacity>
