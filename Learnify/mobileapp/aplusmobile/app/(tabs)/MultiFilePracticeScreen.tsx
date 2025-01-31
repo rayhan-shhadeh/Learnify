@@ -505,6 +505,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   flashcard: {
+    marginTop: 90,
+
     height: 200,
     justifyContent: "center",
     alignItems: "center",
@@ -518,7 +520,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     shadowOpacity: 0.8,
     padding: 10,
-    // textAlign: "left",
+    textAlign: "left",
   },
   cardContent: {
     justifyContent: "center",
