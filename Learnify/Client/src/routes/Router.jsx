@@ -42,6 +42,7 @@ const Login = Loadable(lazy(() => import('../views/authentication/Login')));
 const HabitTracker = Loadable(lazy(() => import('../scenes/HabitTracker')));
 const Chatting = Loadable(lazy(() => import('../scenes/Chatting/Chatting')));
 const GroupsScreen = Loadable(lazy(() => import('../scenes/Chatting/GroupsScreen')));
+const UpdatePassword = Loadable(lazy(() => import('../views/authentication/auth/UpdatePassword')));
 const Router = [
   {
     path: '/auth',
@@ -51,6 +52,7 @@ const Router = [
       { path: '/auth/register', element: <Register /> },
       { path: '/auth/login', element: <Login /> },
       { path: '/auth/logout', element: <Login /> },
+      { path: '/auth/forgotpassword', element: <UpdatePassword /> },
       { path: '*', element: <Navigate to="/auth/404" /> },
     ],
   },
