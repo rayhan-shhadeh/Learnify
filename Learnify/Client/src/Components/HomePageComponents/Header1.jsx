@@ -87,15 +87,11 @@ export default function Header1({ variant }) {
       <div className="cs_main_header cs_accent_bg">
         <div className="container">
           <div className="cs_main_header_in">
-
             <div className="cs_main_header_left">
-              <div class="icon mainlogo">
               <Link className="cs_site_branding" to="/">
-                <img src="/assets/img/logo/a+logo.jpg" alt="Logo" />
+                <img src="/assets/img/logo/a+logo.png" alt="Logo" style={{margin:0, padding:0 ,display: 'block', maxHeight: '100%' }} />
               </Link>
-              </div>
             </div>
-
               <div className="cs_main_header_center1">
                 <div className="cs_nav cs_primary_font fw-medium">
                   <span
@@ -162,12 +158,6 @@ export default function Header1({ variant }) {
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
 
-        <MenuItem onClick={goToProfile} >
-          <ListItemIcon>
-            <Person fontSize="small" /> 
-          </ListItemIcon>
-          <Typography variant="inherit">My Profile</Typography>
-        </MenuItem>
         <MenuItem  onClick={goToDashboard}>
           <ListItemIcon>
             <Dashboard fontSize="small" />

@@ -73,7 +73,13 @@ export default function QuizScreen() {
               id: quiz.quizId,
               title: quiz.quizTitle,
               description: quiz.quizDescription,
-              color: ["#1f2f98", "#7bd5f5"],
+              color:["#7bd5f5","#1ca7ec",],
+              /**
+               *           "#ffffff",
+          
+          "#1ca7ec",
+
+               */
               successRate: quiz.score,
             }));
             setQuizData(mappedQuizzes);
@@ -88,6 +94,7 @@ export default function QuizScreen() {
     initialize();
   }, []);
 
+
   const toggleFileSelection = (fileId: string) => {
     setSelectedFile(selectedFile === fileId ? null : fileId);
   };
@@ -97,6 +104,14 @@ export default function QuizScreen() {
     router.push({
       pathname: "/(tabs)/quiz/QuizReviewScreen",
       params: { passedQuizId, passedIsFromAllFilesPage },
+    });
+  };
+
+  const handleStartQuiz = (passedFileId: string) => {
+    const passedIsFromAllFilesPage = "history";
+    router.push({
+      pathname: "/(tabs)/quiz/Quiz",
+      params: { passedFileId, passedIsFromAllFilesPage,  },
     });
   };
 
@@ -238,10 +253,21 @@ export default function QuizScreen() {
           >
             <TouchableOpacity
               style={styles.modalButtonSelect}
-              onPress={(item: any) => {
-                handleOpenQuiz(item.id);
+              onPress={() => {
+                if (selectedFile) {
+                  console.log("Selected file ID:", selectedFile);
+                  const passedFileId = selectedFile;
+                  const passedIsFromAllFilesPage = "home";
+                  router.push({
+                    pathname: "/(tabs)/quiz/Quiz",
+                    params: { passedFileId, passedIsFromAllFilesPage },
+                  });
+                } else {
+                  Alert.alert("No File Selected", "Please select a file.");
+                }
+                setFileModalVisible(false);
               }}
-            >
+              >
               <Text style={styles.modalButtonText}>Confirm Selection</Text>
             </TouchableOpacity>
           </TouchableOpacity>

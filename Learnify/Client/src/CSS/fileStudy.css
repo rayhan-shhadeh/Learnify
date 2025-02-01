@@ -88,14 +88,13 @@
     background-color: #fff;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     font-family: "Arial", sans-serif;
-    font-weight:20px ;
+    font-weight:40px ;
     background: linear-gradient(135deg, #f9f9f9, #e8f0ff) !important;
 }
 
 .keyterm-text{
   font-family: "Arial", sans-serif;
-  font-weight:60px ;
-
+  font-weight:90px ;
 }
 .app-flashcard hr {
   border: none;

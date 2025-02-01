@@ -92,6 +92,7 @@ const Files = () => {
       };
       setFiles([...files, newFile]);
       setNewFile(newFile);
+      setSelectedFile(newFile);
       setShowMetadataDialog(true); // Show dialog for metadata
       //setUrl(file.fileURL);
     } catch (error) {
@@ -269,7 +270,10 @@ const handleSort = (criteria) => {
       <div className="content-wrapper">
   {/* Left Section */}
   <div className="left-section ">
-    <h1 className="course-title">{title}  <MenuBook  style={{ fontSize: "42px", color: "#3785D8" }}/></h1> 
+    <h1 className="course-title">
+    <InsertDriveFileIcon  style={{ fontSize: "35px", color: "#1ca7ec" }}/>
+    {title} Files  
+      </h1> 
 
     <div className="search-order-container">
                 <div className="search-bar-container-files">
@@ -303,7 +307,6 @@ const handleSort = (criteria) => {
       {files.map((file) => (
         <div key={file.id} className="file-item">
           <span>
-          <InsertDriveFileIcon/>
           {file.name}
           </span>
           <div className="file-actions">
@@ -320,7 +323,7 @@ const handleSort = (criteria) => {
     <div className="drag-and-drop-container" onDrop={handleFileDrop} onDragOver={(e) => e.preventDefault()}>
       <div className="drag-area">
       <div className="upload-icon">
-  <UploadFile style={{ fontSize: "45px", color: "#3785D8" }} />
+  <UploadFile style={{ fontSize: "45px", color: "#1ca7ec" }} />
 </div>
         <p>Drag your study materials here</p>
         <small>only PDFs</small>
@@ -351,10 +354,10 @@ const handleSort = (criteria) => {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseModal} color="primary">
+                    <Button onClick={handleCloseModal} color="black">
                         Cancel
                     </Button>
-                    <Button onClick={handleConfirmedDelete} color="error" variant="contained">
+                    <Button onClick={handleConfirmedDelete} color="error">
                         Delete
                     </Button>
                 </DialogActions>
@@ -382,11 +385,12 @@ const handleSort = (criteria) => {
                         )}
                         </DialogContent>
                       <DialogActions>
+                      <Button onClick={closePopup} color="#000000">
+                          Cancel
+                        </Button>
+
                         <Button onClick={handleEditFile} color="primary">
                           Save
-                        </Button>
-                        <Button onClick={closePopup} color="#000000">
-                          Cancel
                         </Button>
                       </DialogActions>
                     </Dialog>
@@ -419,7 +423,7 @@ const handleSort = (criteria) => {
     </DialogContent>
     <DialogActions>
   <Button onClick={() => {setShowMetadataDialog(false);       setRequiredDiv(false);}
- } color="primary">
+ } color="black">
     Cancel
   </Button>
   <Button
@@ -436,7 +440,6 @@ const handleSort = (criteria) => {
       handleSaveAfterUpload();
     }}
     color="primary"
-    variant="contained"
   >
     Save
   </Button>

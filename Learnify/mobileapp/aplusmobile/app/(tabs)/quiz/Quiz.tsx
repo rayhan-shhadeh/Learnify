@@ -216,11 +216,8 @@ const Quiz = () => {
           loop
           style={{ width: 300, height: 300 }}
         />
-        <Text style={styles.bannerText}>
-          Unleash your potential and challenge your mind!
-        </Text>
         <View style={styles.popup}>
-          <Text style={styles.popupLabel}>Number of Questions:</Text>
+          <Text style={styles.popupLabel}>Number of Questions</Text>
           <TextInput
             style={styles.input}
             keyboardType="numeric"
@@ -267,15 +264,20 @@ const Quiz = () => {
       </View>
     );
   }
-
   if (!quiz || quiz.questions.length === 0) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#1CA7EC" />
-        <Text style={styles.loadingText}>Generating Quiz...</Text>
+                  <LottieView
+                    source={require("../../../assets/AI-generating.json")}
+                    autoPlay
+                    loop
+                    style={{ width: 300, height: 300 }}
+                  />
       </View>
     );
   }
+
+
   const currentQuestion = quiz.questions[currentQuestionIndex];
 
   return (
@@ -366,6 +368,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#F5FCFF",
     marginBlock: 5,
+    marginTop: -200,
+    overflow: "hidden",
+    zIndex: 9999,
+
   },
   bannerText: {
     fontSize: 18,
@@ -403,7 +409,7 @@ const styles = StyleSheet.create({
   startButton: {
     backgroundColor: "#1CA7EC",
     padding: 12,
-    borderRadius: 5,
+    borderRadius: 18,
     alignItems: "center",
     marginTop: 10,
   },

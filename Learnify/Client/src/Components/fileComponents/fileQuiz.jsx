@@ -8,6 +8,7 @@ import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import LoadingImageComponent from '../loadingAndErrorComponents/loadingComponent'
 import '../../CSS/fileQuiz.css';
 import ErrorComponent from '../loadingAndErrorComponents/errorComponent';
+import StarIcon from "@mui/icons-material/Star";
 
 const Quiz = () => {
   const [quiz, setQuiz] = useState(null);
@@ -134,25 +135,30 @@ const Quiz = () => {
           <img src={QuizImage}></img>
         </div>
         <div className="popup-body">
-          <label>
-            <QuestionMarkIcon/>
-            Number of Questions:
-            <input
-              type="number"
-              value={numQuestions}
-              onChange={(e) => setNumQuestions(e.target.value)}
-              min="1"
-            />
-          </label>
-          <label>
-          <TuneIcon />
-            Difficulty:
-            <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="hard">Hard</option>
-            </select>
-          </label>
+        <label>
+  <span style={{ marginRight: '8px' }}>
+    <QuestionMarkIcon style={{color: "#1ca7ec"}} />
+  </span>
+  Number of Questions:
+  <input
+    type="number"
+    value={numQuestions}
+    onChange={(e) => setNumQuestions(e.target.value)}
+    min="1"
+  />
+</label>
+
+<label>
+  <span style={{ marginRight: '8px' }}>
+    <TuneIcon style={{color: "#1ca7ec"}}/>
+  </span>
+  Difficulty:
+  <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
+    <option value="easy">Easy</option>
+    <option value="medium">Medium</option>
+    <option value="hard">Hard</option>
+  </select>
+</label>
         </div>
         <div className="popup-footer">
           <button className="start-button" onClick={handlePopupSubmit}>Start Quiz</button>
@@ -168,7 +174,7 @@ const Quiz = () => {
   if(review  ){
     return (
       <div className="review-page">
-        <h1> <NoteAltIcon style={{color:"#3785De",fontSize:"40px"}}></NoteAltIcon> Your Score : {score}/{numQuestions}</h1>
+        <h1> <NoteAltIcon style={{color:"#1a6fd0",fontSize:"40px"}}></NoteAltIcon> Your Score : {score}/{numQuestions}</h1>
         <ul className="review-list">
           {quiz.questions.map((q, index) => (
             <li key={index} className="review-item">

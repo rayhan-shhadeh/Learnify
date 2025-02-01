@@ -87,63 +87,27 @@
   justify-content: center;
 }
 
-.filter-button {
-display: flex;
-align-items: center;
-gap: 8px; /* Space between the filter icon and text */
-background-color: #3785D8; /* Dark background for the button */
-color: white; /* White text */
-border: none; /* No border */
-border-radius: 20px; /* Rounded button edges */
-padding: 10px 15px; /* Padding for the button */
-cursor: pointer; /* Pointer cursor for interactivity */
-transition: background-color 0.3s ease;
+
+.filter-dropdown {
+  padding: 10px 12px;
+  border: 3px solid #FF80B0;
+  border-radius: 20px;
+  font-size: 14px;
+  background: #fff;
+  cursor: pointer;
+  margin-left: 0px;
 }
 
-.dropdown-menu {
-position: absolute;
-top: 50px; /* Adjust dropdown position */
-right: 10px; /* Align to the right of the filter button */
-background-color: #fff; /* White background */
-border-radius: 8px; /* Rounded corners */
-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-list-style: none; /* Remove default list styles */
-padding: 10px 0; /* Space inside the menu */
-z-index: 10; /* Ensure it appears above other elements */
-min-width: 150px; /* Minimum width for dropdown menu */
-}
-
-.dropdown-menu li {
-padding: 10px 15px; /* Space inside each menu item */
-font-size: 14px; /* Font size for menu items */
-color: #333; /* Dark text color */
-cursor: pointer; /* Pointer cursor for interactivity */
-transition: background 0.3s ease;
-}
-
-.dropdown-menu li:hover {
-background-color: #f4f4f9; /* Light gray background on hover */
-color: #000000; /* Darken text color */
-}
-
-.filter-button svg {
-width: 20px;
-height: 20px;
-fill: white; /* White color for the filter icon */
-}
-
-/*add course styling */
 .add-course-card {
   background: #f4f4f9;
   padding: 0.20em;
-  border: 3px dashed #007bff;
+  border: 3px dashed #45c1ff;
   border-radius: 50px;
   text-align: center;
   cursor: pointer;
   text-size-adjust: 200px ;
 }
 
-/* courses grid*/
 .courses-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, 333px); /* Fixed width for each column */
@@ -156,10 +120,12 @@ fill: white; /* White color for the filter icon */
   .course-card-new {
     position: relative; /* Ensures the icons can be positioned relative to the card */
     padding: 1em;
-    border-radius: 10px;
+    border-radius: 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     overflow: hidden; /* Ensures child elements stay within the card */
     text-align: left;
+    color: rgb(0, 0, 0);
+    font-size:15px ;
   }
 
 
@@ -181,11 +147,7 @@ fill: white; /* White color for the filter icon */
     border-radius: 4px;
     cursor: pointer;
   }
-  
-  .actions button:last-child {
-    background: #ff4d4f;
-  }
-    
+      
   .card-icons {
     position: absolute;
     bottom: 10px; /* Distance from the bottom edge */
@@ -211,8 +173,8 @@ fill: white; /* White color for the filter icon */
   }
   
   .icon-button svg {
-    width: 20px;
-    height: 20px;
+    width: 25px;
+    height: 25px;
     fill: currentColor; /* Matches the text color */
     color: #555; /* Default icon color */
   }
@@ -238,10 +200,14 @@ fill: white; /* White color for the filter icon */
     display: flex;
     align-items: center;
     gap: 8px; /* Space between the filter icon and text */
-    background-color: #e4e3e3; /* Dark background for the button */
+    background-color: #FF80B0; /* Dark background for the button */
+    height: 40px;
     color: black; /* White text */
     border: none; /* No border */
-    border-radius: 10px; /* Rounded button edges */
+    border-radius: 25px; /* Rounded button edges */
     padding: 6px 15px; /* Padding for the button */
     transition: background-color 0.3s ease;
   } 
+
+
+  

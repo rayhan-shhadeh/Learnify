@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useLocation } from "react-router-dom";
 import BadgeComponent from '../loadingAndErrorComponents/badge';
-import NoFlashcardsComponent from '../../Components/loadingAndErrorComponents/NoFlashcardsComponent'
 import '../../CSS/filePractice.css';
 
 const Practice = () => {
@@ -18,7 +17,6 @@ const Practice = () => {
   const location = useLocation();
   const { fileId,courseId ,title} = location.state;
   const [finish,setFinish]=useState(false);
-  const [practiceFlag,setPracticeFlag] = useState(true); 
   const gradients = [
     "linear-gradient(135deg, #f9f9f9, #e8f0ff)",
     "linear-gradient(135deg, #fff4e6, #ffe9f0)",
@@ -39,28 +37,26 @@ const Practice = () => {
     const fetchFlashcards = async () => {
       try {
         const response = await axios.post(`http://localhost:8080/api/file/practice/${fileId}`);
-        const fetchedFlashcards = response.data.map((flashcard) => ({
-          id: flashcard.flashcardId,
-          question: flashcard.flashcardQ || '',
-          answer: flashcard.flashcardA || '',
-        }));
-        setFlashcards(fetchedFlashcards);
-        setLoading(false);
+        console.log("The length=", response.data.length);
+  
+        if (response.data.length > 0) {
+          const fetchedFlashcards = response.data.map((flashcard) => ({
+            id: flashcard.flashcardId,
+            question: flashcard.flashcardQ || '',
+            answer: flashcard.flashcardA || '',
+          }));
+          setFlashcards(fetchedFlashcards);
+        }
       } catch (error) {
         console.error('Error fetching flashcards:', error);
-        setLoading(false);
+      } finally {
+        setLoading(false); // Ensure loading is set to false after the API call
       }
     };
-    if (!practiceFlag) return;
-    if(practiceFlag){
-      fetchFlashcards();
-      setPracticeFlag(false);
-      return
-    }  
-  }, [fileId,practiceFlag]);
-
-
-  const handleFlip = () => {
+  
+    fetchFlashcards();
+  }, [fileId]);
+    const handleFlip = () => {
     setIsFlipped(!isFlipped);
   };
 
@@ -85,12 +81,18 @@ const Practice = () => {
   };
 
   if (loading) return <div className="practice-page">Loading...</div>;
-  if (flashcards.length === 0) return <NoFlashcardsComponent/>;
 
+
+  if (!loading && flashcards.length === 0) {
+    return (
+       <BadgeComponent courseId={courseId} title={title} flashcards={false}></BadgeComponent>
+    );
+  }
+  
   return (
     finish?(
       <div>
-      <BadgeComponent courseId={courseId} title={title}></BadgeComponent>
+      <BadgeComponent courseId={courseId} title={title} flashcards={true}></BadgeComponent>
       </div>
     ):(
     <div className="practice-page">

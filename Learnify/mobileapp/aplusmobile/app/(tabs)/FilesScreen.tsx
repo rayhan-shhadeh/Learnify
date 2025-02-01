@@ -9,6 +9,7 @@ import {
   Modal,
   TextInput,
   Button,
+  Image
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -380,7 +381,7 @@ const FilesScreen = () => {
             onChangeText={setNewFileName}
           />
           <Button
-            title="Save Changes"
+            title="Save"
             onPress={() =>
               currentFile?.fileId && editFile(currentFile.fileId, newFileName)
             }
@@ -447,7 +448,7 @@ const FilesScreen = () => {
         return file;
       });
       setFiles(updatedFiles);
-      closeEditModal(); // Close modal or UI after successful update
+      closeEditModal();
       Alert.alert("Success", "File edited successfully");
     } catch (error) {
       console.error("Error editing file:", error);
@@ -544,16 +545,15 @@ const FilesScreen = () => {
       <Modal visible={modalVisible} transparent={true} animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>File Details</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="File Name"
-              value={fileName}
-              onChangeText={setFileName}
-            />
-            <View>
-              <Text style={styles.dateText}> File Deadline</Text>
-            </View>
+          <View style={styles.modalheadercontainer}>
+              <Image
+                source={require("../../assets/images/add.png")}
+                style={{ width: 27, height: 27, marginRight: 10, marginBottom:16 }}
+                resizeMode="contain"
+              />
+              <Text style={styles.modalTitle}>Add New File</Text>
+          </View>
+
             <Animatable.View animation="fadeInUp" duration={1400}>
               <TouchableOpacity
                 onPress={() => setShowDatePicker(true)}
@@ -1058,11 +1058,13 @@ const styles = StyleSheet.create({
   closeButton: {
     backgroundColor: "#DC3545",
     padding: 12,
-    borderRadius: 5,
+    borderRadius: 18,
     alignItems: "center",
-    marginTop: 16,
+    marginTop: 10,
   },
-  closeButtonText: { color: "white", fontWeight: "bold" },
+  closeButtonText: {
+     color: "white", 
+     fontWeight: "bold" },
   choiceModalContainer: {
     flex: 1,
     justifyContent: "center",
@@ -1086,15 +1088,24 @@ const styles = StyleSheet.create({
     width: "100%",
     padding: 12,
     backgroundColor: "#1CA7EC",
-    borderRadius: 5,
+    borderRadius: 18,
     marginVertical: 8,
     alignItems: "center",
   },
-  choiceButtonText: { color: "white", fontWeight: "bold" },
+  choiceButtonText: { color: "white", fontWeight: "bold" ,    fontSize:18
+   },
   icon: {
     marginLeft: 10,
     marginRight: 10,
   },
+  modalheadercontainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
+    paddingBlock: 20,
+  },
+
 });
 
 export default FilesScreen;

@@ -11,6 +11,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import API from "@/api/axois";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import LottieView from "lottie-react-native";
 
 const CreateKeyTermScreen = () => {
   const router = useRouter();
@@ -21,10 +22,7 @@ const CreateKeyTermScreen = () => {
   const [message, setMessage] = useState("");
   const randomGradient = () => {
     const colors: [string, string, ...string[]][] = [
-      ["#6a11cb", "#2575fc"],
-      ["#ff758c", "#ff7eb3"],
-      ["#43cea2", "#185a9d"],
-      ["#00c6ff", "#0072ff"],
+      ["#FF99BE", "#FFC2D9"], // Soft pink → rich pastel pink
     ];
     return colors[Math.floor(Math.random() * colors.length)];
   };
@@ -67,20 +65,7 @@ const CreateKeyTermScreen = () => {
   return (
     <LinearGradient colors={randomGradient()} style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.title}>Create Key Term</Text>
-        <Image
-          source={require("../../../assets/images/manualflashcard.gif")}
-          style={styles.logo}
-        />
-        <TouchableOpacity style={styles.button} onPress={handleCreateKeyTerm}>
-          <LinearGradient
-            colors={["#6a11cb", "#2575fc"]}
-            style={styles.buttonGradient}
-          >
-            <Text style={styles.buttonText}>Create Key Term</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-
+        <Text style={styles.title}>Manual Key Term</Text>
         <TextInput
           style={styles.inputLarge}
           placeholder="key term"
@@ -107,6 +92,23 @@ const CreateKeyTermScreen = () => {
             {message}
           </Text>
         ) : null}
+
+        <LottieView
+          style={styles.logo}
+          source={require("@/assets/manualflashcards.json")}
+          autoPlay
+          loop
+        />
+
+        <TouchableOpacity style={styles.button} onPress={handleCreateKeyTerm}>
+          <LinearGradient
+            colors={["#6a11cb", "#2575fc"]}
+            style={styles.buttonGradient}
+          >
+            <Text style={styles.buttonText}>Create Key Term</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
       </View>
     </LinearGradient>
   );
@@ -136,10 +138,11 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   logo: {
-    width: 120,
-    height: 120,
+    width: 200,
+    height: 200,
     alignSelf: "center",
-    marginBottom: 20,
+    marginBottom: 0,
+    marginTop: -20
   },
   input: {
     height: 50,

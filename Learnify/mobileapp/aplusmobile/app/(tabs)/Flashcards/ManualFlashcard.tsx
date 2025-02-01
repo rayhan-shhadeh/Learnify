@@ -29,15 +29,7 @@ const CreateFlashcardScreen = () => {
 
   const randomGradient = () => {
     const colors: [string, string, ...string[]][] = [
-      ["#2C3E50", "#1CA7EC"], // Dark blue and blue gradient (reliable and educational)
-      ["#2C3E50", "#1CA7EC"], // Dark blue and blue gradient (reliable and educational)
-      ["#34495E", "#16A085"], // Dark teal and green gradient (calm and focused)
-      ["#1F3A69", "#3498DB"], // Navy blue and light blue gradient (professional and calming)
-      ["#8E44AD", "#9B59B6"], // Purple gradient (creative and engaging)
-      ["#009B77", "#B565A7"], // Purple gradient (creative and engaging)
-      ["#955251", "#92A8D1"], // Purple gradient (creative and engaging)
-      ["#F7CAC9", "#88B04B"], // Purple gradient (creative and engaging)
-      ["#6B5B95", "#FF6F61"], // Purple gradient (creative and engaging)
+      ["#FF99BE", "#FFC2D9"], // Soft pink → rich pastel pink
     ];
     return colors[Math.floor(Math.random() * colors.length)];
   };
@@ -81,7 +73,7 @@ const CreateFlashcardScreen = () => {
   return (
     <LinearGradient colors={randomGradient()} style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.title}>Create Flashcard</Text>
+        <Text style={styles.title}>Manual Flashcard</Text>
         <TextInput
           style={styles.inputLarge}
           placeholder="Question"
@@ -156,7 +148,8 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     alignSelf: "center",
-    marginBottom: 20,
+    marginBottom: 0,
+    marginTop: -20
   },
   input: {
     height: 50,

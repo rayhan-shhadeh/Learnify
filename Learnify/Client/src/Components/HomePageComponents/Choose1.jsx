@@ -8,7 +8,7 @@ const Choose1 = () => {
         subTitle:'Best It Solution',
         title:'How Does A+ Study Helper Differ from the Rest?',
         btnName:'Discover More',
-        btnUrl:'/contact',
+        btnUrl:'/courses',
         img1:'/assets/img/work/study1.jpeg',
         img2:'/assets/img/work/A+.png',
         img3:'/assets/img/work/study.jpeg',

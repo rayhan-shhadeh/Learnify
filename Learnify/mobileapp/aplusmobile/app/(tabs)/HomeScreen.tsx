@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     marginTop: -50,
     fontSize: 28,
     fontWeight: "bold",
-    color: "#488db4",
+    color: "#3b81b9",
   },
   logoContainer: {
     marginTop: 3,
