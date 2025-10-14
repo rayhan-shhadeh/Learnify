@@ -140,7 +140,7 @@ io.on("connection", (socket) => {
   socket.on("sendMessage",  async (messageData) => {
     const { text, senderId, groupId } = messageData;
     try {
-      const response = await fetch('http://192.168.68.50:8080/api/messages/savemessage',
+      const response = await fetch('http://192.168.68.53:8080/api/messages/savemessage',
         {
           method: 'POST',
           headers: {

@@ -1,15 +1,23 @@
 import React, { useContext, useState } from "react";
-import { Image, View, Text, TextInput, TouchableOpacity, StyleSheet , Alert} from "react-native";
-import {useRootNavigationState, useRouter} from "expo-router";
+import {
+  Image,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from "react-native";
+import { useRootNavigationState, useRouter } from "expo-router";
 import API from "../../../api/axois";
-import jwtDecode from 'jwt-decode';
+import jwtDecode from "jwt-decode";
 import axios from "axios";
 
-import LoadingOverlay from '../../../components/ui/LoadingOverlay';
-import { AuthContext } from '../../../components/store/auth-context';
-import { createUser } from '../../../utils/auth';
+import LoadingOverlay from "../../../components/ui/LoadingOverlay";
+import { AuthContext } from "../../../components/store/auth-context";
+import { createUser } from "../../../utils/auth";
 import AuthContent from "@/components/Auth/AuthContent";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ForgotPassword = () => {
   const router = useRouter();
@@ -19,13 +27,19 @@ const ForgotPassword = () => {
 
   const authCtx = useContext(AuthContext);
 
-  async function signupHandler({ email, password }: { email: string; password: string }) {
+  async function signupHandler({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) {
     setIsAuthenticating(true);
     try {
     } catch (error) {
       Alert.alert(
-        'Authentication failed',
-        'Could not create user, please check your input and try again later.'
+        "Authentication failed",
+        "Could not create user, please check your input and try again later."
       );
       setIsAuthenticating(false);
     }
@@ -36,13 +50,13 @@ const ForgotPassword = () => {
       return;
     }
     try {
-      const response = await fetch('http://192.168.68.58:8080/api/forgot', {
-        method: 'POST',
+      const response = await fetch("http://192.168.68.53:8080/api/forgot", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email,
+          email: email,
         }),
       });
 
@@ -50,27 +64,29 @@ const ForgotPassword = () => {
 
       if (response.ok) {
         //Alert.alert('Success', `Server response: ${JSON.stringify(data)}`);
-        const token = data.token;        // Check if navigation is ready
+        const token = data.token; // Check if navigation is ready
         authCtx.authenticate(token);
-        Alert.alert('Success, token:',token);
-        AsyncStorage.setItem('token', token);
+        Alert.alert(
+          "Success, please check you email, and continue through website"
+        );
+        AsyncStorage.setItem("token", token);
         router.push("/(tabs)/auth/signin");
-
       } else {
-        Alert.alert('Error', `Please enter valid credentials: ${data.message }`);
+        Alert.alert("Error", `Please enter valid credentials: ${data.message}`);
       }
-     
-
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      Alert.alert('Error', `Connection failed: ${errorMessage}`);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      Alert.alert("Error", `Connection failed: ${errorMessage}`);
     }
   };
-  
 
   return (
-    <View style={styles.container} >
-      <Image source={require('../../../assets/images/a-plus-4.gif')} style={styles.logo} />
+    <View style={styles.container}>
+      <Image
+        source={require("../../../assets/images/a-plus-4.gif")}
+        style={styles.logo}
+      />
       <Text style={styles.title}>please enter your email</Text>
 
       <View style={styles.inputContainer}>
@@ -83,14 +99,11 @@ const ForgotPassword = () => {
         />
       </View>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.loginButton} onPress= {handleLogin}>
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.loginButtonText}>Send me an Email</Text>
         </TouchableOpacity>
-
-        
       </View>
     </View>
-    
   );
 };
 

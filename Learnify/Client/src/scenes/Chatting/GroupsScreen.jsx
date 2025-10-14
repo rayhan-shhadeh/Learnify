@@ -80,8 +80,7 @@ const GroupsScreen = () => {
       <Typography variant="h4" gutterBottom>
         Groups
       </Typography>
-      <Box display="flex" justifyContent="space-between" marginBottom={2} style={{ width: "%100" }}
- >
+      <Box display="flex" justifyContent="space-between" marginBottom={2} style={{ width: "100%" }}>
         <TextField
           variant="outlined"
           placeholder="Search Groups"
@@ -90,12 +89,12 @@ const GroupsScreen = () => {
           InputProps={{
             startAdornment: <Search />,
           }}
-          style={{ width:900 }}
+          style={{ width: 900 }}
         />
         <Button
           variant="contained"
           color="primary"
-          style={{backgroundColor: "#1ca7ec"}}
+          style={{ backgroundColor: "#1ca7ec" }}
           startIcon={<AddCircle />}
           onClick={() => setGroupModalVisible(true)}
         >
@@ -109,7 +108,7 @@ const GroupsScreen = () => {
             group.name.toLowerCase().includes(searchTerm.toLowerCase())
           )
           .map((group) => (
-            <ListItem key={group.id}>
+            <ListItem key={group.id} button onClick={() => handleGroupRender(group.id)}>
               <ListItemAvatar>
                 <Avatar>{group.name.charAt(0).toUpperCase()}</Avatar>
               </ListItemAvatar>
@@ -120,7 +119,10 @@ const GroupsScreen = () => {
               <IconButton
                 edge="end"
                 color="error"
-                onClick={() => handleDeleteGroup(group.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteGroup(group.id);
+                }}
               >
                 <Delete />
               </IconButton>
@@ -158,7 +160,7 @@ const GroupsScreen = () => {
             onChange={(e) => setGroupDescription(e.target.value)}
           />
           <Button
-          style={{backgroundColor: "#1ca7ec"}}
+            style={{ backgroundColor: "#1ca7ec" }}
             variant="contained"
             color="primary"
             onClick={handleCreateGroup}
