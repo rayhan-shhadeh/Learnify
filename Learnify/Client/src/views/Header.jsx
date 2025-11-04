@@ -1,6 +1,6 @@
 import React from 'react';
 import { AppBar, Toolbar, Typography, Box } from '@mui/material';
-import logo from '../assets/A+.svg'; // Adjust the path to your logo
+import logo from '../assets/A+1.svg'; // Adjust the path to your logo
 
 
 const Header = () => {
