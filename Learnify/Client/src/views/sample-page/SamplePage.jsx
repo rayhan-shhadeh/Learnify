@@ -1,7 +1,7 @@
 import React from 'react';
 import { Typography } from '@mui/material';
-import PageContainer from '../../Components/container/PageContainer.jsx';
-import DashboardCard from '../../Components/shared/DashboardCard';
+import PageContainer from '../../../src/Components/container/PageContainer.jsx';
+import DashboardCard from '../../../src/Components/shared/DashboardCard';
 
 
 const SamplePage = () => {
