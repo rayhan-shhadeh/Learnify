@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Header1 from '../Components/HomePageComponents/Header1';
 import Footer1 from '../Components/HomePageComponents/Footer1';
+import { Analytics } from "@vercel/analytics/next"
 
 
 const Main = () => {
