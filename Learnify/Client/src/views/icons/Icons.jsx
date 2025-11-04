@@ -1,6 +1,6 @@
 import React from 'react';
 import PageContainer from '../../Components/container/PageContainer';
-import DashboardCard from '../../components/shared/DashboardCard';
+import DashboardCard from '../../../src/Components/shared/DashboardCard';
 
 
 const Icons = () => {
