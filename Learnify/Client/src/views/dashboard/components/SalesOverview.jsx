@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Select, MenuItem } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import DashboardCard from '../../../components/shared/DashboardCard';
+import DashboardCard from '../../../Components/shared/DashboardCard';
 import Chart from 'react-apexcharts';
 import API from 'axios';
 import Cookies from 'js-cookie';

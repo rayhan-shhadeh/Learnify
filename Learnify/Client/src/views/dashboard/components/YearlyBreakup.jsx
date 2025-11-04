@@ -6,7 +6,7 @@ import { IconArrowUpLeft } from '@tabler/icons-react';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 
 
-import DashboardCard from '../../../components/shared/DashboardCard';
+import DashboardCard from '../../../Components/shared/DashboardCard';
 
 const YearlyBreakup = () => {
   // chart color
