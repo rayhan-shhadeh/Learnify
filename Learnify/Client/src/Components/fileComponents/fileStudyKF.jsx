@@ -3,7 +3,7 @@ import axios from "axios";
 import SearchIcon from"@mui/icons-material/Search";
 import "../../CSS/fileStudy.css";
 import "../../CSS/flashcard.css";
-import Flashcard from "../../Components/fileComponents/flashcard";
+import Flashcard from "../../../src/Components/fileComponents/flashcard";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from"@mui/icons-material/Save";
 import DeleteIcon from"@mui/icons-material/Delete";

@@ -9,7 +9,7 @@ import Cookies from 'js-cookie'
 import {jwtDecode} from 'jwt-decode'
 import axios from 'axios';
 import "../../CSS/course.css";
-import CourseCard from'../../Components/coursesComponents/CourseCard'
+import CourseCard from'../../../src/Components/coursesComponents/CourseCard'
 
 export default function Courses() {
     const [loading, setLoading] = useState(true);    

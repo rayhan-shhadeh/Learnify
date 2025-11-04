@@ -1,6 +1,6 @@
 import React from 'react';
 import {  Grid, Box } from '@mui/material';
-import PageContainer from '../../Components/container/PageContainer';
+import PageContainer from '../../../src/Components/container/PageContainer';
 
 // components
 import SalesOverview from './components/SalesOverview';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Paper, Box, Grid2 } from '@mui/material';
-import PageContainer from '../../Components/container/PageContainer.jsx';
-import DashboardCard from '../../Components/shared/DashboardCard';
+import PageContainer from '../../../src/Components/container/PageContainer.jsx';
+import DashboardCard from '../../../src/Components/shared/DashboardCard.jsx';
 import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
 
 const Item = styled(Paper)(({ theme }) => ({
