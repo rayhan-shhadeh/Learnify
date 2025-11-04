@@ -10,7 +10,7 @@ const Choose1 = () => {
         btnName:'Discover More',
         btnUrl:'/courses',
         img1:'/assets/img/work/study1.jpeg',
-        img2:'/assets/img/work/A+.png',
+        img2:'/assets/A+.png',
         img3:'/assets/img/work/study.jpeg',
       }
 
