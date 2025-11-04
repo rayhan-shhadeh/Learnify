@@ -3,8 +3,8 @@ import {  Grid, Box } from '@mui/material';
 import PageContainer from '../../../src/Components/container/PageContainer';
 
 // components
-import SalesOverview from './components/SalesOverview';
-import YearlyBreakup from './components/YearlyBreakup';
+import SalesOverview from '../dashboard/components/SalesOverview';
+import YearlyBreakup from '../dashboard/components/YearlyBreakup';
 
 const Dashboard = () => {
   return (

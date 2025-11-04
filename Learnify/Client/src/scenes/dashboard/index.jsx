@@ -18,7 +18,7 @@ import {
   LineChart,
   ProgressCircle,
   BarChart,
-} from "../../components";
+} from "../../Components";
 import {
   DownloadOutlined,
   Email,

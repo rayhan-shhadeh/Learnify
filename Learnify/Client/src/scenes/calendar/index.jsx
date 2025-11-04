@@ -14,7 +14,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import { tokens } from "../../theme";
 import { useState } from "react";
-import { Header } from "../../components";
+import { Header } from "../../Components";
 import { formatDate } from "@fullcalendar/core";
 
 const Calendar = () => {
