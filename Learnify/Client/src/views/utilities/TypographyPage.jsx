@@ -1,8 +1,8 @@
 import React from 'react';
 import { Typography, Grid2, CardContent } from '@mui/material';
-import PageContainer from '../../Components/container/PageContainer.jsx';
-import DashboardCard from '../../Components/shared/DashboardCard';
-import BlankCard from '../../../Components/shared/BlankCard';
+import PageContainer from '../../../src/Components/container/PageContainer';
+import DashboardCard from '../../../src/Components/shared/DashboardCard';
+import BlankCard from '../../../src/Components/shared/BlankCard';
 
 
 const TypographyPage = () => {
