@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import { Header, AccordionItem } from "../../../src/Components";
-import { mockAccordionData } from "../../data/mockData";
+import { mockAccordionData } from "../../../src/Data/mockData";
 
 const FAQ = () => {
   return (
