@@ -19,7 +19,7 @@ import {
   WavesOutlined,
 } from "@mui/icons-material";
 import avatar from "../../../assets/images/profile/girl.png";
-import logo from "../../../../src/assets/A+.png";
+import logo from "../../../assets/A+.png";
 import Item from "./Item";
 import { ToggledContext } from "../../../Toggled";
 
