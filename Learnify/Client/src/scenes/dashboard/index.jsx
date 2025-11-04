@@ -39,7 +39,7 @@ import {
 } from "@mui/icons-material";
 
 import { tokens } from "../../theme";
-import { mockTransactions } from "../../data/mockData";
+import { mockTransactions } from "../../../src/Data/mockData";
 import React, {useEffect} from 'react';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import API  from '../../api/axios';

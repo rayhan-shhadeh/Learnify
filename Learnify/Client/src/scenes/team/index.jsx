@@ -1,7 +1,7 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { Header } from "../../Components";
 import { DataGrid } from "@mui/x-data-grid";
-import { mockDataTeam } from "../../data/mockData";
+import { mockDataTeam } from "../../../src/Data/mockData";
 import { tokens } from "../../theme";
 import {
   AdminPanelSettingsOutlined,

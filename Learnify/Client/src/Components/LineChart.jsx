@@ -2,7 +2,7 @@
 import { ResponsiveLine } from "@nivo/line";
 import { useTheme } from "@mui/material";
 import { tokens } from "../theme";
-import { mockLineData as data } from "../data/mockData";
+import { mockLineData as data } from "../../src/Data/mockData";
 import {useEffect, useState} from "react";
 const LineChart = ({ isDashboard = false }) => {
   const theme = useTheme();
