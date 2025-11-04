@@ -5,7 +5,6 @@ import PageContainer from '../../Components/container/PageContainer';
 // components
 import SalesOverview from './components/SalesOverview';
 import YearlyBreakup from './components/YearlyBreakup';
-import FlashcardsAndQuizzesCard from './components/flashcardsAndQuizzes';
 
 const Dashboard = () => {
   return (
